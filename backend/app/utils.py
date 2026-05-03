@@ -43,10 +43,6 @@ def send_email(
         mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
     )
     smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
-    if settings.SMTP_TLS:
-        smtp_options["tls"] = True
-    elif settings.SMTP_SSL:
-        smtp_options["ssl"] = True
     if settings.SMTP_USER:
         smtp_options["user"] = settings.SMTP_USER
     if settings.SMTP_PASSWORD:
@@ -98,6 +94,46 @@ def generate_new_account_email(
         },
     )
     return EmailData(html_content=html_content, subject=subject)
+
+
+def generate_activation_email(email_to: str, username: str, token: str) -> EmailData:
+    project_name = settings.PROJECT_NAME
+    subject = f"{project_name} - Activate your account"
+    link = f"{settings.FRONTEND_HOST}/activate?token={token}"
+    html_content = render_email_template(
+        template_name="activation_email.html",
+        context={
+            "project_name": settings.PROJECT_NAME,
+            "username": username,
+            "email": email_to,
+            "link": link,
+            "valid_hours": 72,
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)
+
+
+def generate_activation_token(email: str) -> str:
+    delta = timedelta(hours=72)
+    now = datetime.now(timezone.utc)
+    exp = (now + delta).timestamp()
+    return jwt.encode(
+        {"exp": exp, "nbf": now, "sub": email, "type": "activation"},
+        settings.SECRET_KEY,
+        algorithm=security.ALGORITHM,
+    )
+
+
+def verify_activation_token(token: str) -> str | None:
+    try:
+        decoded = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+        )
+        if decoded.get("type") != "activation":
+            return None
+        return str(decoded["sub"])
+    except InvalidTokenError:
+        return None
 
 
 def generate_password_reset_token(email: str) -> str:

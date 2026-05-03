@@ -11,20 +11,30 @@ from app.api.deps import (
     get_current_active_superuser,
 )
 from app.core.config import settings
+from datetime import timedelta
+
+from app.core import security
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     Item,
     Message,
+    Token,
     UpdatePassword,
     User,
     UserCreate,
+    UserLogin,
     UserPublic,
     UserRegister,
     UsersPublic,
     UserUpdate,
     UserUpdateMe,
 )
-from app.utils import generate_new_account_email, send_email
+from app.utils import (
+    generate_activation_email,
+    generate_activation_token,
+    verify_activation_token,
+    send_email,
+)
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -66,15 +76,6 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
         )
 
     user = crud.create_user(session=session, user_create=user_in)
-    if settings.emails_enabled and user_in.email:
-        email_data = generate_new_account_email(
-            email_to=user_in.email, username=user_in.email, password=user_in.password
-        )
-        send_email(
-            email_to=user_in.email,
-            subject=email_data.subject,
-            html_content=email_data.html_content,
-        )
     return user
 
 
@@ -147,6 +148,7 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
 def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
     Create new user without the need to be logged in.
+    Sends an activation email — account is inactive until the link is clicked.
     """
     user = crud.get_user_by_email(session=session, email=user_in.email)
     if user:
@@ -154,10 +156,64 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             status_code=400,
             detail="The user with this email already exists in the system",
         )
-    user_create = UserCreate.model_validate(user_in)
+    user_create = UserCreate.model_validate(user_in, update={"is_active": False})
     user = crud.create_user(session=session, user_create=user_create)
+
+    if settings.emails_enabled:
+        token = generate_activation_token(user_in.email)
+        email_data = generate_activation_email(
+            email_to=user_in.email,
+            username=user_in.username,
+            token=token,
+        )
+        send_email(
+            email_to=user_in.email,
+            subject=email_data.subject,
+            html_content=email_data.html_content,
+        )
+
     return user
 
+
+@router.get("/activate", response_model=Message)
+def activate_user(token: str, session: SessionDep) -> Any:
+    """
+    Activate user account using the token sent via email.
+    """
+    email = verify_activation_token(token)
+    if not email:
+        raise HTTPException(status_code=400, detail="Invalid or expired activation token")
+    user = crud.get_user_by_email(session=session, email=email)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.is_active:
+        return Message(message="Account is already active")
+    user.is_active = True
+    session.add(user)
+    session.commit()
+    return Message(message="Account activated successfully")
+
+
+@router.post("/login", response_model=Token)
+def login_user(session: SessionDep, user_in: UserLogin) -> Any:
+    """
+    Login user. Returns JWT access token.
+    Requires active account (email activation link must be clicked first).
+    """
+    user = crud.authenticate(session=session, email=user_in.email, password=user_in.password)
+    if not user:
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
+    if not user.is_active:
+        raise HTTPException(
+            status_code=403,
+            detail="Account is not active. Please check your email and click the activation link.",
+        )
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    return Token(
+        access_token=security.create_access_token(
+            user.id, expires_delta=access_token_expires
+        )
+    )
 
 @router.get("/{user_id}", response_model=UserPublic)
 def read_user_by_id(

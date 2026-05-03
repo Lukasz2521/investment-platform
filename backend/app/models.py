@@ -24,9 +24,17 @@ class UserCreate(UserBase):
 
 
 class UserRegister(SQLModel):
+    username: str = Field(max_length=255)
+    name: str = Field(max_length=255)
+    last_name: str = Field(max_length=255)
     email: EmailStr = Field(max_length=255)
+    phone: str = Field(max_length=255)
+    country: str = Field(max_length=255)
+    city: str = Field(max_length=255)
+    address_line_one: str = Field(max_length=255)
+    address_line_two: str = Field(max_length=255)
+    timezone: str = Field(max_length=255)
     password: str = Field(min_length=8, max_length=128)
-    full_name: str | None = Field(default=None, max_length=255)
 
 
 # Properties to receive via API on update, all are optional
@@ -38,6 +46,11 @@ class UserUpdate(UserBase):
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
+
+
+class UserLogin(SQLModel):
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8, max_length=128)
 
 
 class UpdatePassword(SQLModel):

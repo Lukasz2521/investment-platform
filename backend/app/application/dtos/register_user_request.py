@@ -1,0 +1,11 @@
+class RegisterUserRequest:
+    username: str
+    name: str
+    last_name: str
+    email: str
+    phone: str
+    country: str
+    city: str
+    address: str
+    timezone: str
+    password: str
