@@ -66,6 +66,15 @@ class User(UserBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
+    username: str = Field(default="", max_length=255)
+    name: str = Field(default="", max_length=255)
+    last_name: str = Field(default="", max_length=255)
+    phone: str = Field(default="", max_length=255)
+    country: str = Field(default="", max_length=255)
+    city: str = Field(default="", max_length=255)
+    address_line_one: str = Field(default="", max_length=255)
+    address_line_two: str = Field(default="", max_length=255)
+    timezone: str = Field(default="", max_length=255)
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
@@ -73,6 +82,15 @@ class User(UserBase, table=True):
 class UserPublic(UserBase):
     id: uuid.UUID
     created_at: datetime | None = None
+    username: str = Field(default="", max_length=255)
+    name: str = Field(default="", max_length=255)
+    last_name: str = Field(default="", max_length=255)
+    phone: str = Field(default="", max_length=255)
+    country: str = Field(default="", max_length=255)
+    city: str = Field(default="", max_length=255)
+    address_line_one: str = Field(default="", max_length=255)
+    address_line_two: str = Field(default="", max_length=255)
+    timezone: str = Field(default="", max_length=255)
 
 
 class UsersPublic(SQLModel):

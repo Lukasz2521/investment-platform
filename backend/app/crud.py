@@ -4,13 +4,16 @@ from typing import Any
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import Item, ItemCreate, User, UserCreate, UserRegister, UserUpdate
 
 
-def create_user(*, session: Session, user_create: UserCreate) -> User:
-    db_obj = User.model_validate(
-        user_create, update={"hashed_password": get_password_hash(user_create.password)}
-    )
+def create_user(*, session: Session, user_create: UserRegister) -> User:
+    update_kw: dict[str, Any] = {
+        "hashed_password": get_password_hash(user_create.password),
+    }
+    if isinstance(user_create, UserRegister):
+        update_kw["is_active"] = False
+    db_obj = User.model_validate(user_create, update=update_kw)
     session.add(db_obj)
     session.commit()
     session.refresh(db_obj)
