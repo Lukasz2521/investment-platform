@@ -214,6 +214,25 @@ def login_user(session: SessionDep, user_in: UserLogin) -> Any:
         )
     )
 
+
+@router.get(
+    "/all",
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def get_users(session: SessionDep) -> UsersPublic:
+    """
+    Retrieve all users (no pagination). Superuser only.
+    """
+    count_statement = select(func.count()).select_from(User)
+    count = session.exec(count_statement).one()
+
+    statement = select(User).order_by(col(User.created_at).desc())
+    users = session.exec(statement).all()
+
+    users_public = [UserPublic.model_validate(user) for user in users]
+    return UsersPublic(data=users_public, count=count)
+
+
 @router.get("/{user_id}", response_model=UserPublic)
 def read_user_by_id(
     user_id: uuid.UUID, session: SessionDep, current_user: CurrentUser

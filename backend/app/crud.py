@@ -7,7 +7,7 @@ from app.core.security import get_password_hash, verify_password
 from app.models import Item, ItemCreate, User, UserCreate, UserRegister, UserUpdate
 
 
-def create_user(*, session: Session, user_create: UserRegister) -> User:
+def create_user(*, session: Session, user_create: UserCreate | UserRegister) -> User:
     update_kw: dict[str, Any] = {
         "hashed_password": get_password_hash(user_create.password),
     }
