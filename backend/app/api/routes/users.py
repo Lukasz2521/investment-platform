@@ -1,4 +1,5 @@
 import uuid
+from datetime import timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,10 +11,8 @@ from app.api.deps import (
     SessionDep,
     get_current_active_superuser,
 )
-from app.core.config import settings
-from datetime import timedelta
-
 from app.core import security
+from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     Item,
@@ -32,8 +31,8 @@ from app.models import (
 from app.utils import (
     generate_activation_email,
     generate_activation_token,
-    verify_activation_token,
     send_email,
+    verify_activation_token,
 )
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -181,7 +180,9 @@ def activate_user(token: str, session: SessionDep) -> Any:
     """
     email = verify_activation_token(token)
     if not email:
-        raise HTTPException(status_code=400, detail="Invalid or expired activation token")
+        raise HTTPException(
+            status_code=400, detail="Invalid or expired activation token"
+        )
     user = crud.get_user_by_email(session=session, email=email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -199,7 +200,9 @@ def login_user(session: SessionDep, user_in: UserLogin) -> Any:
     Login user. Returns JWT access token.
     Requires active account (email activation link must be clicked first).
     """
-    user = crud.authenticate(session=session, email=user_in.email, password=user_in.password)
+    user = crud.authenticate(
+        session=session, email=user_in.email, password=user_in.password
+    )
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     if not user.is_active:

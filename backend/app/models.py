@@ -1,8 +1,10 @@
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
+from enum import Enum
 
-from pydantic import EmailStr
-from sqlalchemy import DateTime
+from pydantic import ConfigDict, EmailStr
+from sqlalchemy import Column, DateTime, Numeric
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -76,6 +78,9 @@ class User(UserBase, table=True):
     address_line_two: str = Field(default="", max_length=255)
     timezone: str = Field(default="", max_length=255)
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
+    transactions: list["Transaction"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
 
 
 # Properties to return via API, id is always required
@@ -158,3 +163,55 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str = Field(min_length=8, max_length=128)
+
+
+# Transaction model
+
+
+class Transaction(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    amount: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    transaction_type: str = Field(max_length=64)
+    description: str | None = Field(default=None, max_length=1024)
+    status: str = Field(max_length=64)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    user: User | None = Relationship(back_populates="transactions")
+
+
+class TransactionPublic(SQLModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    amount: Decimal
+    transaction_type: str
+    description: str | None = None
+    status: str
+    created_at: datetime | None = None
+
+
+class TransactionsPublic(SQLModel):
+    data: list[TransactionPublic]
+    count: int
+
+
+class TransactionType(str, Enum):
+    CAMPAIGN_WITHDRAW = "campaign_withdraw"
+    CAMPAIGN_DEPOSIT = "campaign_deposit"
+    DEPOSIT = "deposit"
+    WITHDRAW = "withdraw"
+    REFUND = "refund"
+
+
+class CreateTransaction(SQLModel):
+    model_config = ConfigDict(populate_by_name=True)  # type: ignore[assignment]
+
+    amount: Decimal
+    transaction_type: TransactionType = Field(alias="type")
+    status: str = Field(max_length=64)
+    user_id: uuid.UUID = Field(alias="userId")
+    description: str | None = Field(default=None, max_length=1024)
