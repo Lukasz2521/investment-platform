@@ -207,11 +207,22 @@ class TransactionType(str, Enum):
     REFUND = "refund"
 
 
+class TransactionStatus(str, Enum):
+    PENDING = "pending"
+    DONE = "done"
+    FAILED = "failed"
+
+
 class CreateTransaction(SQLModel):
     model_config = ConfigDict(populate_by_name=True)  # type: ignore[assignment]
 
     amount: Decimal
     transaction_type: TransactionType = Field(alias="type")
-    status: str = Field(max_length=64)
+    status: TransactionStatus = Field(max_length=64)
     user_id: uuid.UUID = Field(alias="userId")
+    description: str | None = Field(default=None, max_length=1024)
+
+
+class UpdateTransaction(SQLModel):
+    status: TransactionStatus
     description: str | None = Field(default=None, max_length=1024)

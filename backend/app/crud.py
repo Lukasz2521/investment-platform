@@ -9,6 +9,7 @@ from app.models import (
     Item,
     ItemCreate,
     Transaction,
+    UpdateTransaction,
     User,
     UserCreate,
     UserRegister,
@@ -103,3 +104,17 @@ def get_transactions(
     )
     rows = session.exec(statement).all()
     return list(rows), count
+
+
+def update_transaction(
+    *,
+    session: Session,
+    db_transaction: Transaction,
+    transaction_in: UpdateTransaction,
+) -> Transaction:
+    update_dict = transaction_in.model_dump(exclude_unset=True, mode="json")
+    db_transaction.sqlmodel_update(update_dict)
+    session.add(db_transaction)
+    session.commit()
+    session.refresh(db_transaction)
+    return db_transaction
