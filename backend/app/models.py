@@ -251,6 +251,10 @@ class CategoryPublic(SQLModel):
     created_at: datetime | None = None
 
 
+class CategoryUpdate(SQLModel):
+    name: str = Field(min_length=1, max_length=255)
+
+
 class Campaign(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=255)

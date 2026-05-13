@@ -7,6 +7,7 @@ from app.core.security import get_password_hash, verify_password
 from app.models import (
     Category,
     CategoryCreate,
+    CategoryUpdate,
     CreateTransaction,
     Item,
     ItemCreate,
@@ -94,6 +95,21 @@ def create_category(*, session: Session, category_in: CategoryCreate) -> Categor
     session.commit()
     session.refresh(db_obj)
     return db_obj
+
+
+def get_categories(*, session: Session) -> list[Category]:
+    statement = select(Category).order_by(col(Category.name))
+    return list(session.exec(statement).all())
+
+
+def update_category(
+    *, session: Session, db_category: Category, category_in: CategoryUpdate
+) -> Category:
+    db_category.sqlmodel_update(category_in.model_dump())
+    session.add(db_category)
+    session.commit()
+    session.refresh(db_category)
+    return db_category
 
 
 def create_transaction(
