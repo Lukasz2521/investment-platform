@@ -5,6 +5,8 @@ from sqlmodel import Session, col, func, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    Category,
+    CategoryCreate,
     CreateTransaction,
     Item,
     ItemCreate,
@@ -79,6 +81,19 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
     session.commit()
     session.refresh(db_item)
     return db_item
+
+
+def get_category_by_name(*, session: Session, name: str) -> Category | None:
+    statement = select(Category).where(Category.name == name)
+    return session.exec(statement).first()
+
+
+def create_category(*, session: Session, category_in: CategoryCreate) -> Category:
+    db_obj = Category.model_validate(category_in)
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
 
 
 def create_transaction(

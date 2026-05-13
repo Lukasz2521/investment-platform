@@ -226,3 +226,50 @@ class CreateTransaction(SQLModel):
 class UpdateTransaction(SQLModel):
     status: TransactionStatus
     description: str | None = Field(default=None, max_length=1024)
+
+
+# Campaign model
+
+
+class Category(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    name: str = Field(max_length=255, unique=True, index=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    campaigns: list["Campaign"] = Relationship(back_populates="category")
+
+
+class CategoryCreate(SQLModel):
+    name: str = Field(min_length=1, max_length=255)
+
+
+class CategoryPublic(SQLModel):
+    id: uuid.UUID
+    name: str
+    created_at: datetime | None = None
+
+
+class Campaign(SQLModel, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    title: str = Field(max_length=255)
+    min_days: int = Field(ge=1)
+    days_count: int = Field(ge=1)
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    category_id: uuid.UUID = Field(
+        foreign_key="category.id", nullable=False, ondelete="RESTRICT", index=True
+    )
+    min_account: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    budget: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    currency: str = Field(max_length=8)
+    cpm_base: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    cpm_min: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    cpm_max: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    category: Category | None = Relationship(back_populates="campaigns")
