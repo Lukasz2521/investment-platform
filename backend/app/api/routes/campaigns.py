@@ -1,16 +1,24 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlmodel import func, select
 
 from app import crud
 from app.api.deps import SessionDep, get_current_active_superuser
-from app.models import Category, CategoryCreate, CategoryPublic, CategoryUpdate
+from app.models import (
+    Campaign,
+    Category,
+    CategoryCreate,
+    CategoryPublic,
+    CategoryUpdate,
+    Message,
+)
 
-router = APIRouter(prefix="/campaigns", tags=["campaigns"])
+router = APIRouter(prefix="/campaigns/categories", tags=["campaigns"])
 
 
 @router.post(
-    "/categories",
+    "/",
     dependencies=[Depends(get_current_active_superuser)],
 )
 def create_category(
@@ -30,7 +38,7 @@ def create_category(
 
 
 @router.put(
-    "/categories/{category_id}",
+    "/{category_id}",
     dependencies=[Depends(get_current_active_superuser)],
 )
 def update_category(
@@ -57,4 +65,47 @@ def update_category(
     )
     return CategoryPublic.model_validate(db_category)
 
-    
+
+@router.get(
+    "/",
+    response_model=list[CategoryPublic],
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def read_categories(*, session: SessionDep) -> list[CategoryPublic]:
+    """
+    List all campaign categories. Superuser only.
+    """
+    categories = crud.get_categories(session=session)
+    return [CategoryPublic.model_validate(c) for c in categories]
+
+
+@router.delete(
+    "/{category_id}",
+    response_model=Message,
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def delete_category(
+    *,
+    session: SessionDep,
+    category_id: uuid.UUID,
+) -> Message:
+    """
+    Delete a campaign category. Superuser only.
+    """
+    db_category = session.get(Category, category_id)
+    if not db_category:
+        raise HTTPException(status_code=404, detail="Category not found")
+    count_statement = (
+        select(func.count())
+        .select_from(Campaign)
+        .where(Campaign.category_id == category_id)
+    )
+    count = session.exec(count_statement).one()
+    if count > 0:
+        raise HTTPException(
+            status_code=409,
+            detail="Cannot delete category while campaigns reference it.",
+        )
+    session.delete(db_category)
+    session.commit()
+    return Message(message="Category deleted successfully")
