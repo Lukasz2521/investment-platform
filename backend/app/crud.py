@@ -5,6 +5,8 @@ from sqlmodel import Session, col, func, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    Campaign,
+    CampaignCreate,
     Category,
     CategoryCreate,
     CategoryUpdate,
@@ -95,6 +97,29 @@ def create_category(*, session: Session, category_in: CategoryCreate) -> Categor
     session.commit()
     session.refresh(db_obj)
     return db_obj
+
+
+def create_campaign(*, session: Session, campaign_in: CampaignCreate) -> Campaign:
+    db_obj = Campaign.model_validate(campaign_in)
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
+
+
+def get_campaigns(
+    *, session: Session, skip: int = 0, limit: int = 100
+) -> tuple[list[Campaign], int]:
+    count_statement = select(func.count()).select_from(Campaign)
+    count = session.exec(count_statement).one()
+    statement = (
+        select(Campaign)
+        .order_by(col(Campaign.created_at).desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    rows = session.exec(statement).all()
+    return list(rows), count
 
 
 def get_categories(*, session: Session) -> list[Category]:

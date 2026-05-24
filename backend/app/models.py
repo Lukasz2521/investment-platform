@@ -2,9 +2,12 @@ import uuid
 from datetime import datetime, timezone
 from decimal import Decimal
 from enum import Enum
+from typing import Self
 
-from pydantic import ConfigDict, EmailStr
+from pydantic import ConfigDict, EmailStr, model_validator
 from sqlalchemy import Column, DateTime, Numeric
+from sqlalchemy import Enum as SAEnum
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
 
 
@@ -255,25 +258,110 @@ class CategoryUpdate(SQLModel):
     name: str = Field(min_length=1, max_length=255)
 
 
+class AccountType(str, Enum):
+    FUNDAMENT = "fundament"
+    ACCELERATOR = "accelerator"
+    STRATEGY = "strategy"
+    ALPHA = "alpha"
+    PROTECTOR = "protector"
+    DOMINION = "dominion"
+
+
 class Campaign(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=255)
-    min_days: int = Field(ge=1)
-    days_count: int = Field(ge=1)
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
-    )
+    min_days: int = Field(ge=3)
+    days_count: int = Field(ge=3)
     category_id: uuid.UUID = Field(
         foreign_key="category.id", nullable=False, ondelete="RESTRICT", index=True
     )
-    min_account: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
     budget: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
     currency: str = Field(max_length=8)
     cpm_base: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
     cpm_min: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
     cpm_max: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    epc_min: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    epc_max: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    ctr_min: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    ctr_max: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
+    location: list[str] = Field(
+        default_factory=list,
+        sa_column=Column(JSONB, nullable=False),
+    )
+    min_account: AccountType = Field(
+        sa_column=Column(
+            SAEnum(AccountType, native_enum=False, length=64),
+            nullable=False,
+        ),
+    )
     category: Category | None = Relationship(back_populates="campaigns")
+    image_url: str = Field(max_length=255)
+    video_url: str = Field(max_length=255)
+
+
+class CampaignCreate(SQLModel):
+    model_config = ConfigDict(populate_by_name=True)  # type: ignore[assignment]
+
+    title: str = Field(max_length=255)
+    min_days: int = Field(ge=3)
+    days_count: int = Field(ge=3)
+    category_id: uuid.UUID = Field(alias="categoryId")
+    budget: Decimal = Field(ge=200)
+    currency: str = Field(max_length=8)
+    cpm_base: Decimal = Field()
+    cpm_min: Decimal = Field()
+    cpm_max: Decimal = Field()
+    epc_min: Decimal = Field(ge=0, le=100)
+    epc_max: Decimal = Field(ge=0, le=100)
+    ctr_min: Decimal = Field(ge=0, le=100)
+    ctr_max: Decimal = Field(ge=0, le=100)
+    location: list[str] = Field(min_length=1)
+    min_account: AccountType
+    image_url: str = Field(max_length=255)
+    video_url: str = Field(max_length=255)
+
+    @model_validator(mode="after")
+    def validate_campaign_metrics_order(self) -> Self:
+        if self.cpm_min > self.cpm_max:
+            msg = "cpm_min cannot be greater than cpm_max"
+            raise ValueError(msg)
+        if self.cpm_base > self.cpm_max:
+            msg = "cpm_base cannot be greater than cpm_max"
+            raise ValueError(msg)
+        if self.epc_min > self.epc_max:
+            msg = "epc_min cannot be greater than epc_max"
+            raise ValueError(msg)
+        if self.ctr_min > self.ctr_max:
+            msg = "ctr_min cannot be greater than ctr_max"
+            raise ValueError(msg)
+        return self
+
+
+class CampaignPublic(SQLModel):
+    id: uuid.UUID
+    title: str
+    min_days: int
+    days_count: int
+    category_id: uuid.UUID
+    budget: Decimal
+    cpm_base: Decimal
+    cpm_min: Decimal
+    cpm_max: Decimal
+    epc_min: Decimal
+    epc_max: Decimal
+    ctr_min: Decimal
+    ctr_max: Decimal
+    created_at: datetime | None = None
+    location: list[str]
+    min_account: AccountType
+    image_url: str
+    video_url: str
+
+
+class CampaignsPublic(SQLModel):
+    data: list[CampaignPublic]
+    count: int

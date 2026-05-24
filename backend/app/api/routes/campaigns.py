@@ -1,111 +1,73 @@
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import func, select
 
 from app import crud
 from app.api.deps import SessionDep, get_current_active_superuser
 from app.models import (
     Campaign,
+    CampaignCreate,
+    CampaignPublic,
+    CampaignsPublic,
     Category,
-    CategoryCreate,
-    CategoryPublic,
-    CategoryUpdate,
     Message,
 )
 
-router = APIRouter(prefix="/campaigns/categories", tags=["campaigns"])
+router = APIRouter(prefix="/campaigns", tags=["campaigns"])
 
 
 @router.post(
     "/",
     dependencies=[Depends(get_current_active_superuser)],
 )
-def create_category(
-    *, session: SessionDep, category_in: CategoryCreate
-) -> CategoryPublic:
+def create_campaign(
+    *, session: SessionDep, campaign_in: CampaignCreate
+) -> CampaignPublic:
     """
-    Create a campaign category. Superuser only.
+    Create a new campaign. Superuser only.
     """
-    existing = crud.get_category_by_name(session=session, name=category_in.name)
-    if existing:
-        raise HTTPException(
-            status_code=400,
-            detail="A category with this name already exists.",
-        )
-    category = crud.create_category(session=session, category_in=category_in)
-    return CategoryPublic.model_validate(category)
-
-
-@router.put(
-    "/{category_id}",
-    dependencies=[Depends(get_current_active_superuser)],
-)
-def update_category(
-    *,
-    session: SessionDep,
-    category_id: uuid.UUID,
-    category_in: CategoryUpdate,
-) -> CategoryPublic:
-    """
-    Update a campaign category. Superuser only.
-    """
-    db_category = session.get(Category, category_id)
-    if not db_category:
+    if not session.get(Category, campaign_in.category_id):
         raise HTTPException(status_code=404, detail="Category not found")
-    if category_in.name != db_category.name:
-        conflict = crud.get_category_by_name(session=session, name=category_in.name)
-        if conflict:
-            raise HTTPException(
-                status_code=400,
-                detail="A category with this name already exists.",
-            )
-    db_category = crud.update_category(
-        session=session, db_category=db_category, category_in=category_in
-    )
-    return CategoryPublic.model_validate(db_category)
+    campaign = crud.create_campaign(session=session, campaign_in=campaign_in)
+
+    return CampaignPublic.model_validate(campaign)
 
 
 @router.get(
     "/",
-    response_model=list[CategoryPublic],
     dependencies=[Depends(get_current_active_superuser)],
 )
-def read_categories(*, session: SessionDep) -> list[CategoryPublic]:
+def read_campaigns(
+    *,
+    session: SessionDep,
+    skip: int = 0,
+    limit: int = 100,
+) -> CampaignsPublic:
     """
-    List all campaign categories. Superuser only.
+    List campaigns. Superuser only.
     """
-    categories = crud.get_categories(session=session)
-    return [CategoryPublic.model_validate(c) for c in categories]
+    campaigns, total = crud.get_campaigns(session=session, skip=skip, limit=limit)
+    return CampaignsPublic(
+        data=[CampaignPublic.model_validate(c) for c in campaigns],
+        count=total,
+    )
 
 
 @router.delete(
-    "/{category_id}",
-    response_model=Message,
+    "/{campaign_id}",
     dependencies=[Depends(get_current_active_superuser)],
 )
-def delete_category(
+def delete_campaign(
     *,
     session: SessionDep,
-    category_id: uuid.UUID,
+    campaign_id: uuid.UUID,
 ) -> Message:
     """
-    Delete a campaign category. Superuser only.
+    Delete a campaign. Superuser only.
     """
-    db_category = session.get(Category, category_id)
-    if not db_category:
-        raise HTTPException(status_code=404, detail="Category not found")
-    count_statement = (
-        select(func.count())
-        .select_from(Campaign)
-        .where(Campaign.category_id == category_id)
-    )
-    count = session.exec(count_statement).one()
-    if count > 0:
-        raise HTTPException(
-            status_code=409,
-            detail="Cannot delete category while campaigns reference it.",
-        )
-    session.delete(db_category)
+    campaign = session.get(Campaign, campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    session.delete(campaign)
     session.commit()
-    return Message(message="Category deleted successfully")
+    return Message(message="Campaign deleted successfully")
