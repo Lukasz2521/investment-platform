@@ -267,6 +267,30 @@ class AccountType(str, Enum):
     DOMINION = "dominion"
 
 
+def validate_campaign_metric_ranges(
+    *,
+    cpm_min: Decimal,
+    cpm_base: Decimal,
+    cpm_max: Decimal,
+    epc_min: Decimal,
+    epc_max: Decimal,
+    ctr_min: Decimal,
+    ctr_max: Decimal,
+) -> None:
+    if cpm_min > cpm_max:
+        msg = "cpm_min cannot be greater than cpm_max"
+        raise ValueError(msg)
+    if cpm_base > cpm_max:
+        msg = "cpm_base cannot be greater than cpm_max"
+        raise ValueError(msg)
+    if epc_min > epc_max:
+        msg = "epc_min cannot be greater than epc_max"
+        raise ValueError(msg)
+    if ctr_min > ctr_max:
+        msg = "ctr_min cannot be greater than ctr_max"
+        raise ValueError(msg)
+
+
 class Campaign(SQLModel, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     title: str = Field(max_length=255)
@@ -326,19 +350,38 @@ class CampaignCreate(SQLModel):
 
     @model_validator(mode="after")
     def validate_campaign_metrics_order(self) -> Self:
-        if self.cpm_min > self.cpm_max:
-            msg = "cpm_min cannot be greater than cpm_max"
-            raise ValueError(msg)
-        if self.cpm_base > self.cpm_max:
-            msg = "cpm_base cannot be greater than cpm_max"
-            raise ValueError(msg)
-        if self.epc_min > self.epc_max:
-            msg = "epc_min cannot be greater than epc_max"
-            raise ValueError(msg)
-        if self.ctr_min > self.ctr_max:
-            msg = "ctr_min cannot be greater than ctr_max"
-            raise ValueError(msg)
+        validate_campaign_metric_ranges(
+            cpm_min=self.cpm_min,
+            cpm_base=self.cpm_base,
+            cpm_max=self.cpm_max,
+            epc_min=self.epc_min,
+            epc_max=self.epc_max,
+            ctr_min=self.ctr_min,
+            ctr_max=self.ctr_max,
+        )
         return self
+
+
+class CampaignUpdate(SQLModel):
+    model_config = ConfigDict(populate_by_name=True)  # type: ignore[assignment]
+
+    title: str | None = Field(default=None, max_length=255)
+    min_days: int | None = Field(default=None, ge=3)
+    days_count: int | None = Field(default=None, ge=3)
+    category_id: uuid.UUID | None = Field(default=None, alias="categoryId")
+    budget: Decimal | None = Field(default=None, ge=200)
+    currency: str | None = Field(default=None, max_length=8)
+    cpm_base: Decimal | None = None
+    cpm_min: Decimal | None = None
+    cpm_max: Decimal | None = None
+    epc_min: Decimal | None = Field(default=None, ge=0, le=100)
+    epc_max: Decimal | None = Field(default=None, ge=0, le=100)
+    ctr_min: Decimal | None = Field(default=None, ge=0, le=100)
+    ctr_max: Decimal | None = Field(default=None, ge=0, le=100)
+    location: list[str] | None = Field(default=None, min_length=1)
+    min_account: AccountType | None = None
+    image_url: str | None = Field(default=None, max_length=255)
+    video_url: str | None = Field(default=None, max_length=255)
 
 
 class CampaignPublic(SQLModel):

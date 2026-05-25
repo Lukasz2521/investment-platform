@@ -9,6 +9,7 @@ from app.models import (
     CampaignCreate,
     CampaignPublic,
     CampaignsPublic,
+    CampaignUpdate,
     Category,
     Message,
 )
@@ -51,6 +52,34 @@ def read_campaigns(
         data=[CampaignPublic.model_validate(c) for c in campaigns],
         count=total,
     )
+
+
+@router.put(
+    "/{campaign_id}",
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def update_campaign(
+    *,
+    session: SessionDep,
+    campaign_id: uuid.UUID,
+    campaign: CampaignUpdate,
+) -> CampaignPublic:
+    """
+    Update a campaign. Superuser only.
+    """
+    db_campaign = session.get(Campaign, campaign_id)
+    if not db_campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    incoming = campaign.model_dump(exclude_unset=True, by_alias=False)
+    if "category_id" in incoming and not session.get(Category, incoming["category_id"]):
+        raise HTTPException(status_code=404, detail="Category not found")
+    try:
+        updated = crud.update_campaign(
+            session=session, db_campaign=db_campaign, campaign=campaign
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return CampaignPublic.model_validate(updated)
 
 
 @router.delete(

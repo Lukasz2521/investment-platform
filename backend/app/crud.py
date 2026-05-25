@@ -7,6 +7,7 @@ from app.core.security import get_password_hash, verify_password
 from app.models import (
     Campaign,
     CampaignCreate,
+    CampaignUpdate,
     Category,
     CategoryCreate,
     CategoryUpdate,
@@ -19,6 +20,7 @@ from app.models import (
     UserCreate,
     UserRegister,
     UserUpdate,
+    validate_campaign_metric_ranges,
 )
 
 
@@ -120,6 +122,31 @@ def get_campaigns(
     )
     rows = session.exec(statement).all()
     return list(rows), count
+
+
+def update_campaign(
+    *,
+    session: Session,
+    db_campaign: Campaign,
+    campaign: CampaignUpdate,
+) -> Campaign:
+    update_dict = campaign.model_dump(exclude_unset=True, by_alias=False)
+    if not update_dict:
+        return db_campaign
+    db_campaign.sqlmodel_update(update_dict)
+    validate_campaign_metric_ranges(
+        cpm_min=db_campaign.cpm_min,
+        cpm_base=db_campaign.cpm_base,
+        cpm_max=db_campaign.cpm_max,
+        epc_min=db_campaign.epc_min,
+        epc_max=db_campaign.epc_max,
+        ctr_min=db_campaign.ctr_min,
+        ctr_max=db_campaign.ctr_max,
+    )
+    session.add(db_campaign)
+    session.commit()
+    session.refresh(db_campaign)
+    return db_campaign
 
 
 def get_categories(*, session: Session) -> list[Category]:
