@@ -1,0 +1,47 @@
+<main class="login-page">
+  <div class="login-card">
+    <header class="login-brand">
+      <img
+        class="login-logo"
+        src="assets/images/admin-platform-logo.svg"
+        alt=""
+        width="64"
+        height="64"
+      />
+      <h1 class="login-title">Admin Platform</h1>
+    </header>
+
+    <form class="login-form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (errorMessage()) {
+        <p-message severity="error" [text]="errorMessage()!" styleClass="login-error" />
+      }
+
+      <input
+        pInputText
+        id="email"
+        type="email"
+        formControlName="email"
+        placeholder="Email*"
+        autocomplete="email"
+      />
+
+      <p-password
+        formControlName="password"
+        placeholder="Password*"
+        [toggleMask]="true"
+        [feedback]="false"
+        autocomplete="current-password"
+        inputStyleClass="login-input"
+        fluid
+      />
+
+      <p-button
+        type="submit"
+        label="LOGIN"
+        severity="secondary"
+        [loading]="loading()"
+        [disabled]="loading()"
+      />
+    </form>
+  </div>
+</main>
