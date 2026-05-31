@@ -1,0 +1,39 @@
+import { APP_ROUTE_PATHS } from './app-route-paths';
+
+export type AppNavItem = {
+  label: string;
+  icon: string;
+  route?: string;
+};
+
+export const APP_NAV_ITEMS: AppNavItem[] = [
+  {
+    label: 'Dashboard',
+    icon: 'pi pi-th-large',
+    route: APP_ROUTE_PATHS.dashboard,
+  },
+  {
+    label: 'Store',
+    icon: 'pi pi-shop',
+  },
+  {
+    label: 'Transactions',
+    icon: 'pi pi-sync',
+  },
+  {
+    label: 'Users',
+    icon: 'pi pi-users',
+  },
+  {
+    label: 'Institution',
+    icon: 'pi pi-building',
+  },
+  {
+    label: 'Security',
+    icon: 'pi pi-shield',
+  },
+  {
+    label: 'Signals',
+    icon: 'pi pi-bolt',
+  },
+];

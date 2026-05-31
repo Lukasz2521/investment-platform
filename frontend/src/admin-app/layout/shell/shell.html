@@ -1,0 +1,48 @@
+<div class="shell" [class.shell--collapsed]="sidebarCollapsed()">
+  <aside class="shell-sidebar">
+    <a class="shell-logo" [routerLink]="['/', appRoutePaths.dashboard]" aria-label="Admin App home">
+      <img src="assets/images/admin-platform-logo.svg" alt="" width="40" height="40" />
+    </a>
+
+    <nav class="shell-nav" aria-label="Main navigation">
+      @for (item of navItems; track item.label) {
+        @if (item.route) {
+          <a
+            class="shell-nav-item"
+            [routerLink]="['/', item.route]"
+            routerLinkActive="shell-nav-item--active"
+            [attr.aria-label]="item.label"
+            [title]="item.label"
+          >
+            <i [class]="item.icon"></i>
+          </a>
+        } @else {
+          <span
+            class="shell-nav-item shell-nav-item--disabled"
+            [attr.aria-label]="item.label"
+            [title]="item.label"
+          >
+            <i [class]="item.icon"></i>
+          </span>
+        }
+      }
+    </nav>
+  </aside>
+
+  <div class="shell-main">
+    <header class="shell-header">
+      <p-button
+        type="button"
+        icon="pi pi-bars"
+        [text]="true"
+        [rounded]="true"
+        ariaLabel="Toggle sidebar"
+        (onClick)="toggleSidebar()"
+      />
+    </header>
+
+    <main class="shell-content">
+      <router-outlet />
+    </main>
+  </div>
+</div>

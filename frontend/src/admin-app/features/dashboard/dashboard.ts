@@ -1,6 +1,7 @@
 import { DatePipe, isPlatformBrowser } from '@angular/common';
 import { afterNextRender, Component, inject, PLATFORM_ID, signal, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
@@ -16,6 +17,7 @@ import { UsersService } from '../../core/users/services/users.service';
     DatePipe,
     TableModule,
     Toolbar,
+    Card,
     IconField,
     InputIcon,
     InputText,

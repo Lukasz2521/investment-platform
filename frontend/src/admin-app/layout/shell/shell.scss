@@ -1,0 +1,99 @@
+.shell {
+  --shell-sidebar-width: 4.75rem;
+  --shell-sidebar-collapsed-width: 0rem;
+  --shell-bg: #f3f4f6;
+  --shell-sidebar-bg: #f8f9fb;
+  --shell-border: #e5e7eb;
+  --shell-active-bg: #eceff3;
+
+  background: var(--shell-bg);
+  display: grid;
+  grid-template-columns: var(--shell-sidebar-width) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.shell--collapsed {
+  grid-template-columns: var(--shell-sidebar-collapsed-width) minmax(0, 1fr);
+}
+
+.shell-sidebar {
+  background: var(--shell-sidebar-bg);
+  border-right: 1px solid var(--shell-border);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow: hidden;
+  padding: 1.25rem 0.75rem;
+  transition: padding 0.2s ease;
+}
+
+.shell--collapsed .shell-sidebar {
+  border-right: none;
+  padding-inline: 0;
+  visibility: hidden;
+}
+
+.shell-logo {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.shell-logo img {
+  display: block;
+  height: 2.5rem;
+  width: 2.5rem;
+}
+
+.shell-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.shell-nav-item {
+  align-items: center;
+  border-radius: 0.75rem;
+  color: #64748b;
+  display: flex;
+  font-size: 1.1rem;
+  height: 2.75rem;
+  justify-content: center;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  width: 100%;
+}
+
+.shell-nav-item:hover:not(.shell-nav-item--disabled) {
+  background: var(--shell-active-bg);
+  color: #334155;
+}
+
+.shell-nav-item--active {
+  background: var(--shell-active-bg);
+  color: #0b2d52;
+}
+
+.shell-nav-item--disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.shell-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.shell-header {
+  align-items: center;
+  display: flex;
+  min-height: 3.5rem;
+  padding: 0.75rem 1rem 0;
+}
+
+.shell-content {
+  flex: 1;
+  min-width: 0;
+  padding: 0 1.5rem 1.5rem;
+}

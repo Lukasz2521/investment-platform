@@ -4,7 +4,8 @@
   </ng-template>
 </p-toolbar>
 
-<p-table
+<p-card header="Active clients">
+  <p-table
   #usersTable
   [value]="users()"
   [loading]="loading()"
@@ -16,7 +17,6 @@
   currentPageReportTemplate="{first}-{last} of {totalRecords}"
 >
   <ng-template #caption>
-    <h2>Active clients</h2>
     <p-iconfield iconPosition="left">
       <p-inputicon>
         <i class="pi pi-search"></i>
@@ -98,3 +98,4 @@
     </tr>
   </ng-template>
 </p-table>
+</p-card>
