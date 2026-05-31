@@ -30,3 +30,11 @@ export function getUserInitials(user: UserPublic | null): string {
     .map((part) => part[0]?.toUpperCase() ?? '')
     .join('');
 }
+
+export function getUserRoleLabel(user: UserPublic | null): string {
+  if (!user) {
+    return '';
+  }
+
+  return user.is_superuser ? 'admin' : 'user';
+}

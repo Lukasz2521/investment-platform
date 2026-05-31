@@ -32,6 +32,12 @@ export class AuthService {
     return Boolean(this.getToken());
   }
 
+  logout(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(this.tokenKey);
+    }
+  }
+
   private storeToken(token: string): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(this.tokenKey, token);

@@ -1,0 +1,23 @@
+<nav class="shell-nav" aria-label="Main navigation">
+  @for (item of navItems; track item.label) {
+    @if (item.route) {
+      <a
+        class="shell-nav-item"
+        [routerLink]="['/', item.route]"
+        routerLinkActive="shell-nav-item--active"
+        [attr.aria-label]="item.label"
+        [title]="item.label"
+      >
+        <i [class]="item.icon"></i>
+      </a>
+    } @else {
+      <span
+        class="shell-nav-item shell-nav-item--disabled"
+        [attr.aria-label]="item.label"
+        [title]="item.label"
+      >
+        <i [class]="item.icon"></i>
+      </span>
+    }
+  }
+</nav>

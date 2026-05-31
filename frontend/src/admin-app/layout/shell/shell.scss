@@ -44,8 +44,7 @@
   padding: 0 1.5rem;
 }
 
-.shell-topbar-start,
-.shell-topbar-end {
+.shell-topbar-start {
   align-items: center;
   display: flex;
   gap: 0.75rem;
@@ -70,90 +69,10 @@
   font-weight: 700;
 }
 
-.shell-topbar-divider {
-  background: var(--shell-border);
-  height: 1.75rem;
-  width: 1px;
-}
-
-.shell-user {
-  align-items: center;
-  color: var(--shell-text);
-  display: flex;
-  gap: 0.75rem;
-}
-
-.shell-user-name {
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.shell-user-chevron {
-  color: #94a3b8;
-  font-size: 0.75rem;
-}
-
-.shell-sidebar {
-  background: var(--shell-sidebar-bg);
-  border-right: 1px solid var(--shell-border);
-  display: flex;
-  flex-direction: column;
-  grid-area: sidebar;
-  overflow: hidden;
-  padding: 1rem 0.75rem;
-  transition: padding 0.2s ease;
-}
-
-.shell--collapsed .shell-sidebar {
+.shell--collapsed ::ng-deep .shell-sidebar {
   border-right: none;
   padding-inline: 0;
   visibility: hidden;
-}
-
-.shell-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.shell-nav-item {
-  align-items: center;
-  border-radius: 0.75rem;
-  color: #64748b;
-  display: flex;
-  font-size: 1.1rem;
-  height: 2.75rem;
-  justify-content: center;
-  text-decoration: none;
-  transition: background-color 0.15s ease, color 0.15s ease;
-  width: 100%;
-}
-
-.shell--dark .shell-nav-item {
-  color: #9ca3af;
-}
-
-.shell-nav-item:hover:not(.shell-nav-item--disabled) {
-  background: var(--shell-active-bg);
-  color: #334155;
-}
-
-.shell--dark .shell-nav-item:hover:not(.shell-nav-item--disabled) {
-  color: #f9fafb;
-}
-
-.shell-nav-item--active {
-  background: var(--shell-active-bg);
-  color: #0b2d52;
-}
-
-.shell--dark .shell-nav-item--active {
-  color: #93c5fd;
-}
-
-.shell-nav-item--disabled {
-  cursor: default;
-  opacity: 0.45;
 }
 
 .shell-main {

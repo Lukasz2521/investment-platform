@@ -1,0 +1,43 @@
+<p-button
+  type="button"
+  [icon]="themeService.darkMode() ? 'pi pi-sun' : 'pi pi-moon'"
+  [text]="true"
+  [rounded]="true"
+  ariaLabel="Toggle dark mode"
+  (onClick)="themeService.toggle()"
+/>
+
+<span class="shell-topbar-divider" aria-hidden="true"></span>
+
+<button
+  type="button"
+  class="shell-user"
+  aria-haspopup="true"
+  (click)="userMenu.toggle($event)"
+>
+  <p-avatar [label]="userInitials()" shape="circle" />
+  <span class="shell-user-name">{{ userDisplayName() }}</span>
+  <i class="pi pi-chevron-down shell-user-chevron" aria-hidden="true"></i>
+</button>
+
+<p-popover #userMenu>
+  <div class="shell-user-menu">
+    <p-avatar [label]="userInitials()" shape="circle" size="xlarge" />
+
+    <span class="shell-user-menu-name">{{ userDisplayName() }}</span>
+
+    @if (userRoleLabel()) {
+      <p-tag [value]="userRoleLabel()" severity="secondary" [rounded]="true" />
+    }
+
+    <p-button
+      type="button"
+      label="Logout"
+      icon="pi pi-sign-out"
+      severity="secondary"
+      [text]="true"
+      styleClass="shell-user-menu-logout"
+      (onClick)="logout()"
+    />
+  </div>
+</p-popover>
