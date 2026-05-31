@@ -28,6 +28,10 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  isAuthenticated(): boolean {
+    return Boolean(this.getToken());
+  }
+
   private storeToken(token: string): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(this.tokenKey, token);
