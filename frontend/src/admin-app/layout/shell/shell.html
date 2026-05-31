@@ -1,9 +1,37 @@
-<div class="shell" [class.shell--collapsed]="sidebarCollapsed()">
-  <aside class="shell-sidebar">
-    <a class="shell-logo" [routerLink]="['/', appRoutePaths.dashboard]" aria-label="Admin App home">
-      <img src="assets/images/admin-platform-logo.svg" alt="" width="40" height="40" />
-    </a>
+<div
+  class="shell"
+  [class.shell--collapsed]="sidebarCollapsed()"
+  [class.shell--dark]="themeService.darkMode()"
+>
+  <header class="shell-topbar">
+    <div class="shell-topbar-start">
+      <a class="shell-brand" [routerLink]="['/', appRoutePaths.dashboard]" aria-label="Admin Platform home">
+        <img src="assets/images/admin-platform-logo.svg" alt="" width="32" height="32" />
+        <span class="shell-brand-title">Admin Platform</span>
+      </a>
+    </div>
 
+    <div class="shell-topbar-end">
+      <p-button
+        type="button"
+        [icon]="themeService.darkMode() ? 'pi pi-sun' : 'pi pi-moon'"
+        [text]="true"
+        [rounded]="true"
+        ariaLabel="Toggle dark mode"
+        (onClick)="themeService.toggle()"
+      />
+
+      <span class="shell-topbar-divider" aria-hidden="true"></span>
+
+      <div class="shell-user">
+        <p-avatar [label]="userInitials()" shape="circle" />
+        <span class="shell-user-name">{{ userDisplayName() }}</span>
+        <i class="pi pi-chevron-down shell-user-chevron" aria-hidden="true"></i>
+      </div>
+    </div>
+  </header>
+
+  <aside class="shell-sidebar">
     <nav class="shell-nav" aria-label="Main navigation">
       @for (item of navItems; track item.label) {
         @if (item.route) {
@@ -33,7 +61,7 @@
     <header class="shell-header">
       <p-button
         type="button"
-        icon="pi pi-bars"
+        icon="pi pi-angle-left"
         [text]="true"
         [rounded]="true"
         ariaLabel="Toggle sidebar"
