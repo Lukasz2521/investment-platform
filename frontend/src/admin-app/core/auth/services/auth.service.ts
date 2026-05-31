@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 interface TokenResponse {
   access_token: string;
@@ -20,7 +20,15 @@ export class AuthService {
       .pipe(tap((response) => this.storeToken(response.access_token)));
   }
 
-  storeToken(token: string): void {
+  getToken(): string | null {
+    if (typeof localStorage === 'undefined') {
+      return null;
+    }
+
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  private storeToken(token: string): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem(this.tokenKey, token);
     }

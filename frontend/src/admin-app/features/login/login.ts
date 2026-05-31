@@ -6,10 +6,11 @@ import { InputText } from 'primeng/inputtext';
 import { Message } from 'primeng/message';
 import { Password } from 'primeng/password';
 
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService } from '../../core/auth/services/auth.service';
+import { AppRoutingService } from '../../core/routing/app-routing.service';
 
 @Component({
-  selector: 'app-login',
+  selector: 'admin-app-login',
   imports: [ReactiveFormsModule, InputText, Password, Button, Message],
   templateUrl: './login.html',
   styleUrl: './login.scss',
@@ -17,6 +18,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class Login {
   private readonly authService = inject(AuthService);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly appRouting = inject(AppRoutingService);
 
   protected readonly loading = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
@@ -25,7 +27,6 @@ export class Login {
     email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required],
   });
-
   protected onSubmit(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -37,9 +38,11 @@ export class Login {
 
     const { email, password } = this.form.getRawValue();
 
-    this.authService.login(email, password).subscribe({
+    this.authService.login(email, password)
+    .subscribe({
       next: () => {
         this.loading.set(false);
+        this.appRouting.navigateToDashboard();
       },
       error: (error: HttpErrorResponse) => {
         this.loading.set(false);
