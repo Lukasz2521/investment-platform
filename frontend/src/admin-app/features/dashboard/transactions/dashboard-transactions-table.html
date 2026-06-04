@@ -1,0 +1,76 @@
+<p-table
+  [value]="transactions()"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [globalFilterFields]="['id', 'user_email', 'transaction_type', 'description', 'status']"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first}-{last} of {totalRecords}"
+>
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="id">
+        ID
+        <p-sortIcon field="id" />
+      </th>
+      <th>User</th>
+      <th pSortableColumn="amount">
+        Amount
+        <p-sortIcon field="amount" />
+      </th>
+      <th>Currency</th>
+      <th pSortableColumn="transaction_type">
+        Type
+        <p-sortIcon field="transaction_type" />
+      </th>
+      <th pSortableColumn="description">
+        Description
+        <p-sortIcon field="description" />
+      </th>
+      <th pSortableColumn="status">
+        Status
+        <p-sortIcon field="status" />
+      </th>
+      <th pSortableColumn="created_at">
+        Created At
+        <p-sortIcon field="created_at" />
+      </th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-transaction>
+    <tr>
+      <td>{{ transaction.id }}</td>
+      <td>{{ transaction.user_email }}</td>
+      <td>{{ transaction.amount | number: '1.2-2' : 'pl' }}</td>
+      <td>€</td>
+      <td>{{ transaction.transaction_type }}</td>
+      <td>{{ displayValue(transaction.description) }}</td>
+      <td>{{ transaction.status }}</td>
+      <td>{{ transaction.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
+      <td>
+        <p-button
+          icon="pi pi-pencil"
+          [rounded]="true"
+          [outlined]="true"
+          ariaLabel="Edit transaction"
+        />
+        <p-button
+          icon="pi pi-trash"
+          severity="danger"
+          [rounded]="true"
+          [outlined]="true"
+          ariaLabel="Delete transaction"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="9">No transactions found.</td>
+    </tr>
+  </ng-template>
+</p-table>

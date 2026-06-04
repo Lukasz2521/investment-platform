@@ -1,12 +1,6 @@
-import { DatePipe, DecimalPipe, isPlatformBrowser } from '@angular/common';
-import { afterNextRender, Component, inject, PLATFORM_ID, signal, viewChild } from '@angular/core';
-import { forkJoin } from 'rxjs';
-import { Button } from 'primeng/button';
+import { isPlatformBrowser } from '@angular/common';
+import { afterNextRender, Component, inject, PLATFORM_ID, signal } from '@angular/core';
 import { Card } from 'primeng/card';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
-import { Table, TableModule } from 'primeng/table';
 import { Toolbar } from 'primeng/toolbar';
 
 import { AppRoutingService } from '../../core/routing/app-routing.service';
@@ -14,24 +8,15 @@ import { TransactionPublic } from '../../core/transactions/models/transaction.mo
 import { TransactionsService } from '../../core/transactions/services/transactions.service';
 import { UserPublic } from '../../core/users/models/user.model';
 import { UsersService } from '../../core/users/services/users.service';
-
-type DashboardTransaction = TransactionPublic & {
-  user_email: string;
-};
+import {
+  DashboardTransaction,
+  DashboardTransactionsTable,
+} from './transactions/dashboard-transactions-table';
+import { DashboardUsersTable } from './users/dashboard-users-table';
 
 @Component({
   selector: 'admin-app-dashboard',
-  imports: [
-    DatePipe,
-    DecimalPipe,
-    TableModule,
-    Toolbar,
-    Card,
-    IconField,
-    InputIcon,
-    InputText,
-    Button,
-  ],
+  imports: [Toolbar, Card, DashboardUsersTable, DashboardTransactionsTable],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -41,13 +26,12 @@ export class Dashboard {
   private readonly appRouting = inject(AppRoutingService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  private readonly usersTable = viewChild<Table>('usersTable');
-  private readonly transactionsTable = viewChild<Table>('transactionsTable');
-
   protected readonly loading = signal(true);
   protected readonly transactionsLoading = signal(true);
   protected readonly users = signal<UserPublic[]>([]);
   protected readonly transactions = signal<DashboardTransaction[]>([]);
+
+  private loadedTransactions: TransactionPublic[] | null = null;
 
   constructor() {
     afterNextRender(() => {
@@ -57,46 +41,46 @@ export class Dashboard {
         return;
       }
 
-      this.loadDashboardData();
+      this.loadUsers();
+      this.loadTransactions();
     });
   }
 
-  private loadDashboardData(): void {
-    forkJoin({
-      users: this.usersService.getAll(),
-      transactions: this.transactionsService.getAll(),
-    }).subscribe({
-      next: ({ users, transactions }) => {
-        const emailById = Object.fromEntries(users.data.map((user) => [user.id, user.email]));
-
-        this.users.set(users.data);
-        this.transactions.set(
-          transactions.data.map((transaction) => ({
-            ...transaction,
-            user_email: emailById[transaction.user_id] ?? '-',
-          })),
-        );
+  private loadUsers(): void {
+    this.usersService.getAll().subscribe({
+      next: ({ data }) => {
+        this.users.set(data);
         this.loading.set(false);
-        this.transactionsLoading.set(false);
+        this.syncTransactions();
       },
-      error: () => {
-        this.loading.set(false);
-        this.transactionsLoading.set(false);
-      },
+      error: () => this.loading.set(false),
     });
   }
 
-  protected onUsersSearch(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.usersTable()?.filterGlobal(value, 'contains');
+  private loadTransactions(): void {
+    this.transactionsService.getAll().subscribe({
+      next: ({ data }) => {
+        this.loadedTransactions = data;
+        this.transactionsLoading.set(false);
+        this.syncTransactions();
+      },
+      error: () => this.transactionsLoading.set(false),
+    });
   }
 
-  protected displayValue(value: string | null | undefined): string {
-    return value?.trim() ? value : '-';
-  }
+  private syncTransactions(): void {
+    if (!this.loadedTransactions) {
+      return;
+    }
 
-  protected roleLabel(isSuperuser: boolean): string {
-    return isSuperuser ? 'admin' : 'user';
+    const emailById = Object.fromEntries(this.users().map((user) => [user.id, user.email]));
+
+    this.transactions.set(
+      this.loadedTransactions.map((transaction) => ({
+        ...transaction,
+        user_email: emailById[transaction.user_id] ?? '-',
+      })),
+    );
   }
 
   protected viewUser(userId: string): void {

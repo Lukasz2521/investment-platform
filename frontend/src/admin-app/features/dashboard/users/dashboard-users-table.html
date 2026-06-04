@@ -1,0 +1,99 @@
+<p-table
+  #usersTable
+  [value]="users()"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [globalFilterFields]="['id', 'username', 'email']"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first}-{last} of {totalRecords}"
+>
+  <ng-template #caption>
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        placeholder="ID, Username, Email"
+        (input)="onSearch($event)"
+      />
+    </p-iconfield>
+  </ng-template>
+
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="username">
+        Username
+        <p-sortIcon field="username" />
+      </th>
+      <th pSortableColumn="name">
+        First Name
+        <p-sortIcon field="name" />
+      </th>
+      <th pSortableColumn="last_name">
+        Last Name
+        <p-sortIcon field="last_name" />
+      </th>
+      <th pSortableColumn="country">
+        Country
+        <p-sortIcon field="country" />
+      </th>
+      <th pSortableColumn="phone">
+        Phone Number
+        <p-sortIcon field="phone" />
+      </th>
+      <th pSortableColumn="email">
+        Email
+        <p-sortIcon field="email" />
+      </th>
+      <th>Role</th>
+      <th>Account Type</th>
+      <th pSortableColumn="is_active">
+        Active
+        <p-sortIcon field="is_active" />
+      </th>
+      <th pSortableColumn="created_at">
+        Created At
+        <p-sortIcon field="created_at" />
+      </th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-user>
+    <tr>
+      <td>{{ displayValue(user.username) }}</td>
+      <td>{{ displayValue(user.name) }}</td>
+      <td>{{ displayValue(user.last_name) }}</td>
+      <td>{{ displayValue(user.country) }}</td>
+      <td>{{ displayValue(user.phone) }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ getUserRoleLabel(user) }}</td>
+      <td>-</td>
+      <td>
+        @if (user.is_active) {
+          <i class="pi pi-check"></i>
+        }
+      </td>
+      <td>{{ user.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
+      <td>
+        <p-button
+          icon="pi pi-eye"
+          [rounded]="true"
+          [outlined]="true"
+          ariaLabel="View user"
+          (onClick)="viewUser.emit(user.id)"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="11">No users found.</td>
+    </tr>
+  </ng-template>
+</p-table>
