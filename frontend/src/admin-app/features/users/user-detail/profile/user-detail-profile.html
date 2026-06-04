@@ -1,0 +1,54 @@
+<div class="user-detail-profile">
+  <p-avatar [label]="userInitials()" shape="circle" size="xlarge" />
+
+  <dl class="user-detail-fields">
+    <div class="user-detail-field">
+      <dt>First name:</dt>
+      <dd>{{ displayValue(user().name) }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Last name:</dt>
+      <dd>{{ displayValue(user().last_name) }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Role:</dt>
+      <dd>{{ userRoleLabel() }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Email:</dt>
+      <dd>{{ user().email }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Country:</dt>
+      <dd>{{ displayValue(user().country) }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Town:</dt>
+      <dd>{{ displayValue(user().city) }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Address 1:</dt>
+      <dd>{{ displayValue(user().address_line_one) }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Address 2:</dt>
+      <dd>{{ displayValue(user().address_line_two) }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>ZIP Code:</dt>
+      <dd>-</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Timezone:</dt>
+      <dd>{{ displayValue(user().timezone) }}</dd>
+    </div>
+    <div class="user-detail-field">
+      <dt>Status:</dt>
+      <dd>
+        <span [class.user-detail-status--online]="user().is_active">
+          {{ user().is_active ? 'ONLINE' : 'OFFLINE' }}
+        </span>
+      </dd>
+    </div>
+  </dl>
+</div>

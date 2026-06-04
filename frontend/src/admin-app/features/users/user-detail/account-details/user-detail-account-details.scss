@@ -1,0 +1,22 @@
+.user-detail-account-details {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.user-detail-account-details-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.user-detail-account-details-control label {
+  color: var(--p-text-muted-color, #64748b);
+  font-weight: 500;
+}
+
+.user-detail-account-details-control--toggle {
+  align-items: flex-start;
+  flex-direction: row;
+  justify-content: space-between;
+}

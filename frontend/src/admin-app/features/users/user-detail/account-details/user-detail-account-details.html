@@ -1,0 +1,33 @@
+<div class="user-detail-account-details">
+  <div class="user-detail-account-details-control">
+    <label for="accountType">Account Type:</label>
+    <p-select
+      inputId="accountType"
+      [options]="accountTypeOptions"
+      [(ngModel)]="accountType"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="Select account type"
+    />
+  </div>
+
+  <div class="user-detail-account-details-control">
+    <label for="participation">Participation %:</label>
+    <p-iconfield>
+      <input pInputText id="participation" type="number" [(ngModel)]="participationPercent" />
+      <p-inputicon>
+        <i class="pi pi-pencil"></i>
+      </p-inputicon>
+    </p-iconfield>
+  </div>
+
+  <div class="user-detail-account-details-control user-detail-account-details-control--toggle">
+    <label for="customCampaigns">Custom Campaigns:</label>
+    <p-toggleswitch inputId="customCampaigns" [(ngModel)]="customCampaigns" />
+  </div>
+
+  <div class="user-detail-account-details-control user-detail-account-details-control--toggle">
+    <label for="cardPayments">Card Payments:</label>
+    <p-toggleswitch inputId="cardPayments" [(ngModel)]="cardPayments" />
+  </div>
+</div>

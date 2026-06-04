@@ -1,0 +1,32 @@
+.user-detail-profile {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+.user-detail-fields {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0;
+}
+
+.user-detail-field {
+  display: grid;
+  gap: 0.25rem;
+  grid-template-columns: 8rem minmax(0, 1fr);
+}
+
+.user-detail-field dt {
+  color: var(--p-text-muted-color, #64748b);
+  font-weight: 500;
+  margin: 0;
+}
+
+.user-detail-field dd {
+  margin: 0;
+}
+
+.user-detail-status--online {
+  color: #22c55e;
+  font-weight: 600;
+}
