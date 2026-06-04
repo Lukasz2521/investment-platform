@@ -14,4 +14,8 @@ export class AppRoutingService {
   navigateToDashboard(): void {
     void this.router.navigate([APP_ROUTE_PATHS.dashboard]);
   }
+
+  navigateToUser(userId: string): void {
+    void this.router.navigate([APP_ROUTE_PATHS.users, userId]);
+  }
 }

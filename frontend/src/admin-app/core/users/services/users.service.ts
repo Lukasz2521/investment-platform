@@ -16,4 +16,8 @@ export class UsersService {
   getCurrentUser(): Observable<UserPublic> {
     return this.http.get<UserPublic>(`${environment.apiUrl}/users/me`);
   }
+
+  getById(userId: string): Observable<UserPublic> {
+    return this.http.get<UserPublic>(`${environment.apiUrl}/users/${userId}`);
+  }
 }

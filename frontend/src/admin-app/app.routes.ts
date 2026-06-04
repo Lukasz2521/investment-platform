@@ -23,6 +23,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
+      {
+        path: `${APP_ROUTE_PATHS.users}/:userId`,
+        loadComponent: () =>
+          import('./features/users/user-detail').then((m) => m.UserDetail),
+      },
     ],
   },
 ];

@@ -1,0 +1,123 @@
+@if (loading()) {
+  <p>Loading...</p>
+} @else if (user(); as currentUser) {
+  <h1 class="user-detail-title">{{ pageTitle() }}</h1>
+
+  <p-card>
+    <div class="user-detail-layout">
+      <div class="user-detail-profile">
+        <p-avatar [label]="userInitials()" shape="circle" size="xlarge" />
+
+        <dl class="user-detail-fields">
+          <div class="user-detail-field">
+            <dt>First name:</dt>
+            <dd>{{ displayValue(currentUser.name) }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Last name:</dt>
+            <dd>{{ displayValue(currentUser.last_name) }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Role:</dt>
+            <dd>{{ userRoleLabel() }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Email:</dt>
+            <dd>{{ currentUser.email }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Country:</dt>
+            <dd>{{ displayValue(currentUser.country) }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Town:</dt>
+            <dd>{{ displayValue(currentUser.city) }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Address 1:</dt>
+            <dd>{{ displayValue(currentUser.address_line_one) }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Address 2:</dt>
+            <dd>{{ displayValue(currentUser.address_line_two) }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>ZIP Code:</dt>
+            <dd>-</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Timezone:</dt>
+            <dd>{{ displayValue(currentUser.timezone) }}</dd>
+          </div>
+          <div class="user-detail-field">
+            <dt>Status:</dt>
+            <dd>
+              <span [class.user-detail-status--online]="currentUser.is_active">
+                {{ currentUser.is_active ? 'ONLINE' : 'OFFLINE' }}
+              </span>
+            </dd>
+          </div>
+        </dl>
+      </div>
+
+      <div class="user-detail-settings">
+        <div class="user-detail-control">
+          <label for="accountType">Account Type:</label>
+          <p-select
+            inputId="accountType"
+            [options]="accountTypeOptions"
+            [(ngModel)]="accountType"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select account type"
+          />
+        </div>
+
+        <div class="user-detail-control">
+          <label for="participation">Participation %:</label>
+          <p-iconfield>
+            <input pInputText id="participation" type="number" [(ngModel)]="participationPercent" />
+            <p-inputicon>
+              <i class="pi pi-pencil"></i>
+            </p-inputicon>
+          </p-iconfield>
+        </div>
+
+        <div class="user-detail-control user-detail-control--toggle">
+          <label for="customCampaigns">Custom Campaigns:</label>
+          <p-toggleswitch inputId="customCampaigns" [(ngModel)]="customCampaigns" />
+        </div>
+
+        <div class="user-detail-control user-detail-control--toggle">
+          <label for="cardPayments">Card Payments:</label>
+          <p-toggleswitch inputId="cardPayments" [(ngModel)]="cardPayments" />
+        </div>
+      </div>
+    </div>
+
+    <div class="user-detail-summary">
+      <p-card>
+        <div class="user-detail-summary-row">
+          <span>Available balance:</span>
+          <strong>{{ financialSummary().availableBalance | number: '1.0-0' : 'pl' }}€</strong>
+        </div>
+      </p-card>
+
+      <p-card>
+        <div class="user-detail-summary-row">
+          <span>Total Deposit:</span>
+          <strong>{{ financialSummary().totalDeposit | number: '1.0-0' : 'pl' }}€</strong>
+        </div>
+      </p-card>
+
+      <p-card>
+        <div class="user-detail-summary-row">
+          <span>Total Withdraw:</span>
+          <strong>{{ financialSummary().totalWithdraw | number: '1.0-0' : 'pl' }}€</strong>
+        </div>
+      </p-card>
+    </div>
+  </p-card>
+} @else {
+  <p-message severity="error" text="User not found" />
+}

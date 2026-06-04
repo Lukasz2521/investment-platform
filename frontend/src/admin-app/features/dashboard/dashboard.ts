@@ -9,6 +9,7 @@ import { InputText } from 'primeng/inputtext';
 import { Table, TableModule } from 'primeng/table';
 import { Toolbar } from 'primeng/toolbar';
 
+import { AppRoutingService } from '../../core/routing/app-routing.service';
 import { TransactionPublic } from '../../core/transactions/models/transaction.model';
 import { TransactionsService } from '../../core/transactions/services/transactions.service';
 import { UserPublic } from '../../core/users/models/user.model';
@@ -37,6 +38,7 @@ type DashboardTransaction = TransactionPublic & {
 export class Dashboard {
   private readonly usersService = inject(UsersService);
   private readonly transactionsService = inject(TransactionsService);
+  private readonly appRouting = inject(AppRoutingService);
   private readonly platformId = inject(PLATFORM_ID);
 
   private readonly usersTable = viewChild<Table>('usersTable');
@@ -95,5 +97,9 @@ export class Dashboard {
 
   protected roleLabel(isSuperuser: boolean): string {
     return isSuperuser ? 'admin' : 'user';
+  }
+
+  protected viewUser(userId: string): void {
+    this.appRouting.navigateToUser(userId);
   }
 }
