@@ -5,6 +5,9 @@ from sqlmodel import Session, col, func, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    Bank,
+    BankCreate,
+    BankUpdate,
     Campaign,
     CampaignCreate,
     CampaignUpdate,
@@ -201,3 +204,32 @@ def update_transaction(
     session.commit()
     session.refresh(db_transaction)
     return db_transaction
+
+
+def create_bank(*, session: Session, bank_in: BankCreate) -> Bank:
+    db_obj = Bank.model_validate(bank_in)
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
+
+
+def get_banks(
+    *, session: Session, skip: int = 0, limit: int = 100
+) -> tuple[list[Bank], int]:
+    count_statement = select(func.count()).select_from(Bank)
+    count = session.exec(count_statement).one()
+    statement = select(Bank).order_by(col(Bank.name)).offset(skip).limit(limit)
+    rows = session.exec(statement).all()
+    return list(rows), count
+
+
+def update_bank(*, session: Session, db_bank: Bank, bank_in: BankUpdate) -> Bank:
+    update_dict = bank_in.model_dump(exclude_unset=True)
+    if not update_dict:
+        return db_bank
+    db_bank.sqlmodel_update(update_dict)
+    session.add(db_bank)
+    session.commit()
+    session.refresh(db_bank)
+    return db_bank

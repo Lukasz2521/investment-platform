@@ -408,3 +408,54 @@ class CampaignPublic(SQLModel):
 class CampaignsPublic(SQLModel):
     data: list[CampaignPublic]
     count: int
+
+
+# Bank model
+
+
+class BankBase(SQLModel):
+    name: str = Field(max_length=255)
+    bank_address: str = Field(default="", max_length=512)
+    account_name: str = Field(default="", max_length=255)
+    iban: str = Field(default="", max_length=34)
+    sepa: str = Field(max_length=64)
+    swift: str = Field(default="", max_length=11)
+    company_address: str = Field(default="", max_length=512)
+    transfer_title: str = Field(default="", max_length=255)
+    bank_description: str | None = Field(default=None, max_length=1024)
+    bank_logo: str = Field(default="", max_length=512)
+
+
+class Bank(BankBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore[assignment]
+    )
+
+
+class BankCreate(BankBase):
+    pass
+
+
+class BankUpdate(SQLModel):
+    name: str | None = Field(default=None, max_length=255)
+    bank_address: str | None = Field(default=None, max_length=512)
+    account_name: str | None = Field(default=None, max_length=255)
+    iban: str | None = Field(default=None, max_length=34)
+    sepa: str | None = Field(default=None, max_length=64)
+    swift: str | None = Field(default=None, max_length=11)
+    company_address: str | None = Field(default=None, max_length=512)
+    transfer_title: str | None = Field(default=None, max_length=255)
+    bank_description: str | None = Field(default=None, max_length=1024)
+    bank_logo: str | None = Field(default=None, max_length=512)
+
+
+class BankPublic(BankBase):
+    id: uuid.UUID
+    created_at: datetime | None = None
+
+
+class BanksPublic(SQLModel):
+    data: list[BankPublic]
+    count: int

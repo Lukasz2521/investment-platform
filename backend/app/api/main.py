@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.routes import (
     admin,
+    banks,
     campaigns,
     categories,
     items,
@@ -20,6 +21,7 @@ api_router.include_router(users.router)
 api_router.include_router(utils.router)
 api_router.include_router(items.router)
 api_router.include_router(transactions.router)
+api_router.include_router(banks.router)
 api_router.include_router(campaigns.router)
 api_router.include_router(categories.router)
 
