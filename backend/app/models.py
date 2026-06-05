@@ -84,6 +84,11 @@ class User(UserBase, table=True):
     transactions: list["Transaction"] = Relationship(
         back_populates="user", cascade_delete=True
     )
+    account: "Account | None" = Relationship(
+        back_populates="user",
+        sa_relationship_kwargs={"uselist": False},
+        cascade_delete=True,
+    )
 
 
 # Properties to return via API, id is always required
@@ -459,3 +464,92 @@ class BankPublic(BankBase):
 class BanksPublic(SQLModel):
     data: list[BankPublic]
     count: int
+
+
+# Account model
+
+
+class AccountBase(SQLModel):
+    account_type: AccountType = AccountType.DOMINION
+    participation: int = Field(default=0, ge=0, le=100)
+    balance: Decimal = Field(default=Decimal("0"), ge=0)
+    available_balance: Decimal = Field(default=Decimal("0"))
+    total_deposit: Decimal = Field(default=Decimal("0"), ge=0)
+    total_withdraw: Decimal = Field(default=Decimal("0"), ge=0)
+    custom_campaigns: bool = True
+    card_payments: bool = False
+
+
+class Account(AccountBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id",
+        nullable=False,
+        unique=True,
+        ondelete="CASCADE",
+        index=True,
+    )
+    account_type: AccountType = Field(
+        default=AccountType.FUNDAMENT,
+        sa_column=Column(
+            SAEnum(AccountType, native_enum=False, length=64),
+            nullable=False,
+        ),
+    )
+    participation: int = Field(default=18, ge=0, le=100)
+    balance: Decimal = Field(
+        default=Decimal("0"),
+        sa_column=Column(Numeric(18, 4), nullable=False),
+    )
+    available_balance: Decimal = Field(
+        default=Decimal("0"),
+        sa_column=Column(Numeric(18, 4), nullable=False),
+    )
+    total_deposit: Decimal = Field(
+        default=Decimal("0"),
+        sa_column=Column(Numeric(18, 4), nullable=False),
+    )
+    total_withdraw: Decimal = Field(
+        default=Decimal("0"),
+        sa_column=Column(Numeric(18, 4), nullable=False),
+    )
+    custom_campaigns: bool = Field(default=False)
+    card_payments: bool = Field(default=False)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore[assignment]
+    )
+    user: User | None = Relationship(back_populates="account")
+
+
+class AccountCreate(SQLModel):
+    model_config = ConfigDict(populate_by_name=True)  # type: ignore[assignment]
+
+    user_id: uuid.UUID = Field(alias="userId")
+    account_type: AccountType = AccountType.DOMINION
+    participation: int = Field(default=0, ge=0, le=100)
+    balance: Decimal = Field(default=Decimal("0"), ge=0)
+    available_balance: Decimal = Field(default=Decimal("0"))
+    total_deposit: Decimal = Field(default=Decimal("0"), ge=0)
+    total_withdraw: Decimal = Field(default=Decimal("0"), ge=0)
+    custom_campaigns: bool = True
+    card_payments: bool = False
+
+
+class AccountUpdate(SQLModel):
+    model_config = ConfigDict(populate_by_name=True)  # type: ignore[assignment]
+
+    account_type: AccountType | None = None
+    participation: int | None = Field(default=None, ge=0, le=100)
+    balance: Decimal | None = Field(default=None, ge=0)
+    available_balance: Decimal | None = None
+    total_deposit: Decimal | None = Field(default=None, ge=0)
+    total_withdraw: Decimal | None = Field(default=None, ge=0)
+    custom_campaigns: bool | None = None
+    card_payments: bool | None = None
+
+
+class AccountPublic(AccountBase):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    created_at: datetime | None = None
