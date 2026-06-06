@@ -15,6 +15,8 @@ from app.core import security
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    Account,
+    AccountPublicForUser,
     Item,
     Message,
     Token,
@@ -23,6 +25,7 @@ from app.models import (
     UserCreate,
     UserLogin,
     UserPublic,
+    UserPublicWithAccount,
     UserRegister,
     UsersPublic,
     UserUpdate,
@@ -236,24 +239,27 @@ def get_users(session: SessionDep) -> UsersPublic:
     return UsersPublic(data=users_public, count=count)
 
 
-@router.get("/{user_id}", response_model=UserPublic)
+@router.get("/{user_id}")
 def read_user_by_id(
     user_id: uuid.UUID, session: SessionDep, current_user: CurrentUser
-) -> Any:
+) -> UserPublicWithAccount:
     """
     Get a specific user by id.
     """
     user = session.get(User, user_id)
-    if user == current_user:
-        return user
-    if not current_user.is_superuser:
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    if user.id != current_user.id and not current_user.is_superuser:
         raise HTTPException(
             status_code=403,
             detail="The user doesn't have enough privileges",
         )
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+
+    account = session.exec(select(Account).where(Account.user_id == user_id)).first()
+    return UserPublicWithAccount(
+        **UserPublic.model_validate(user).model_dump(),
+        account=AccountPublicForUser.model_validate(account) if account else None,
+    )
 
 
 @router.patch(

@@ -470,7 +470,7 @@ class BanksPublic(SQLModel):
 
 
 class AccountBase(SQLModel):
-    account_type: AccountType = AccountType.DOMINION
+    account_type: AccountType = AccountType.FUNDAMENT
     participation: int = Field(default=0, ge=0, le=100)
     balance: Decimal = Field(default=Decimal("0"), ge=0)
     available_balance: Decimal = Field(default=Decimal("0"))
@@ -553,3 +553,11 @@ class AccountPublic(AccountBase):
     id: uuid.UUID
     user_id: uuid.UUID
     created_at: datetime | None = None
+
+
+class AccountPublicForUser(AccountBase):
+    created_at: datetime | None = None
+
+
+class UserPublicWithAccount(UserPublic):
+    account: AccountPublicForUser | None = None
