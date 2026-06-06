@@ -3,6 +3,7 @@ import { afterNextRender, Component, computed, inject, PLATFORM_ID, signal } fro
 import { ActivatedRoute } from '@angular/router';
 import { Card } from 'primeng/card';
 import { Message } from 'primeng/message';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { TransactionPublic } from '../../../core/transactions/models/transaction.model';
 import { TransactionsService } from '../../../core/transactions/services/transactions.service';
@@ -18,7 +19,18 @@ import { UserDetailProfile } from './profile/user-detail-profile';
 
 @Component({
   selector: 'admin-app-user-detail',
-  imports: [DecimalPipe, Card, UserDetailProfile, UserDetailAccountDetails, Message],
+  imports: [
+    DecimalPipe,
+    Card,
+    Message,
+    Tab,
+    TabList,
+    TabPanel,
+    TabPanels,
+    Tabs,
+    UserDetailAccountDetails,
+    UserDetailProfile,
+  ],
   templateUrl: './user-detail.html',
   styleUrl: './user-detail.scss',
 })

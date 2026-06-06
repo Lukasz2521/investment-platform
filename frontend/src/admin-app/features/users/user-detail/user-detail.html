@@ -32,6 +32,24 @@
         </div>
       </p-card>
     </div>
+
+    <p-tabs class="user-detail-tabs" value="profile">
+      <p-tablist>
+        <p-tab value="profile">Profile</p-tab>
+        <p-tab value="campaigns">Campaigns</p-tab>
+        <p-tab value="transactions">Transactions</p-tab>
+        <p-tab value="withdraws">Withdraws</p-tab>
+        <p-tab value="documents">Documents</p-tab>
+      </p-tablist>
+
+      <p-tabpanels>
+        <p-tabpanel value="profile" />
+        <p-tabpanel value="campaigns" />
+        <p-tabpanel value="transactions" />
+        <p-tabpanel value="withdraws" />
+        <p-tabpanel value="documents" />
+      </p-tabpanels>
+    </p-tabs>
   </p-card>
 } @else {
   <p-message severity="error" text="User not found" />
