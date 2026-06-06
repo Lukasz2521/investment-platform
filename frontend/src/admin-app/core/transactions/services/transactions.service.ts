@@ -14,4 +14,10 @@ export class TransactionsService {
 
     return this.http.get<TransactionsPublic>(`${environment.apiUrl}/transactions/`, { params });
   }
+
+  getByUserId(userId: string, skip = 0, limit = 100): Observable<TransactionsPublic> {
+    const params = new HttpParams().set('skip', skip).set('limit', limit);
+
+    return this.http.get<TransactionsPublic>(`${environment.apiUrl}/transactions/user/${userId}`, { params });
+  }
 }

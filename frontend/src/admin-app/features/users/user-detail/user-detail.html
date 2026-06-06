@@ -1,5 +1,7 @@
-@if (loading()) {
-  <p>Loading...</p>
+@if (userDetailsIsLoading()) {
+  <div class="user-detail-loader">
+    <p-progressspinner ariaLabel="Loading user details" />
+  </div>
 } @else if (user(); as currentUser) {
   <h1 class="user-detail-title">{{ pageTitle() }}</h1>
 
@@ -7,31 +9,33 @@
     <div class="user-detail-layout">
       <admin-app-user-detail-profile [user]="currentUser" />
 
-      <admin-app-user-detail-account-details />
+      <admin-app-user-detail-account-details [account]="currentUser.account" />
     </div>
 
+    @if (currentUser.account; as userAccount) {
     <div class="user-detail-summary">
       <p-card>
         <div class="user-detail-summary-row">
           <span>Available balance:</span>
-          <strong>{{ financialSummary().availableBalance | number: '1.0-0' : 'pl' }}€</strong>
+          <strong>{{ userAccount.available_balance | number: '1.0-0' }}€</strong>
         </div>
       </p-card>
 
       <p-card>
         <div class="user-detail-summary-row">
           <span>Total Deposit:</span>
-          <strong>{{ financialSummary().totalDeposit | number: '1.0-0' : 'pl' }}€</strong>
+          <strong>{{ userAccount.total_deposit | number: '1.0-0' }}€</strong>
         </div>
       </p-card>
 
       <p-card>
         <div class="user-detail-summary-row">
           <span>Total Withdraw:</span>
-          <strong>{{ financialSummary().totalWithdraw | number: '1.0-0' : 'pl' }}€</strong>
+          <strong>{{ userAccount.total_withdraw | number: '1.0-0' }}€</strong>
         </div>
       </p-card>
     </div>
+  }
 
     <p-tabs class="user-detail-tabs" value="profile">
       <p-tablist>
