@@ -84,7 +84,7 @@ class User(UserBase, table=True):
     transactions: list["Transaction"] = Relationship(
         back_populates="user", cascade_delete=True
     )
-    account: "Account | None" = Relationship(
+    account: "Account" = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"uselist": False},
         cascade_delete=True,
