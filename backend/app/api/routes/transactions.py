@@ -40,6 +40,7 @@ def create_transaction(
     return TransactionPublic.model_validate(tx)
 
 
+
 @router.get(
     "/",
     response_model=TransactionsPublic,
@@ -54,6 +55,30 @@ def get_transactions(
     Get all transactions.
     """
     transactions, count = crud.get_transactions(session=session, skip=skip, limit=limit)
+    data = [TransactionPublic.model_validate(tx) for tx in transactions]
+    return TransactionsPublic(data=data, count=count)
+
+
+@router.get(
+    "/user/{user_id}",
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def get_user_transactions(
+    session: SessionDep,
+    user_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+) -> TransactionsPublic:
+    """
+    Get transactions for a specific user.
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    transactions, count = crud.get_transactions_by_user_id(
+        session=session, user_id=user_id, skip=skip, limit=limit
+    )
     data = [TransactionPublic.model_validate(tx) for tx in transactions]
     return TransactionsPublic(data=data, count=count)
 

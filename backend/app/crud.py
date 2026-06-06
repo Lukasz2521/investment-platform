@@ -192,6 +192,30 @@ def get_transactions(
     return list(rows), count
 
 
+def get_transactions_by_user_id(
+    *,
+    session: Session,
+    user_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+) -> tuple[list[Transaction], int]:
+    count_statement = (
+        select(func.count())
+        .select_from(Transaction)
+        .where(Transaction.user_id == user_id)
+    )
+    count = session.exec(count_statement).one()
+    statement = (
+        select(Transaction)
+        .where(Transaction.user_id == user_id)
+        .order_by(col(Transaction.created_at).desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    rows = session.exec(statement).all()
+    return list(rows), count
+
+
 def update_transaction(
     *,
     session: Session,
