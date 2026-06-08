@@ -1,0 +1,112 @@
+<p-table
+  #banksTable
+  [value]="banks()"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [globalFilterFields]="['id', 'name', 'bank_address', 'account_name', 'iban', 'swift']"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first}-{last} of {totalRecords}"
+>
+  <ng-template #caption>
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        placeholder="ID, Name"
+        (input)="onSearch($event)"
+      />
+    </p-iconfield>
+  </ng-template>
+
+  <ng-template #header>
+    <tr>
+      <th>Image</th>
+      <th pSortableColumn="name">
+        Bank Name
+        <p-sortIcon field="name" />
+      </th>
+      <th pSortableColumn="bank_address">
+        Bank Address
+        <p-sortIcon field="bank_address" />
+      </th>
+      <th pSortableColumn="account_name">
+        Account Name
+        <p-sortIcon field="account_name" />
+      </th>
+      <th pSortableColumn="transfer_title">
+        Transfer Title
+        <p-sortIcon field="transfer_title" />
+      </th>
+      <th pSortableColumn="iban">
+        Iban
+        <p-sortIcon field="iban" />
+      </th>
+      <th pSortableColumn="swift">
+        SWIFT / BIC
+        <p-sortIcon field="swift" />
+      </th>
+      <th pSortableColumn="sepa">
+        SEPA
+        <p-sortIcon field="sepa" />
+      </th>
+      <th pSortableColumn="company_address">
+        Company Address
+        <p-sortIcon field="company_address" />
+      </th>
+      <th pSortableColumn="bank_description">
+        Bank Description
+        <p-sortIcon field="bank_description" />
+      </th>
+      <th>Currency</th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-bank>
+    <tr>
+      <td>
+        @if (bank.bank_logo) {
+          <img class="banks-table-logo" [src]="bank.bank_logo" [alt]="bank.name" />
+        } @else {
+          <span class="banks-table-logo-fallback">{{ getBankInitials(bank.name) }}</span>
+        }
+      </td>
+      <td>{{ bank.name }}</td>
+      <td>{{ displayValue(bank.bank_address) }}</td>
+      <td>{{ displayValue(bank.account_name) }}</td>
+      <td>{{ displayValue(bank.transfer_title) }}</td>
+      <td>{{ displayValue(bank.iban) }}</td>
+      <td>{{ displayValue(bank.swift) }}</td>
+      <td>{{ displayValue(bank.sepa) }}</td>
+      <td>{{ displayValue(bank.company_address) }}</td>
+      <td>{{ displayValue(bank.bank_description) }}</td>
+      <td>€</td>
+      <td>
+        <p-button
+          icon="pi pi-pencil"
+          [rounded]="true"
+          [outlined]="true"
+          ariaLabel="Edit bank"
+        />
+        <p-button
+          icon="pi pi-trash"
+          severity="danger"
+          [rounded]="true"
+          [outlined]="true"
+          ariaLabel="Delete bank"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="12">No banks found.</td>
+    </tr>
+  </ng-template>
+</p-table>

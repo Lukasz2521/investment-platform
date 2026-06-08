@@ -1,0 +1,19 @@
+.banks-table-logo {
+  border-radius: 50%;
+  height: 2rem;
+  object-fit: cover;
+  width: 2rem;
+}
+
+.banks-table-logo-fallback {
+  align-items: center;
+  background: var(--p-surface-200, #e9ecef);
+  border-radius: 50%;
+  color: var(--p-text-muted-color, #6c757d);
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 600;
+  height: 2rem;
+  justify-content: center;
+  width: 2rem;
+}

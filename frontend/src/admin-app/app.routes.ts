@@ -24,6 +24,10 @@ export const routes: Routes = [
           import('./features/dashboard/dashboard').then((m) => m.Dashboard),
       },
       {
+        path: APP_ROUTE_PATHS.banks,
+        loadComponent: () => import('./features/banks/banks').then((m) => m.Banks),
+      },
+      {
         path: `${APP_ROUTE_PATHS.users}/:userId`,
         loadComponent: () =>
           import('./features/users/user-detail').then((m) => m.UserDetail),

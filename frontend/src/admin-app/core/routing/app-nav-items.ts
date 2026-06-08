@@ -25,8 +25,9 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
     icon: 'pi pi-users',
   },
   {
-    label: 'Institution',
+    label: 'Banks',
     icon: 'pi pi-building',
+    route: APP_ROUTE_PATHS.banks,
   },
   {
     label: 'Security',

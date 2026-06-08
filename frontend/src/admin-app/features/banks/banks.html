@@ -1,0 +1,13 @@
+<p-toolbar class="banks-toolbar">
+  <ng-template #start>
+    <h1>Banks</h1>
+  </ng-template>
+
+  <ng-template #end>
+    <p-button icon="pi pi-plus" ariaLabel="Add bank" />
+  </ng-template>
+</p-toolbar>
+
+<p-card>
+  <admin-app-banks-table [banks]="banks()" [loading]="loading()" />
+</p-card>
