@@ -1,0 +1,112 @@
+<p-dialog
+  header="Add Bank"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [style]="{ width: '52rem', maxWidth: '95vw' }"
+  styleClass="banks-add-dialog"
+  (onHide)="closeDialog()"
+>
+  <form class="banks-add-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="banks-add-dialog-columns">
+      <div class="banks-add-dialog-column">
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">Bank Name<span class="banks-add-dialog-required">*</span></span>
+          <input pInputText type="text" formControlName="name" />
+        </label>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">Bank Address</span>
+          <input pInputText type="text" formControlName="bank_address" />
+        </label>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">Account Name<span class="banks-add-dialog-required">*</span></span>
+          <input pInputText type="text" formControlName="account_name" />
+        </label>
+
+        <label class="banks-add-dialog-field banks-add-dialog-field--currency">
+          <span class="banks-add-dialog-label banks-add-dialog-label--floating">Currency</span>
+          <input pInputText type="text" value="€" readonly />
+        </label>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">IBAN</span>
+          <input pInputText type="text" formControlName="iban" />
+        </label>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">SEPA</span>
+          <input pInputText type="text" formControlName="sepa" />
+        </label>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">SWIFT / BIC</span>
+          <input pInputText type="text" formControlName="swift" />
+        </label>
+      </div>
+
+      <div class="banks-add-dialog-column">
+        <div class="banks-add-dialog-image">
+          @if (imagePreviewUrl(); as previewUrl) {
+            <img class="banks-add-dialog-image-preview" [src]="previewUrl" alt="Bank logo preview" />
+          } @else {
+            <span class="banks-add-dialog-image-placeholder">No Img</span>
+          }
+
+          <input
+            #imageInput
+            class="banks-add-dialog-image-input"
+            type="file"
+            accept="image/*"
+            (change)="onImageSelected($event)"
+          />
+
+          <p-button
+            type="button"
+            label="UPLOAD IMAGE"
+            [outlined]="true"
+            (onClick)="imageInput.click()"
+          />
+        </div>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">Company Address</span>
+          <input pInputText type="text" formControlName="company_address" />
+        </label>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">Transfer Title</span>
+          <input pInputText type="text" formControlName="transfer_title" />
+        </label>
+
+        <label class="banks-add-dialog-field">
+          <span class="banks-add-dialog-label">Bank Description</span>
+          <input pInputText type="text" formControlName="bank_description" />
+        </label>
+      </div>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <div class="banks-add-dialog-footer">
+      <p-button
+        type="button"
+        label="CANCEL"
+        [outlined]="true"
+        [disabled]="submitting()"
+        (onClick)="closeDialog()"
+      />
+      <p-button
+        type="button"
+        label="CREATE"
+        severity="secondary"
+        [loading]="submitting()"
+        [disabled]="form.invalid || submitting()"
+        (onClick)="submit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

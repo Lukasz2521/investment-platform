@@ -6,11 +6,12 @@ import { Toolbar } from 'primeng/toolbar';
 
 import { BankPublic } from '../../core/banks/models/bank.model';
 import { BanksService } from '../../core/banks/services/banks.service';
+import { BanksAddDialog } from './banks-add-dialog/banks-add-dialog';
 import { BanksTable } from './banks-table/banks-table';
 
 @Component({
   selector: 'admin-app-banks',
-  imports: [Toolbar, Card, Button, BanksTable],
+  imports: [Toolbar, Card, Button, BanksAddDialog, BanksTable],
   templateUrl: './banks.html',
   styleUrl: './banks.scss',
 })
@@ -20,6 +21,7 @@ export class Banks {
 
   protected readonly loading = signal(true);
   protected readonly banks = signal<BankPublic[]>([]);
+  protected readonly addDialogVisible = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -40,5 +42,13 @@ export class Banks {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  protected openAddDialog(): void {
+    this.addDialogVisible.set(true);
+  }
+
+  protected onBankCreated(bank: BankPublic): void {
+    this.banks.update((currentBanks) => [bank, ...currentBanks]);
   }
 }

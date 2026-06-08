@@ -17,3 +17,16 @@ export type BanksPublic = {
   data: BankPublic[];
   count: number;
 };
+
+export type BankCreate = {
+  name: string;
+  bank_address?: string;
+  account_name?: string;
+  iban?: string;
+  sepa?: string;
+  swift?: string;
+  company_address?: string;
+  transfer_title?: string;
+  bank_description?: string | null;
+  bank_logo?: string;
+};

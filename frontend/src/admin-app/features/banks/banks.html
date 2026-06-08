@@ -4,10 +4,15 @@
   </ng-template>
 
   <ng-template #end>
-    <p-button icon="pi pi-plus" ariaLabel="Add bank" />
+    <p-button icon="pi pi-plus" ariaLabel="Add bank" (onClick)="openAddDialog()" />
   </ng-template>
 </p-toolbar>
 
 <p-card>
   <admin-app-banks-table [banks]="banks()" [loading]="loading()" />
 </p-card>
+
+<admin-app-banks-add-dialog
+  [(visible)]="addDialogVisible"
+  (bankCreated)="onBankCreated($event)"
+/>
