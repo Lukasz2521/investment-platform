@@ -1,4 +1,4 @@
-import { Component, input, viewChild } from '@angular/core';
+import { Component, input, output, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -19,6 +19,8 @@ export class BanksTable {
   readonly banks = input.required<BankPublic[]>();
   readonly loading = input(false);
 
+  readonly deleteBank = output<BankPublic>();
+
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.banksTable()?.filterGlobal(value, 'contains');
@@ -26,6 +28,11 @@ export class BanksTable {
 
   protected displayValue(value: string | null | undefined): string {
     return value?.trim() ? value : '-';
+  }
+
+  protected onDeleteClick(bank: BankPublic, event: Event): void {
+    event.stopPropagation();
+    this.deleteBank.emit(bank);
   }
 
   protected getBankInitials(name: string): string {

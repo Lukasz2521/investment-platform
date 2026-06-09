@@ -18,4 +18,8 @@ export class BanksService {
   create(bank: BankCreate): Observable<BankPublic> {
     return this.http.post<BankPublic>(`${environment.apiUrl}/banks/`, bank);
   }
+
+  delete(bankId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${environment.apiUrl}/banks/${bankId}`);
+  }
 }

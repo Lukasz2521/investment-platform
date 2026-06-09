@@ -9,10 +9,21 @@
 </p-toolbar>
 
 <p-card>
-  <admin-app-banks-table [banks]="banks()" [loading]="loading()" />
+  <admin-app-banks-table
+    [banks]="banks()"
+    [loading]="loading()"
+    (deleteBank)="openDeleteDialog($event)"
+  />
 </p-card>
 
 <admin-app-banks-add-dialog
   [(visible)]="addDialogVisible"
   (bankCreated)="onBankCreated($event)"
+/>
+
+<admin-app-banks-delete-dialog
+  [(visible)]="deleteDialogVisible"
+  [bank]="bankToDelete()"
+  [deleting]="deleting()"
+  (confirm)="confirmDelete()"
 />
