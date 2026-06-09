@@ -19,6 +19,7 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
   {
     label: 'Transactions',
     icon: 'pi pi-sync',
+    route: APP_ROUTE_PATHS.transactions,
   },
   {
     label: 'Users',

@@ -1,4 +1,5 @@
 <p-table
+  #transactionsTable
   [value]="transactions()"
   [loading]="loading()"
   [paginator]="true"
@@ -8,6 +9,20 @@
   [showCurrentPageReport]="true"
   currentPageReportTemplate="{first}-{last} of {totalRecords}"
 >
+  <ng-template #caption>
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        placeholder="ID, User, Type, Description"
+        (input)="onSearch($event)"
+      />
+    </p-iconfield>
+  </ng-template>
+
   <ng-template #header>
     <tr>
       <th pSortableColumn="id">

@@ -4,4 +4,5 @@ export const APP_ROUTE_PATHS = {
   dashboard: 'dashboard',
   users: 'users',
   banks: 'banks',
+  transactions: 'transactions',
 } as const;

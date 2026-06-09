@@ -1,0 +1,13 @@
+<p-toolbar class="transactions-list-toolbar">
+  <ng-template #start>
+    <h1>Transactions List</h1>
+  </ng-template>
+
+  <ng-template #end>
+    <p-button icon="pi pi-plus" ariaLabel="Add transaction" />
+  </ng-template>
+</p-toolbar>
+
+<p-card>
+  <admin-app-transactions-table [transactions]="transactions()" [loading]="loading()" />
+</p-card>
