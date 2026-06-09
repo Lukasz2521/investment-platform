@@ -7,14 +7,14 @@ import { InputText } from 'primeng/inputtext';
 import { Table, TableModule } from 'primeng/table';
 
 import { UserPublic } from '../../../core/users/models/user.model';
-import { getUserRoleLabel } from '../../../core/users/utils/user-display.utils';
+import { getUserAccountTypeLabel, getUserRoleLabel } from '../../../core/users/utils/user-display.utils';
 
 @Component({
-  selector: 'admin-app-dashboard-users-table',
+  selector: 'admin-app-users-table',
   imports: [DatePipe, TableModule, IconField, InputIcon, InputText, Button],
-  templateUrl: './dashboard-users-table.html',
+  templateUrl: './users-table.html',
 })
-export class DashboardUsersTable {
+export class UsersTable {
   private readonly usersTable = viewChild<Table>('usersTable');
 
   readonly users = input.required<UserPublic[]>();
@@ -23,6 +23,7 @@ export class DashboardUsersTable {
   readonly viewUser = output<string>();
 
   protected readonly getUserRoleLabel = getUserRoleLabel;
+  protected readonly getUserAccountTypeLabel = getUserAccountTypeLabel;
 
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;

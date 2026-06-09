@@ -72,7 +72,7 @@
       <td>{{ displayValue(user.phone) }}</td>
       <td>{{ user.email }}</td>
       <td>{{ getUserRoleLabel(user) }}</td>
-      <td>-</td>
+      <td>{{ getUserAccountTypeLabel(user) }}</td>
       <td>
         @if (user.is_active) {
           <i class="pi pi-check"></i>

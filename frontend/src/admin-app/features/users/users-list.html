@@ -1,0 +1,13 @@
+<p-toolbar class="users-list-toolbar">
+  <ng-template #start>
+    <h1>Users</h1>
+  </ng-template>
+</p-toolbar>
+
+<p-card>
+  <admin-app-users-table
+    [users]="users()"
+    [loading]="loading()"
+    (viewUser)="viewUser($event)"
+  />
+</p-card>

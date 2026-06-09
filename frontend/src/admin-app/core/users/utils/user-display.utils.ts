@@ -1,4 +1,9 @@
+import { ACCOUNT_TYPE_OPTIONS } from '../models/account-type.model';
 import { UserPublic } from '../models/user.model';
+
+const ACCOUNT_TYPE_LABELS = Object.fromEntries(
+  ACCOUNT_TYPE_OPTIONS.map((option) => [option.value, option.label]),
+) as Record<string, string>;
 
 export function getUserDisplayName(user: UserPublic | null): string {
   if (!user) {
@@ -37,4 +42,14 @@ export function getUserRoleLabel(user: UserPublic | null): string {
   }
 
   return user.is_superuser ? 'admin' : 'user';
+}
+
+export function getUserAccountTypeLabel(user: UserPublic | null): string {
+  const accountType = user?.account?.account_type;
+
+  if (!accountType) {
+    return '-';
+  }
+
+  return ACCOUNT_TYPE_LABELS[accountType] ?? accountType;
 }

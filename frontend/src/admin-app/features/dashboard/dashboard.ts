@@ -8,15 +8,15 @@ import { TransactionPublic } from '../../core/transactions/models/transaction.mo
 import { TransactionsService } from '../../core/transactions/services/transactions.service';
 import { UserPublic } from '../../core/users/models/user.model';
 import { UsersService } from '../../core/users/services/users.service';
+import { UsersTable } from '../users/users-table/users-table';
 import {
   DashboardTransaction,
   DashboardTransactionsTable,
 } from './transactions/dashboard-transactions-table';
-import { DashboardUsersTable } from './users/dashboard-users-table';
 
 @Component({
   selector: 'admin-app-dashboard',
-  imports: [Toolbar, Card, DashboardUsersTable, DashboardTransactionsTable],
+  imports: [Toolbar, Card, UsersTable, DashboardTransactionsTable],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
