@@ -396,6 +396,7 @@ class CampaignPublic(SQLModel):
     days_count: int
     category_id: uuid.UUID
     budget: Decimal
+    currency: str
     cpm_base: Decimal
     cpm_min: Decimal
     cpm_max: Decimal

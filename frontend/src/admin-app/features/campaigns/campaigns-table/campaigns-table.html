@@ -1,0 +1,103 @@
+<p-table
+  #campaignsTable
+  [value]="campaigns()"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [globalFilterFields]="['id', 'title', 'category_name', 'min_account_label']"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first}-{last} of {totalRecords}"
+>
+  <ng-template #caption>
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        placeholder="ID, Title, Category"
+        (input)="onSearch($event)"
+      />
+    </p-iconfield>
+  </ng-template>
+
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="title">
+        Title
+        <p-sortIcon field="title" />
+      </th>
+      <th pSortableColumn="min_days">
+        Min Days
+        <p-sortIcon field="min_days" />
+      </th>
+      <th pSortableColumn="days_count">
+        Days Count
+        <p-sortIcon field="days_count" />
+      </th>
+      <th>Owner</th>
+      <th pSortableColumn="category_name">
+        Category
+        <p-sortIcon field="category_name" />
+      </th>
+      <th pSortableColumn="min_account_label">
+        Min Account
+        <p-sortIcon field="min_account_label" />
+      </th>
+      <th pSortableColumn="budget">
+        Budget
+        <p-sortIcon field="budget" />
+      </th>
+      <th>Currency</th>
+      <th pSortableColumn="cpm_base">
+        CPM Base
+        <p-sortIcon field="cpm_base" />
+      </th>
+      <th>CPM (Min-Max)</th>
+      <th pSortableColumn="created_at">
+        Created At
+        <p-sortIcon field="created_at" />
+      </th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-campaign>
+    <tr>
+      <td>{{ campaign.title }}</td>
+      <td>{{ campaign.min_days }}</td>
+      <td>{{ campaign.days_count }}</td>
+      <td>-</td>
+      <td>{{ campaign.category_name }}</td>
+      <td>{{ campaign.min_account_label }}</td>
+      <td>{{ campaign.budget | number: '1.0-0' : 'pl' }}</td>
+      <td>{{ campaign.currency }}</td>
+      <td>{{ campaign.cpm_base | number: '1.2-2' : 'pl' }}</td>
+      <td>{{ formatCpmRange(campaign.cpm_min, campaign.cpm_max) }}</td>
+      <td>{{ campaign.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
+      <td>
+        <p-button
+          icon="pi pi-pencil"
+          [rounded]="true"
+          [outlined]="true"
+          ariaLabel="Edit campaign"
+        />
+        <p-button
+          icon="pi pi-trash"
+          severity="danger"
+          [rounded]="true"
+          [outlined]="true"
+          ariaLabel="Delete campaign"
+        />
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="12">No campaigns found.</td>
+    </tr>
+  </ng-template>
+</p-table>

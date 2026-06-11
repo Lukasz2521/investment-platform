@@ -5,4 +5,5 @@ export const APP_ROUTE_PATHS = {
   users: 'users',
   banks: 'banks',
   transactions: 'transactions',
+  campaigns: 'campaigns',
 } as const;

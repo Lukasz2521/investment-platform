@@ -15,6 +15,7 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
   {
     label: 'Store',
     icon: 'pi pi-shop',
+    route: APP_ROUTE_PATHS.campaigns,
   },
   {
     label: 'Transactions',

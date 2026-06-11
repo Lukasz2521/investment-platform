@@ -1,0 +1,13 @@
+<p-toolbar class="campaigns-list-toolbar">
+  <ng-template #start>
+    <h1>Campaigns</h1>
+  </ng-template>
+
+  <ng-template #end>
+    <p-button icon="pi pi-plus" ariaLabel="Add campaign" />
+  </ng-template>
+</p-toolbar>
+
+<p-card>
+  <admin-app-campaigns-table [campaigns]="campaigns()" [loading]="loading()" />
+</p-card>

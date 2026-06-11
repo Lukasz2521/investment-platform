@@ -28,6 +28,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/banks/banks').then((m) => m.Banks),
       },
       {
+        path: APP_ROUTE_PATHS.campaigns,
+        loadComponent: () =>
+          import('./features/campaigns/campaigns-list').then((m) => m.CampaignsList),
+      },
+      {
         path: APP_ROUTE_PATHS.transactions,
         loadComponent: () =>
           import('./features/transactions/transactions-list').then((m) => m.TransactionsList),
