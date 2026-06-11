@@ -12,13 +12,15 @@
   <admin-app-banks-table
     [banks]="banks()"
     [loading]="loading()"
+    (editBank)="openEditDialog($event)"
     (deleteBank)="openDeleteDialog($event)"
   />
 </p-card>
 
 <admin-app-banks-add-dialog
-  [(visible)]="addDialogVisible"
-  (bankCreated)="onBankCreated($event)"
+  [(visible)]="formDialogVisible"
+  [bank]="bankToEdit()"
+  (bankSaved)="onBankSaved()"
 />
 
 <admin-app-banks-delete-dialog

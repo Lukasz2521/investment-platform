@@ -1,5 +1,5 @@
 <p-dialog
-  header="Add Bank"
+  [header]="dialogHeader()"
   [(visible)]="visible"
   [modal]="true"
   [draggable]="false"
@@ -50,8 +50,8 @@
 
       <div class="banks-add-dialog-column">
         <div class="banks-add-dialog-image">
-          @if (imagePreviewUrl(); as previewUrl) {
-            <img class="banks-add-dialog-image-preview" [src]="previewUrl" alt="Bank logo preview" />
+          @if (displayImageUrl(); as imageUrl) {
+            <img class="banks-add-dialog-image-preview" [src]="imageUrl" alt="Bank logo preview" />
           } @else {
             <span class="banks-add-dialog-image-placeholder">No Img</span>
           }
@@ -64,12 +64,25 @@
             (change)="onImageSelected($event)"
           />
 
-          <p-button
-            type="button"
-            label="UPLOAD IMAGE"
-            [outlined]="true"
-            (onClick)="imageInput.click()"
-          />
+          <div class="banks-add-dialog-image-actions">
+            <p-button
+              type="button"
+              [label]="imageButtonLabel()"
+              [outlined]="true"
+              (onClick)="imageInput.click()"
+            />
+
+            @if (isEditMode() && displayImageUrl()) {
+              <p-button
+                type="button"
+                icon="pi pi-trash"
+                severity="danger"
+                [outlined]="true"
+                ariaLabel="Remove image"
+                (onClick)="removeImage()"
+              />
+            }
+          </div>
         </div>
 
         <label class="banks-add-dialog-field">
@@ -101,7 +114,7 @@
       />
       <p-button
         type="button"
-        label="CREATE"
+        [label]="submitLabel()"
         severity="secondary"
         [loading]="submitting()"
         [disabled]="form.invalid || submitting()"

@@ -22,12 +22,19 @@ export class Banks {
 
   protected readonly loading = signal(true);
   protected readonly banks = signal<BankPublic[]>([]);
-  protected readonly addDialogVisible = signal(false);
+  protected readonly formDialogVisible = signal(false);
+  protected readonly bankToEdit = signal<BankPublic | null>(null);
   protected readonly deleteDialogVisible = signal(false);
   protected readonly bankToDelete = signal<BankPublic | null>(null);
   protected readonly deleting = signal(false);
 
   constructor() {
+    effect(() => {
+      if (!this.formDialogVisible()) {
+        this.bankToEdit.set(null);
+      }
+    });
+
     effect(() => {
       if (!this.deleteDialogVisible()) {
         this.bankToDelete.set(null);
@@ -59,11 +66,17 @@ export class Banks {
   }
 
   protected openAddDialog(): void {
-    this.addDialogVisible.set(true);
+    this.bankToEdit.set(null);
+    this.formDialogVisible.set(true);
   }
 
-  protected onBankCreated(bank: BankPublic): void {
-    this.banks.update((currentBanks) => [bank, ...currentBanks]);
+  protected openEditDialog(bank: BankPublic): void {
+    this.bankToEdit.set(bank);
+    this.formDialogVisible.set(true);
+  }
+
+  protected onBankSaved(): void {
+    this.loadBanks(true);
   }
 
   protected openDeleteDialog(bank: BankPublic): void {

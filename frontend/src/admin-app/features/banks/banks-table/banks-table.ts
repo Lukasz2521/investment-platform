@@ -19,6 +19,7 @@ export class BanksTable {
   readonly banks = input.required<BankPublic[]>();
   readonly loading = input(false);
 
+  readonly editBank = output<BankPublic>();
   readonly deleteBank = output<BankPublic>();
 
   protected onSearch(event: Event): void {
@@ -28,6 +29,11 @@ export class BanksTable {
 
   protected displayValue(value: string | null | undefined): string {
     return value?.trim() ? value : '-';
+  }
+
+  protected onEditClick(bank: BankPublic, event: Event): void {
+    event.stopPropagation();
+    this.editBank.emit(bank);
   }
 
   protected onDeleteClick(bank: BankPublic, event: Event): void {

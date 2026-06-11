@@ -72,6 +72,12 @@
   display: none;
 }
 
+.banks-add-dialog-image-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
 .banks-add-dialog-footer {
   display: flex;
   gap: 0.75rem;

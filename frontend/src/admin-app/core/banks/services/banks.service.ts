@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { BankCreate, BankPublic, BanksPublic } from '../models/bank.model';
+import { BankCreate, BankPublic, BanksPublic, BankUpdate } from '../models/bank.model';
 
 @Injectable({ providedIn: 'root' })
 export class BanksService {
@@ -17,6 +17,10 @@ export class BanksService {
 
   create(bank: BankCreate): Observable<BankPublic> {
     return this.http.post<BankPublic>(`${environment.apiUrl}/banks/`, bank);
+  }
+
+  update(bankId: string, bank: BankUpdate): Observable<BankPublic> {
+    return this.http.put<BankPublic>(`${environment.apiUrl}/banks/${bankId}`, bank);
   }
 
   delete(bankId: string): Observable<{ message: string }> {
