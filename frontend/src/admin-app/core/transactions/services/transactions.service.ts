@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { CreateTransaction, TransactionPublic, TransactionsPublic } from '../models/transaction.model';
+import { CreateTransaction, TransactionPublic, TransactionsPublic, UpdateTransaction } from '../models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionsService {
@@ -23,6 +23,13 @@ export class TransactionsService {
 
   create(transaction: CreateTransaction): Observable<TransactionPublic> {
     return this.http.post<TransactionPublic>(`${environment.apiUrl}/transactions/`, transaction);
+  }
+
+  update(transactionId: string, transaction: UpdateTransaction): Observable<TransactionPublic> {
+    return this.http.put<TransactionPublic>(
+      `${environment.apiUrl}/transactions/${transactionId}`,
+      transaction,
+    );
   }
 
   delete(transactionId: string): Observable<{ message: string }> {

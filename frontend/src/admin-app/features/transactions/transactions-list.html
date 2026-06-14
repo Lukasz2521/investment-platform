@@ -12,6 +12,7 @@
   <admin-app-transactions-table
     [transactions]="transactions()"
     [loading]="loading()"
+    (editTransaction)="openEditDialog($event)"
     (deleteTransaction)="openDeleteDialog($event)"
   />
 </p-card>
@@ -20,6 +21,12 @@
   [(visible)]="formDialogVisible"
   [users]="users()"
   (transactionCreated)="onTransactionCreated()"
+/>
+
+<admin-app-transactions-update-dialog
+  [(visible)]="editDialogVisible"
+  [transaction]="transactionToEdit()"
+  (transactionUpdated)="onTransactionUpdated()"
 />
 
 <admin-app-transactions-delete-dialog

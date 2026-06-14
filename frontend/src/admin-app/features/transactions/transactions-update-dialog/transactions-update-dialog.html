@@ -1,0 +1,52 @@
+<p-dialog
+  header="Update Transaction"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '32rem', maxWidth: '95vw' }"
+  styleClass="transactions-update-dialog"
+>
+  <form class="transactions-update-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="transactions-update-dialog-field">
+      <span class="transactions-update-dialog-label">Status</span>
+      <p-select
+        formControlName="status"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+      />
+    </label>
+
+    <label class="transactions-update-dialog-field">
+      <span class="transactions-update-dialog-label">Description</span>
+      <textarea
+        class="transactions-update-dialog-textarea"
+        formControlName="description"
+        rows="4"
+      ></textarea>
+    </label>
+  </form>
+
+  <ng-template #footer>
+    <div class="transactions-update-dialog-footer">
+      <p-button
+        type="button"
+        label="CANCEL"
+        [outlined]="true"
+        [disabled]="submitting()"
+        (onClick)="closeDialog()"
+      />
+      <p-button
+        type="button"
+        label="UPDATE"
+        severity="secondary"
+        [loading]="submitting()"
+        [disabled]="form.invalid || submitting()"
+        (onClick)="submit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

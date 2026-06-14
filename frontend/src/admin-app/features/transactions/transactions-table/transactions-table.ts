@@ -20,6 +20,7 @@ export class TransactionsTable {
   readonly loading = input(false);
 
   readonly deleteTransaction = output<TransactionTableRow>();
+  readonly editTransaction = output<TransactionTableRow>();
 
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
@@ -28,6 +29,11 @@ export class TransactionsTable {
 
   protected displayValue(value: string | null | undefined): string {
     return value?.trim() ? value : '-';
+  }
+
+  protected onEditClick(transaction: TransactionTableRow, event: Event): void {
+    event.stopPropagation();
+    this.editTransaction.emit(transaction);
   }
 
   protected onDeleteClick(transaction: TransactionTableRow, event: Event): void {

@@ -73,3 +73,13 @@ export type CreateTransaction = {
   user_id: string;
   description: string | null;
 };
+
+export type UpdateTransaction = {
+  status: TransactionStatus;
+  description: string | null;
+};
+
+export function toTransactionStatus(status: string): TransactionStatus {
+  const values = Object.values(TransactionStatus) as TransactionStatus[];
+  return values.find((value) => value === status) ?? TransactionStatus.Pending;
+}

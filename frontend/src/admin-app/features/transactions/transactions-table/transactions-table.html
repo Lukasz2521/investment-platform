@@ -71,6 +71,7 @@
           [rounded]="true"
           [outlined]="true"
           ariaLabel="Edit transaction"
+          (onClick)="onEditClick(transaction, $event)"
         />
         <p-button
           icon="pi pi-trash"

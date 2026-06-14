@@ -15,10 +15,19 @@ import { UsersService } from '../../core/users/services/users.service';
 import { TransactionsTable } from './transactions-table/transactions-table';
 import { TransactionsCreateDialog } from './transactions-create-dialog/transactions-create-dialog';
 import { TransactionsDeleteDialog } from './transactions-delete-dialog/transactions-delete-dialog';
+import { TransactionsUpdateDialog } from './transactions-update-dialog/transactions-update-dialog';
 
 @Component({
   selector: 'admin-app-transactions-list',
-  imports: [Toolbar, Card, Button, TransactionsTable, TransactionsCreateDialog, TransactionsDeleteDialog],
+  imports: [
+    Toolbar,
+    Card,
+    Button,
+    TransactionsTable,
+    TransactionsCreateDialog,
+    TransactionsDeleteDialog,
+    TransactionsUpdateDialog,
+  ],
   templateUrl: './transactions-list.html',
   styleUrl: './transactions-list.scss',
 })
@@ -31,7 +40,9 @@ export class TransactionsList {
   protected readonly transactions = signal<TransactionTableRow[]>([]);
   protected readonly users = signal<UserPublic[]>([]);
   protected readonly formDialogVisible = signal(false);
+  protected readonly editDialogVisible = signal(false);
   protected readonly deleteDialogVisible = signal(false);
+  protected readonly transactionToEdit = signal<TransactionTableRow | null>(null);
   protected readonly transactionToDelete = signal<TransactionTableRow | null>(null);
   protected readonly deleting = signal(false);
 
@@ -39,6 +50,12 @@ export class TransactionsList {
   private loadedUsers: UserPublic[] | null = null;
 
   constructor() {
+    effect(() => {
+      if (!this.editDialogVisible()) {
+        this.transactionToEdit.set(null);
+      }
+    });
+
     effect(() => {
       if (!this.deleteDialogVisible()) {
         this.transactionToDelete.set(null);
@@ -97,6 +114,15 @@ export class TransactionsList {
   }
 
   protected onTransactionCreated(): void {
+    this.loadTransactions(true);
+  }
+
+  protected openEditDialog(transaction: TransactionTableRow): void {
+    this.transactionToEdit.set(transaction);
+    this.editDialogVisible.set(true);
+  }
+
+  protected onTransactionUpdated(): void {
     this.loadTransactions(true);
   }
 
