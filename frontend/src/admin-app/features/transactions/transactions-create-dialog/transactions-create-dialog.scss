@@ -1,0 +1,46 @@
+:host ::ng-deep .transactions-create-dialog {
+  border: 1px solid var(--p-primary-color, #0b2d52);
+}
+
+.transactions-create-dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.transactions-create-dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.transactions-create-dialog-label {
+  color: var(--p-text-muted-color, #6c757d);
+  font-size: 0.875rem;
+}
+
+.transactions-create-dialog-required {
+  color: #dc3545;
+}
+
+.transactions-create-dialog-textarea {
+  border: 1px solid var(--p-inputtext-border-color, #ced4da);
+  border-radius: var(--p-inputtext-border-radius, 6px);
+  font-family: inherit;
+  font-size: 1rem;
+  min-height: 6rem;
+  padding: 0.5rem 0.75rem;
+  resize: vertical;
+  width: 100%;
+}
+
+.transactions-create-dialog-textarea:focus {
+  border-color: var(--p-primary-color, #0b2d52);
+  outline: none;
+}
+
+.transactions-create-dialog-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}

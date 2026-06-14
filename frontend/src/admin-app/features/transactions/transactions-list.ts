@@ -13,10 +13,11 @@ import {
 import { UserPublic } from '../../core/users/models/user.model';
 import { UsersService } from '../../core/users/services/users.service';
 import { TransactionsTable } from './transactions-table/transactions-table';
+import { TransactionsCreateDialog } from './transactions-create-dialog/transactions-create-dialog';
 
 @Component({
   selector: 'admin-app-transactions-list',
-  imports: [Toolbar, Card, Button, TransactionsTable],
+  imports: [Toolbar, Card, Button, TransactionsTable, TransactionsCreateDialog],
   templateUrl: './transactions-list.html',
   styleUrl: './transactions-list.scss',
 })
@@ -27,6 +28,8 @@ export class TransactionsList {
 
   protected readonly loading = signal(true);
   protected readonly transactions = signal<TransactionTableRow[]>([]);
+  protected readonly users = signal<UserPublic[]>([]);
+  protected readonly formDialogVisible = signal(false);
 
   private loadedTransactions: TransactionPublic[] | null = null;
   private loadedUsers: UserPublic[] | null = null;
@@ -47,13 +50,18 @@ export class TransactionsList {
     this.usersService.getAll().subscribe({
       next: ({ data }) => {
         this.loadedUsers = data;
+        this.users.set(data);
         this.syncTransactions();
       },
       error: () => this.loading.set(false),
     });
   }
 
-  private loadTransactions(): void {
+  private loadTransactions(showLoading = false): void {
+    if (showLoading) {
+      this.loading.set(true);
+    }
+
     this.transactionsService.getAll().subscribe({
       next: ({ data }) => {
         this.loadedTransactions = data;
@@ -72,5 +80,13 @@ export class TransactionsList {
       mapTransactionsWithUserEmail(this.loadedTransactions, this.loadedUsers),
     );
     this.loading.set(false);
+  }
+
+  protected openAddDialog(): void {
+    this.formDialogVisible.set(true);
+  }
+
+  protected onTransactionCreated(): void {
+    this.loadTransactions(true);
   }
 }

@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { TransactionsPublic } from '../models/transaction.model';
+import { CreateTransaction, TransactionPublic, TransactionsPublic } from '../models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionsService {
@@ -19,5 +19,9 @@ export class TransactionsService {
     const params = new HttpParams().set('skip', skip).set('limit', limit);
 
     return this.http.get<TransactionsPublic>(`${environment.apiUrl}/transactions/user/${userId}`, { params });
+  }
+
+  create(transaction: CreateTransaction): Observable<TransactionPublic> {
+    return this.http.post<TransactionPublic>(`${environment.apiUrl}/transactions/`, transaction);
   }
 }

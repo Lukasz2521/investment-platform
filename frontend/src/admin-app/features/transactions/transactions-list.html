@@ -4,10 +4,16 @@
   </ng-template>
 
   <ng-template #end>
-    <p-button icon="pi pi-plus" ariaLabel="Add transaction" />
+    <p-button icon="pi pi-plus" ariaLabel="Add transaction" (onClick)="openAddDialog()" />
   </ng-template>
 </p-toolbar>
 
 <p-card>
   <admin-app-transactions-table [transactions]="transactions()" [loading]="loading()" />
 </p-card>
+
+<admin-app-transactions-create-dialog
+  [(visible)]="formDialogVisible"
+  [users]="users()"
+  (transactionCreated)="onTransactionCreated()"
+/>
