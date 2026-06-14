@@ -24,4 +24,10 @@ export class TransactionsService {
   create(transaction: CreateTransaction): Observable<TransactionPublic> {
     return this.http.post<TransactionPublic>(`${environment.apiUrl}/transactions/`, transaction);
   }
+
+  delete(transactionId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${environment.apiUrl}/transactions/${transactionId}`,
+    );
+  }
 }

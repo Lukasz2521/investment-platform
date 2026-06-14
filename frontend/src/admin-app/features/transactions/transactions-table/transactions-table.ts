@@ -1,5 +1,5 @@
 import { DatePipe, DecimalPipe } from '@angular/common';
-import { Component, input, viewChild } from '@angular/core';
+import { Component, input, output, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -19,6 +19,8 @@ export class TransactionsTable {
   readonly transactions = input.required<TransactionTableRow[]>();
   readonly loading = input(false);
 
+  readonly deleteTransaction = output<TransactionTableRow>();
+
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.transactionsTable()?.filterGlobal(value, 'contains');
@@ -26,5 +28,10 @@ export class TransactionsTable {
 
   protected displayValue(value: string | null | undefined): string {
     return value?.trim() ? value : '-';
+  }
+
+  protected onDeleteClick(transaction: TransactionTableRow, event: Event): void {
+    event.stopPropagation();
+    this.deleteTransaction.emit(transaction);
   }
 }

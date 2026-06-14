@@ -59,7 +59,7 @@
     <tr>
       <td>{{ transaction.id }}</td>
       <td>{{ transaction.user_email }}</td>
-      <td>{{ transaction.amount | number: '1.2-2' : 'pl' }}</td>
+      <td>{{ transaction.amount | number: '1.2-2' }}</td>
       <td>€</td>
       <td>{{ transaction.transaction_type }}</td>
       <td>{{ displayValue(transaction.description) }}</td>
@@ -78,6 +78,7 @@
           [rounded]="true"
           [outlined]="true"
           ariaLabel="Delete transaction"
+          (onClick)="onDeleteClick(transaction, $event)"
         />
       </td>
     </tr>

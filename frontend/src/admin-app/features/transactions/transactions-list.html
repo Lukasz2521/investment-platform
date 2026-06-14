@@ -9,11 +9,22 @@
 </p-toolbar>
 
 <p-card>
-  <admin-app-transactions-table [transactions]="transactions()" [loading]="loading()" />
+  <admin-app-transactions-table
+    [transactions]="transactions()"
+    [loading]="loading()"
+    (deleteTransaction)="openDeleteDialog($event)"
+  />
 </p-card>
 
 <admin-app-transactions-create-dialog
   [(visible)]="formDialogVisible"
   [users]="users()"
   (transactionCreated)="onTransactionCreated()"
+/>
+
+<admin-app-transactions-delete-dialog
+  [(visible)]="deleteDialogVisible"
+  [transaction]="transactionToDelete()"
+  [deleting]="deleting()"
+  (confirm)="confirmDelete()"
 />

@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { afterNextRender, Component, inject, PLATFORM_ID, signal } from '@angular/core';
+import { afterNextRender, Component, effect, inject, PLATFORM_ID, signal } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Toolbar } from 'primeng/toolbar';
@@ -14,10 +14,11 @@ import { UserPublic } from '../../core/users/models/user.model';
 import { UsersService } from '../../core/users/services/users.service';
 import { TransactionsTable } from './transactions-table/transactions-table';
 import { TransactionsCreateDialog } from './transactions-create-dialog/transactions-create-dialog';
+import { TransactionsDeleteDialog } from './transactions-delete-dialog/transactions-delete-dialog';
 
 @Component({
   selector: 'admin-app-transactions-list',
-  imports: [Toolbar, Card, Button, TransactionsTable, TransactionsCreateDialog],
+  imports: [Toolbar, Card, Button, TransactionsTable, TransactionsCreateDialog, TransactionsDeleteDialog],
   templateUrl: './transactions-list.html',
   styleUrl: './transactions-list.scss',
 })
@@ -30,11 +31,20 @@ export class TransactionsList {
   protected readonly transactions = signal<TransactionTableRow[]>([]);
   protected readonly users = signal<UserPublic[]>([]);
   protected readonly formDialogVisible = signal(false);
+  protected readonly deleteDialogVisible = signal(false);
+  protected readonly transactionToDelete = signal<TransactionTableRow | null>(null);
+  protected readonly deleting = signal(false);
 
   private loadedTransactions: TransactionPublic[] | null = null;
   private loadedUsers: UserPublic[] | null = null;
 
   constructor() {
+    effect(() => {
+      if (!this.deleteDialogVisible()) {
+        this.transactionToDelete.set(null);
+      }
+    });
+
     afterNextRender(() => {
       if (!isPlatformBrowser(this.platformId)) {
         this.loading.set(false);
@@ -88,5 +98,27 @@ export class TransactionsList {
 
   protected onTransactionCreated(): void {
     this.loadTransactions(true);
+  }
+
+  protected openDeleteDialog(transaction: TransactionTableRow): void {
+    this.transactionToDelete.set(transaction);
+    this.deleteDialogVisible.set(true);
+  }
+
+  protected confirmDelete(): void {
+    const transaction = this.transactionToDelete();
+    if (!transaction || this.deleting()) {
+      return;
+    }
+
+    this.deleting.set(true);
+    this.transactionsService.delete(transaction.id).subscribe({
+      next: () => {
+        this.deleteDialogVisible.set(false);
+        this.deleting.set(false);
+        this.loadTransactions(true);
+      },
+      error: () => this.deleting.set(false),
+    });
   }
 }
