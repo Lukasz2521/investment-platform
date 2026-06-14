@@ -6,6 +6,7 @@ import { Popover } from 'primeng/popover';
 import { Tag } from 'primeng/tag';
 
 import { AuthService } from '../../../core/auth/services/auth.service';
+import { SessionTimeoutService } from '../../../core/auth/services/session-timeout.service';
 import { AppRoutingService } from '../../../core/routing/app-routing.service';
 import { ThemeService } from '../../../core/theme/theme.service';
 import { UserPublic } from '../../../core/users/models/user.model';
@@ -28,6 +29,7 @@ import {
 export class ShellTopbarActions {
   protected readonly themeService = inject(ThemeService);
   private readonly authService = inject(AuthService);
+  private readonly sessionTimeoutService = inject(SessionTimeoutService);
   private readonly appRouting = inject(AppRoutingService);
   private readonly usersService = inject(UsersService);
   private readonly platformId = inject(PLATFORM_ID);
@@ -53,6 +55,7 @@ export class ShellTopbarActions {
 
   protected logout(): void {
     this.userMenu()?.hide();
+    this.sessionTimeoutService.stop();
     this.authService.logout();
     this.currentUser.set(null);
     this.appRouting.navigateToLogin();
