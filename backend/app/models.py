@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Self
 
 from pydantic import ConfigDict, EmailStr, model_validator
-from sqlalchemy import Column, DateTime, Numeric
+from sqlalchemy import Column, DateTime, Numeric, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
@@ -438,6 +438,7 @@ class Bank(BankBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore[assignment]
     )
+    accounts: list["AccountBank"] = Relationship(back_populates="bank", cascade_delete=True)
 
 
 class BankCreate(BankBase):
@@ -460,6 +461,12 @@ class BankUpdate(SQLModel):
 class BankPublic(BankBase):
     id: uuid.UUID
     created_at: datetime | None = None
+
+
+class AccountBankPublic(SQLModel):
+    id: uuid.UUID
+    is_enabled: bool
+    bank: BankPublic
 
 
 class BanksPublic(SQLModel):
@@ -521,6 +528,7 @@ class Account(AccountBase, table=True):
         sa_type=DateTime(timezone=True),  # type: ignore[assignment]
     )
     user: User | None = Relationship(back_populates="account")
+    banks: list["AccountBank"] = Relationship(back_populates="account", cascade_delete=True)
 
 
 class AccountCreate(SQLModel):
@@ -554,11 +562,59 @@ class AccountPublic(AccountBase):
     id: uuid.UUID
     user_id: uuid.UUID
     created_at: datetime | None = None
+    banks: list[AccountBankPublic] = Field(default_factory=list)
+
+    @classmethod
+    def from_account(cls, account: "Account") -> Self:
+        return cls(
+            **AccountBase.model_validate(account).model_dump(),
+            id=account.id,
+            user_id=account.user_id,
+            created_at=account.created_at,
+            banks=_account_banks_from_account(account),
+        )
 
 
 class AccountPublicForUser(AccountBase):
     created_at: datetime | None = None
+    banks: list[AccountBankPublic] = Field(default_factory=list)
+
+    @classmethod
+    def from_account(cls, account: "Account") -> Self:
+        return cls(
+            **AccountBase.model_validate(account).model_dump(),
+            created_at=account.created_at,
+            banks=_account_banks_from_account(account),
+        )
 
 
 class UserPublicWithAccount(UserPublic):
     account: AccountPublicForUser | None = None
+
+
+class AccountBank(SQLModel, table=True):
+    __tablename__ = "account_bank"
+    __table_args__ = (UniqueConstraint("account_id", "bank_id"),)
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    account_id: uuid.UUID = Field(
+        foreign_key="account.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    bank_id: uuid.UUID = Field(
+        foreign_key="bank.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    is_enabled: bool = Field(default=False)
+    account: Account | None = Relationship(back_populates="banks")
+    bank: Bank | None = Relationship(back_populates="accounts")
+
+
+def _account_banks_from_account(account: "Account") -> list[AccountBankPublic]:
+    return [
+        AccountBankPublic(
+            id=link.id,
+            is_enabled=link.is_enabled,
+            bank=BankPublic.model_validate(link.bank),
+        )
+        for link in account.banks
+        if link.bank is not None
+    ]

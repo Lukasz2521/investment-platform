@@ -3,6 +3,7 @@ from datetime import timedelta
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import selectinload
 from sqlmodel import col, delete, func, select
 
 from app import crud
@@ -16,6 +17,7 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     Account,
+    AccountBank,
     AccountPublicForUser,
     Item,
     Message,
@@ -255,10 +257,16 @@ def read_user_by_id(
             detail="The user doesn't have enough privileges",
         )
 
-    account = session.exec(select(Account).where(Account.user_id == user_id)).first()
+    account = session.exec(
+        select(Account)
+        .where(Account.user_id == user_id)
+        .options(
+            selectinload(Account.banks).selectinload(AccountBank.bank),
+        )
+    ).first()
     return UserPublicWithAccount(
         **UserPublic.model_validate(user).model_dump(),
-        account=AccountPublicForUser.model_validate(account) if account else None,
+        account=AccountPublicForUser.from_account(account) if account else None,
     )
 
 
