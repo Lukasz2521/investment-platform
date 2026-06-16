@@ -5,6 +5,8 @@ from sqlmodel import Session, col, func, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    Account,
+    AccountBank,
     Bank,
     BankCreate,
     BankUpdate,
@@ -257,3 +259,34 @@ def update_bank(*, session: Session, db_bank: Bank, bank_in: BankUpdate) -> Bank
     session.commit()
     session.refresh(db_bank)
     return db_bank
+
+
+def set_account_bank_enabled(
+    *,
+    session: Session,
+    account: Account,
+    bank_id: uuid.UUID,
+    is_enabled: bool,
+) -> AccountBank:
+    bank = session.get(Bank, bank_id)
+    if not bank:
+        raise ValueError("Bank not found")
+
+    statement = select(AccountBank).where(
+        AccountBank.account_id == account.id,
+        AccountBank.bank_id == bank_id,
+    )
+    link = session.exec(statement).first()
+    if link:
+        link.is_enabled = is_enabled
+    else:
+        link = AccountBank(
+            account_id=account.id,
+            bank_id=bank_id,
+            is_enabled=is_enabled,
+        )
+        session.add(link)
+
+    session.commit()
+    session.refresh(link)
+    return link

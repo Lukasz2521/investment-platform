@@ -469,6 +469,10 @@ class AccountBankPublic(SQLModel):
     bank: BankPublic
 
 
+class AccountBankUpdate(SQLModel):
+    is_enabled: bool
+
+
 class BanksPublic(SQLModel):
     data: list[BankPublic]
     count: int

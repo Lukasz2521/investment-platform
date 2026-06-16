@@ -1,4 +1,11 @@
 import { AccountType } from './account-type.model';
+import { BankPublic } from '../../banks/models/bank.model';
+
+export type AccountBankPublic = {
+  id: string;
+  is_enabled: boolean;
+  bank: BankPublic;
+};
 
 export type AccountPublicForUser = {
   account_type: AccountType;
@@ -10,6 +17,7 @@ export type AccountPublicForUser = {
   custom_campaigns: boolean;
   card_payments: boolean;
   created_at: string | null;
+  banks: AccountBankPublic[];
 };
 
 export type UserPublic = {

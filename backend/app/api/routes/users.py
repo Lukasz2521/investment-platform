@@ -18,7 +18,10 @@ from app.core.security import get_password_hash, verify_password
 from app.models import (
     Account,
     AccountBank,
+    AccountBankPublic,
+    AccountBankUpdate,
     AccountPublicForUser,
+    BankPublic,
     Item,
     Message,
     Token,
@@ -267,6 +270,48 @@ def read_user_by_id(
     return UserPublicWithAccount(
         **UserPublic.model_validate(user).model_dump(),
         account=AccountPublicForUser.from_account(account) if account else None,
+    )
+
+
+@router.patch(
+    "/{user_id}/account/banks/{bank_id}",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=AccountBankPublic,
+)
+def update_user_account_bank(
+    *,
+    session: SessionDep,
+    user_id: uuid.UUID,
+    bank_id: uuid.UUID,
+    bank_in: AccountBankUpdate,
+) -> AccountBankPublic:
+    """
+    Enable or disable a bank for a user's account.
+    """
+    account = session.exec(select(Account).where(Account.user_id == user_id)).first()
+    if not account:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    try:
+        link = crud.set_account_bank_enabled(
+            session=session,
+            account=account,
+            bank_id=bank_id,
+            is_enabled=bank_in.is_enabled,
+        )
+    except ValueError:
+        raise HTTPException(status_code=404, detail="Bank not found")
+
+    link = session.exec(
+        select(AccountBank)
+        .where(AccountBank.id == link.id)
+        .options(selectinload(AccountBank.bank))
+    ).one()
+
+    return AccountBankPublic(
+        id=link.id,
+        is_enabled=link.is_enabled,
+        bank=BankPublic.model_validate(link.bank),
     )
 
 

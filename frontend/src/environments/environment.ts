@@ -1,4 +1,4 @@
 export const environment = {
   apiUrl: '/api/v1',
-  sessionInactivityTimeoutMinutes: 1,
+  sessionInactivityTimeoutMinutes: 30,
 };

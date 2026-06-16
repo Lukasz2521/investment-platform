@@ -1,0 +1,25 @@
+<section class="user-detail-profile-banks">
+  <h2 class="user-detail-profile-banks-title">Banks</h2>
+
+  @if (!account()) {
+    <p class="user-detail-profile-banks-empty">No account</p>
+  } @else if (loading()) {
+    <p class="user-detail-profile-banks-empty">Loading banks...</p>
+  } @else if (bankRows().length === 0) {
+    <p class="user-detail-profile-banks-empty">No banks available.</p>
+  } @else {
+    <div class="user-detail-profile-banks-grid">
+      @for (row of bankRows(); track row.bank.id) {
+        <div class="user-detail-profile-banks-item">
+          <p-toggleswitch
+            [inputId]="'bank-' + row.bank.id"
+            [ngModel]="row.isEnabled"
+            [disabled]="row.updating"
+            (ngModelChange)="onBankToggle(row, $event)"
+          />
+          <label [for]="'bank-' + row.bank.id">{{ row.bank.name }}</label>
+        </div>
+      }
+    </div>
+  }
+</section>

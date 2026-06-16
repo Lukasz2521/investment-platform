@@ -47,7 +47,12 @@
       </p-tablist>
 
       <p-tabpanels>
-        <p-tabpanel value="profile" />
+        <p-tabpanel value="profile">
+          <admin-app-user-detail-profile-banks
+            [userId]="currentUser.id"
+            [account]="currentUser.account"
+          />
+        </p-tabpanel>
         <p-tabpanel value="campaigns" />
         <p-tabpanel value="transactions" />
         <p-tabpanel value="withdraws" />

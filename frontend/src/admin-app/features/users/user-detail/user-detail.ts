@@ -9,6 +9,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { getUserDisplayName } from '../../../core/users/utils/user-display.utils';
 import { UserDetailAccountDetails } from './account-details/user-detail-account-details';
 import { UserDetailProfile } from './profile/user-detail-profile';
+import { UserDetailProfileBanks } from './profile-banks/user-detail-profile-banks';
 import { UserDetailsService } from './user-details.service';
 
 @Component({
@@ -25,6 +26,7 @@ import { UserDetailsService } from './user-details.service';
     Tabs,
     UserDetailAccountDetails,
     UserDetailProfile,
+    UserDetailProfileBanks,
   ],
   providers: [UserDetailsService],
   templateUrl: './user-detail.html',
