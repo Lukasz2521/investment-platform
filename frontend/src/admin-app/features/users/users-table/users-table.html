@@ -80,13 +80,15 @@
       </td>
       <td>{{ user.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
       <td>
-        <p-button
-          icon="pi pi-eye"
-          [rounded]="true"
-          [outlined]="true"
-          ariaLabel="View user"
-          (onClick)="viewUser.emit(user.id)"
-        />
+        <div class="table-actions">
+          <p-button
+            icon="pi pi-eye"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="View user"
+            (onClick)="viewUser.emit(user.id)"
+          />
+        </div>
       </td>
     </tr>
   </ng-template>

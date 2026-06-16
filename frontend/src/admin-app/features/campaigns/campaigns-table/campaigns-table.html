@@ -78,19 +78,21 @@
       <td>{{ formatCpmRange(campaign.cpm_min, campaign.cpm_max) }}</td>
       <td>{{ campaign.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
       <td>
-        <p-button
-          icon="pi pi-pencil"
-          [rounded]="true"
-          [outlined]="true"
-          ariaLabel="Edit campaign"
-        />
-        <p-button
-          icon="pi pi-trash"
-          severity="danger"
-          [rounded]="true"
-          [outlined]="true"
-          ariaLabel="Delete campaign"
-        />
+        <div class="table-actions">
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="Edit campaign"
+          />
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="Delete campaign"
+          />
+        </div>
       </td>
     </tr>
   </ng-template>

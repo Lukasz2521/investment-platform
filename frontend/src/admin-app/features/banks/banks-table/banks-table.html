@@ -87,21 +87,23 @@
       <td>{{ displayValue(bank.bank_description) }}</td>
       <td>€</td>
       <td>
-        <p-button
-          icon="pi pi-pencil"
-          [rounded]="true"
-          [outlined]="true"
-          ariaLabel="Edit bank"
-          (onClick)="onEditClick(bank, $event)"
-        />
-        <p-button
-          icon="pi pi-trash"
-          severity="danger"
-          [rounded]="true"
-          [outlined]="true"
-          ariaLabel="Delete bank"
-          (onClick)="onDeleteClick(bank, $event)"
-        />
+        <div class="table-actions">
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="Edit bank"
+            (onClick)="onEditClick(bank, $event)"
+          />
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="Delete bank"
+            (onClick)="onDeleteClick(bank, $event)"
+          />
+        </div>
       </td>
     </tr>
   </ng-template>

@@ -25,3 +25,21 @@ body {
     Arial,
     sans-serif;
 }
+
+.table-actions {
+  align-items: center;
+  display: inline-flex;
+  gap: 0.5rem;
+}
+
+.table-actions .p-button.p-button-outlined {
+  border-color: transparent;
+  border-width: 0;
+}
+
+.table-actions .p-button.p-button-outlined:not(:disabled):hover,
+.table-actions .p-button.p-button-outlined:not(:disabled):active,
+.table-actions .p-button.p-button-outlined:not(:disabled):focus-visible {
+  border-color: transparent;
+  border-width: 0;
+}
