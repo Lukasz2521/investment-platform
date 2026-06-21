@@ -37,6 +37,7 @@
           [categories]="categories()"
           [loading]="categoriesLoading()"
           (editCategory)="openEditCategoryDialog($event)"
+          (deleteCategory)="openDeleteCategoryDialog($event)"
         />
       </p-card>
     </p-tabpanel>
@@ -47,4 +48,11 @@
   [(visible)]="categoryFormDialogVisible"
   [category]="categoryToEdit()"
   (categorySaved)="onCategorySaved()"
+/>
+
+<admin-app-categories-delete-dialog
+  [(visible)]="categoryDeleteDialogVisible"
+  [category]="categoryToDelete()"
+  [deleting]="categoryDeleting()"
+  (confirm)="confirmDeleteCategory()"
 />

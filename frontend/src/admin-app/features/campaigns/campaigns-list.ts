@@ -19,6 +19,7 @@ import {
 } from '../../core/campaigns/utils/category-display.utils';
 import { CampaignsTable } from './campaigns-table/campaigns-table';
 import { CategoriesCreateDialog } from './categories-create-dialog/categories-create-dialog';
+import { CategoriesDeleteDialog } from './categories-delete-dialog/categories-delete-dialog';
 import { CategoriesTable } from './categories-table/categories-table';
 
 @Component({
@@ -35,6 +36,7 @@ import { CategoriesTable } from './categories-table/categories-table';
     CampaignsTable,
     CategoriesTable,
     CategoriesCreateDialog,
+    CategoriesDeleteDialog,
   ],
   templateUrl: './campaigns-list.html',
   styleUrl: './campaigns-list.scss',
@@ -50,6 +52,9 @@ export class CampaignsList {
   protected readonly categories = signal<CategoryTableRow[]>([]);
   protected readonly categoryFormDialogVisible = signal(false);
   protected readonly categoryToEdit = signal<CategoryPublic | null>(null);
+  protected readonly categoryDeleteDialogVisible = signal(false);
+  protected readonly categoryToDelete = signal<CategoryPublic | null>(null);
+  protected readonly categoryDeleting = signal(false);
 
   private loadedCampaigns: CampaignPublic[] | null = null;
   private loadedCategories: CategoryPublic[] | null = null;
@@ -58,6 +63,12 @@ export class CampaignsList {
     effect(() => {
       if (!this.categoryFormDialogVisible()) {
         this.categoryToEdit.set(null);
+      }
+    });
+
+    effect(() => {
+      if (!this.categoryDeleteDialogVisible()) {
+        this.categoryToDelete.set(null);
       }
     });
 
@@ -83,8 +94,30 @@ export class CampaignsList {
     this.categoryFormDialogVisible.set(true);
   }
 
+  protected openDeleteCategoryDialog(category: CategoryTableRow): void {
+    this.categoryToDelete.set(category);
+    this.categoryDeleteDialogVisible.set(true);
+  }
+
   protected onCategorySaved(): void {
     this.loadCategories(true);
+  }
+
+  protected confirmDeleteCategory(): void {
+    const category = this.categoryToDelete();
+    if (!category || this.categoryDeleting()) {
+      return;
+    }
+
+    this.categoryDeleting.set(true);
+    this.categoriesService.delete(category.id).subscribe({
+      next: () => {
+        this.categoryDeleteDialogVisible.set(false);
+        this.categoryDeleting.set(false);
+        this.loadCategories(true);
+      },
+      error: () => this.categoryDeleting.set(false),
+    });
   }
 
   private loadCategories(showLoading = false): void {

@@ -23,4 +23,10 @@ export class CategoriesService {
       category,
     );
   }
+
+  delete(categoryId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(
+      `${environment.apiUrl}/campaigns/categories/${categoryId}`,
+    );
+  }
 }

@@ -19,6 +19,7 @@ export class CategoriesTable {
   readonly loading = input(false);
 
   readonly editCategory = output<CategoryTableRow>();
+  readonly deleteCategory = output<CategoryTableRow>();
 
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
@@ -28,5 +29,10 @@ export class CategoriesTable {
   protected onEditClick(category: CategoryTableRow, event: Event): void {
     event.stopPropagation();
     this.editCategory.emit(category);
+  }
+
+  protected onDeleteClick(category: CategoryTableRow, event: Event): void {
+    event.stopPropagation();
+    this.deleteCategory.emit(category);
   }
 }
