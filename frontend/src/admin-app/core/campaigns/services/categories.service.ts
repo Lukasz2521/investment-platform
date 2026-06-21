@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { CategoryPublic } from '../models/category.model';
+import { CategoryCreate, CategoryPublic } from '../models/category.model';
 
 @Injectable({ providedIn: 'root' })
 export class CategoriesService {
@@ -11,5 +11,9 @@ export class CategoriesService {
 
   getAll(): Observable<CategoryPublic[]> {
     return this.http.get<CategoryPublic[]>(`${environment.apiUrl}/campaigns/categories/`);
+  }
+
+  create(category: CategoryCreate): Observable<CategoryPublic> {
+    return this.http.post<CategoryPublic>(`${environment.apiUrl}/campaigns/categories/`, category);
   }
 }

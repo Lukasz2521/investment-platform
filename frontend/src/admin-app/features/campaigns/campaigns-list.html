@@ -28,7 +28,7 @@
         </ng-template>
 
         <ng-template #end>
-          <p-button icon="pi pi-plus" ariaLabel="Add category" />
+          <p-button icon="pi pi-plus" ariaLabel="Add category" (onClick)="openAddCategoryDialog()" />
         </ng-template>
       </p-toolbar>
 
@@ -38,3 +38,8 @@
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>
+
+<admin-app-categories-create-dialog
+  [(visible)]="categoryFormDialogVisible"
+  (categoryCreated)="onCategorySaved()"
+/>

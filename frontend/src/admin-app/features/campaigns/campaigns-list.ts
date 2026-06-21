@@ -18,6 +18,7 @@ import {
   mapCategoriesForTable,
 } from '../../core/campaigns/utils/category-display.utils';
 import { CampaignsTable } from './campaigns-table/campaigns-table';
+import { CategoriesCreateDialog } from './categories-create-dialog/categories-create-dialog';
 import { CategoriesTable } from './categories-table/categories-table';
 
 @Component({
@@ -33,6 +34,7 @@ import { CategoriesTable } from './categories-table/categories-table';
     TabPanel,
     CampaignsTable,
     CategoriesTable,
+    CategoriesCreateDialog,
   ],
   templateUrl: './campaigns-list.html',
   styleUrl: './campaigns-list.scss',
@@ -46,6 +48,7 @@ export class CampaignsList {
   protected readonly categoriesLoading = signal(true);
   protected readonly campaigns = signal<CampaignTableRow[]>([]);
   protected readonly categories = signal<CategoryTableRow[]>([]);
+  protected readonly categoryFormDialogVisible = signal(false);
 
   private loadedCampaigns: CampaignPublic[] | null = null;
   private loadedCategories: CategoryPublic[] | null = null;
@@ -63,7 +66,19 @@ export class CampaignsList {
     });
   }
 
-  private loadCategories(): void {
+  protected openAddCategoryDialog(): void {
+    this.categoryFormDialogVisible.set(true);
+  }
+
+  protected onCategorySaved(): void {
+    this.loadCategories(true);
+  }
+
+  private loadCategories(showLoading = false): void {
+    if (showLoading) {
+      this.categoriesLoading.set(true);
+    }
+
     this.categoriesService.getAll().subscribe({
       next: (categories) => {
         this.loadedCategories = categories;

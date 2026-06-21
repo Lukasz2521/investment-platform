@@ -1,0 +1,41 @@
+<p-dialog
+  header="Create Category"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '32rem', maxWidth: '95vw' }"
+  styleClass="categories-create-dialog"
+  (onHide)="closeDialog()"
+>
+  <form class="categories-create-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="categories-create-dialog-field">
+      <span class="categories-create-dialog-label"
+        >Category Name<span class="categories-create-dialog-required">*</span></span
+      >
+      <input pInputText type="text" formControlName="name" />
+    </label>
+  </form>
+
+  <ng-template #footer>
+    <div class="categories-create-dialog-footer">
+      <p-button
+        type="button"
+        label="CANCEL"
+        [outlined]="true"
+        [disabled]="submitting()"
+        (onClick)="closeDialog()"
+      />
+      <p-button
+        type="button"
+        label="SAVE"
+        severity="secondary"
+        [loading]="submitting()"
+        [disabled]="form.invalid || submitting()"
+        (onClick)="submit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

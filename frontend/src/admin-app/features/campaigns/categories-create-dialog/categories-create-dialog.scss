@@ -1,0 +1,30 @@
+:host ::ng-deep .categories-create-dialog {
+  border: 1px solid var(--p-primary-color, #0b2d52);
+}
+
+.categories-create-dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.categories-create-dialog-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.categories-create-dialog-label {
+  color: var(--p-text-muted-color, #6c757d);
+  font-size: 0.875rem;
+}
+
+.categories-create-dialog-required {
+  color: #dc3545;
+}
+
+.categories-create-dialog-footer {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
