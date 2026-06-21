@@ -25,6 +25,10 @@ export class UsersService {
     return this.http.patch<UserPublic>(`${environment.apiUrl}/users/${userId}`, user);
   }
 
+  delete(userId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${environment.apiUrl}/users/${userId}`);
+  }
+
   setAccountBankEnabled(
     userId: string,
     bankId: string,

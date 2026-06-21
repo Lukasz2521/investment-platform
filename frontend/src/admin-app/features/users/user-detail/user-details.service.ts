@@ -89,4 +89,21 @@ export class UserDetailsService {
       )
       .subscribe();
   }
+
+  deleteUser(
+    userId: string,
+    callbacks: { onSuccess: () => void; onError: () => void },
+  ): void {
+    this.usersService
+      .delete(userId)
+      .pipe(
+        take(1),
+        tap(() => callbacks.onSuccess()),
+        catchError(() => {
+          callbacks.onError();
+          return EMPTY;
+        }),
+      )
+      .subscribe();
+  }
 }

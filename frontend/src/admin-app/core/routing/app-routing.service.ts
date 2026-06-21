@@ -18,4 +18,8 @@ export class AppRoutingService {
   navigateToUser(userId: string): void {
     void this.router.navigate([APP_ROUTE_PATHS.users, userId]);
   }
+
+  navigateToUsers(): void {
+    void this.router.navigate([APP_ROUTE_PATHS.users]);
+  }
 }

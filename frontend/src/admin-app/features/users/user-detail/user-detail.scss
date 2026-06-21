@@ -24,8 +24,10 @@
   gap: 1.25rem;
 }
 
-.user-detail-make-admin-button {
-  align-self: flex-start;
+.user-detail-account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .user-detail-summary {

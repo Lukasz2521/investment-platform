@@ -8,7 +8,9 @@ import { ProgressSpinner } from 'primeng/progressspinner';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { getUserDisplayName } from '../../../core/users/utils/user-display.utils';
+import { AppRoutingService } from '../../../core/routing/app-routing.service';
 import { UserDetailAccountDetails } from './account-details/user-detail-account-details';
+import { UserDetailDeleteDialog } from './delete-dialog/user-detail-delete-dialog';
 import { UserDetailMakeAdminDialog } from './make-admin-dialog/user-detail-make-admin-dialog';
 import { UserDetailProfile } from './profile/user-detail-profile';
 import { UserDetailProfileBanks } from './profile-banks/user-detail-profile-banks';
@@ -28,6 +30,7 @@ import { UserDetailsService } from './user-details.service';
     TabPanels,
     Tabs,
     UserDetailAccountDetails,
+    UserDetailDeleteDialog,
     UserDetailMakeAdminDialog,
     UserDetailProfile,
     UserDetailProfileBanks,
@@ -39,6 +42,7 @@ import { UserDetailsService } from './user-details.service';
 export class UserDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly appRouting = inject(AppRoutingService);
   private readonly userDetailsService = inject(UserDetailsService);
 
   protected readonly user = this.userDetailsService.user;
@@ -60,6 +64,8 @@ export class UserDetail {
 
   protected readonly makeAdminDialogVisible = signal(false);
   protected readonly makeAdminSubmitting = signal(false);
+  protected readonly deleteDialogVisible = signal(false);
+  protected readonly deleteSubmitting = signal(false);
 
   constructor() {
     afterNextRender(() => {
@@ -95,6 +101,29 @@ export class UserDetail {
       },
       onError: () => {
         this.makeAdminSubmitting.set(false);
+      },
+    });
+  }
+
+  protected openDeleteDialog(): void {
+    this.deleteDialogVisible.set(true);
+  }
+
+  protected confirmDeleteUser(): void {
+    const currentUser = this.user();
+    if (!currentUser.id || this.deleteSubmitting()) {
+      return;
+    }
+
+    this.deleteSubmitting.set(true);
+    this.userDetailsService.deleteUser(currentUser.id, {
+      onSuccess: () => {
+        this.deleteDialogVisible.set(false);
+        this.deleteSubmitting.set(false);
+        this.appRouting.navigateToUsers();
+      },
+      onError: () => {
+        this.deleteSubmitting.set(false);
       },
     });
   }

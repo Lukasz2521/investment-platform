@@ -12,14 +12,22 @@
       <div class="user-detail-account-column">
         <admin-app-user-detail-account-details [account]="currentUser.account" />
 
-        @if (!currentUser.is_superuser) {
+        <div class="user-detail-account-actions">
+          @if (!currentUser.is_superuser) {
+            <p-button
+              label="make as admin"
+              [outlined]="true"
+              (onClick)="openMakeAdminDialog()"
+            />
+          }
+
           <p-button
-            class="user-detail-make-admin-button"
-            label="make as admin"
+            label="delete user"
+            severity="danger"
             [outlined]="true"
-            (onClick)="openMakeAdminDialog()"
+            (onClick)="openDeleteDialog()"
           />
-        }
+        </div>
       </div>
     </div>
 
@@ -80,4 +88,11 @@
   [user]="user()"
   [submitting]="makeAdminSubmitting()"
   (confirm)="confirmMakeAdmin()"
+/>
+
+<admin-app-user-detail-delete-dialog
+  [(visible)]="deleteDialogVisible"
+  [user]="user()"
+  [deleting]="deleteSubmitting()"
+  (confirm)="confirmDeleteUser()"
 />
