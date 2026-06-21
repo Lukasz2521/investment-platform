@@ -7,3 +7,7 @@ export type CategoryPublic = {
 export type CategoryCreate = {
   name: string;
 };
+
+export type CategoryUpdate = {
+  name: string;
+};

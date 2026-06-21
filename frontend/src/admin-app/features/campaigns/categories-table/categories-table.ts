@@ -1,4 +1,4 @@
-import { Component, input, viewChild } from '@angular/core';
+import { Component, input, output, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -18,8 +18,15 @@ export class CategoriesTable {
   readonly categories = input.required<CategoryTableRow[]>();
   readonly loading = input(false);
 
+  readonly editCategory = output<CategoryTableRow>();
+
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
     this.categoriesTable()?.filterGlobal(value, 'contains');
+  }
+
+  protected onEditClick(category: CategoryTableRow, event: Event): void {
+    event.stopPropagation();
+    this.editCategory.emit(category);
   }
 }

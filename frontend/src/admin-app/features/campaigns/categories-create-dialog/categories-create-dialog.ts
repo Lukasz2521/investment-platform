@@ -1,4 +1,4 @@
-import { Component, effect, inject, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
@@ -18,24 +18,32 @@ export class CategoriesCreateDialog {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly visible = model(false);
+  readonly category = input<CategoryPublic | null>(null);
 
-  readonly categoryCreated = output<CategoryPublic>();
+  readonly categorySaved = output<CategoryPublic>();
 
   protected readonly submitting = signal(false);
+  protected readonly isEditMode = computed(() => this.category() !== null);
+  protected readonly dialogHeader = computed(() =>
+    this.isEditMode() ? 'Edit Category' : 'Create Category',
+  );
 
   protected readonly form = this.formBuilder.nonNullable.group({
     name: ['', [Validators.required, Validators.pattern(/\S+/)]],
   });
 
-  private wasVisible = false;
-
   constructor() {
     effect(() => {
-      const isVisible = this.visible();
-      if (isVisible && !this.wasVisible) {
+      if (!this.visible()) {
+        return;
+      }
+
+      const category = this.category();
+      if (category) {
+        this.form.patchValue({ name: category.name });
+      } else {
         this.resetForm();
       }
-      this.wasVisible = isVisible;
     });
   }
 
@@ -51,11 +59,16 @@ export class CategoriesCreateDialog {
     }
 
     const name = this.form.controls.name.value.trim();
+    const category = this.category();
     this.submitting.set(true);
 
-    this.categoriesService.create({ name }).subscribe({
-      next: (category) => {
-        this.categoryCreated.emit(category);
+    const request$ = category
+      ? this.categoriesService.update(category.id, { name })
+      : this.categoriesService.create({ name });
+
+    request$.subscribe({
+      next: (savedCategory) => {
+        this.categorySaved.emit(savedCategory);
         this.closeDialog();
         this.submitting.set(false);
       },

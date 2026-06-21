@@ -33,7 +33,11 @@
       </p-toolbar>
 
       <p-card>
-        <admin-app-categories-table [categories]="categories()" [loading]="categoriesLoading()" />
+        <admin-app-categories-table
+          [categories]="categories()"
+          [loading]="categoriesLoading()"
+          (editCategory)="openEditCategoryDialog($event)"
+        />
       </p-card>
     </p-tabpanel>
   </p-tabpanels>
@@ -41,5 +45,6 @@
 
 <admin-app-categories-create-dialog
   [(visible)]="categoryFormDialogVisible"
-  (categoryCreated)="onCategorySaved()"
+  [category]="categoryToEdit()"
+  (categorySaved)="onCategorySaved()"
 />

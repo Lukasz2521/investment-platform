@@ -1,5 +1,5 @@
 import { isPlatformBrowser } from '@angular/common';
-import { afterNextRender, Component, inject, PLATFORM_ID, signal } from '@angular/core';
+import { afterNextRender, Component, effect, inject, PLATFORM_ID, signal } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
@@ -49,11 +49,18 @@ export class CampaignsList {
   protected readonly campaigns = signal<CampaignTableRow[]>([]);
   protected readonly categories = signal<CategoryTableRow[]>([]);
   protected readonly categoryFormDialogVisible = signal(false);
+  protected readonly categoryToEdit = signal<CategoryPublic | null>(null);
 
   private loadedCampaigns: CampaignPublic[] | null = null;
   private loadedCategories: CategoryPublic[] | null = null;
 
   constructor() {
+    effect(() => {
+      if (!this.categoryFormDialogVisible()) {
+        this.categoryToEdit.set(null);
+      }
+    });
+
     afterNextRender(() => {
       if (!isPlatformBrowser(this.platformId)) {
         this.campaignsLoading.set(false);
@@ -67,6 +74,12 @@ export class CampaignsList {
   }
 
   protected openAddCategoryDialog(): void {
+    this.categoryToEdit.set(null);
+    this.categoryFormDialogVisible.set(true);
+  }
+
+  protected openEditCategoryDialog(category: CategoryTableRow): void {
+    this.categoryToEdit.set(category);
     this.categoryFormDialogVisible.set(true);
   }
 
