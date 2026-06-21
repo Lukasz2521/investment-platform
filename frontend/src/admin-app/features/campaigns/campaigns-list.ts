@@ -2,6 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { afterNextRender, Component, inject, PLATFORM_ID, signal } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
+import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { Toolbar } from 'primeng/toolbar';
 
 import { CampaignPublic } from '../../core/campaigns/models/campaign.model';
@@ -12,11 +13,27 @@ import {
   CampaignTableRow,
   mapCampaignsForTable,
 } from '../../core/campaigns/utils/campaign-display.utils';
+import {
+  CategoryTableRow,
+  mapCategoriesForTable,
+} from '../../core/campaigns/utils/category-display.utils';
 import { CampaignsTable } from './campaigns-table/campaigns-table';
+import { CategoriesTable } from './categories-table/categories-table';
 
 @Component({
   selector: 'admin-app-campaigns-list',
-  imports: [Toolbar, Card, Button, CampaignsTable],
+  imports: [
+    Toolbar,
+    Card,
+    Button,
+    Tabs,
+    TabList,
+    Tab,
+    TabPanels,
+    TabPanel,
+    CampaignsTable,
+    CategoriesTable,
+  ],
   templateUrl: './campaigns-list.html',
   styleUrl: './campaigns-list.scss',
 })
@@ -25,8 +42,10 @@ export class CampaignsList {
   private readonly categoriesService = inject(CategoriesService);
   private readonly platformId = inject(PLATFORM_ID);
 
-  protected readonly loading = signal(true);
+  protected readonly campaignsLoading = signal(true);
+  protected readonly categoriesLoading = signal(true);
   protected readonly campaigns = signal<CampaignTableRow[]>([]);
+  protected readonly categories = signal<CategoryTableRow[]>([]);
 
   private loadedCampaigns: CampaignPublic[] | null = null;
   private loadedCategories: CategoryPublic[] | null = null;
@@ -34,7 +53,8 @@ export class CampaignsList {
   constructor() {
     afterNextRender(() => {
       if (!isPlatformBrowser(this.platformId)) {
-        this.loading.set(false);
+        this.campaignsLoading.set(false);
+        this.categoriesLoading.set(false);
         return;
       }
 
@@ -47,9 +67,11 @@ export class CampaignsList {
     this.categoriesService.getAll().subscribe({
       next: (categories) => {
         this.loadedCategories = categories;
+        this.categories.set(mapCategoriesForTable(categories));
+        this.categoriesLoading.set(false);
         this.syncCampaigns();
       },
-      error: () => this.loading.set(false),
+      error: () => this.categoriesLoading.set(false),
     });
   }
 
@@ -59,7 +81,7 @@ export class CampaignsList {
         this.loadedCampaigns = data;
         this.syncCampaigns();
       },
-      error: () => this.loading.set(false),
+      error: () => this.campaignsLoading.set(false),
     });
   }
 
@@ -69,6 +91,6 @@ export class CampaignsList {
     }
 
     this.campaigns.set(mapCampaignsForTable(this.loadedCampaigns, this.loadedCategories));
-    this.loading.set(false);
+    this.campaignsLoading.set(false);
   }
 }

@@ -1,13 +1,40 @@
-<p-toolbar class="campaigns-list-toolbar">
-  <ng-template #start>
-    <h1>Campaigns</h1>
-  </ng-template>
+<p-tabs class="campaigns-list-tabs" value="campaigns">
+  <p-tablist>
+    <p-tab value="campaigns">Campaigns</p-tab>
+    <p-tab value="categories">Categories</p-tab>
+  </p-tablist>
 
-  <ng-template #end>
-    <p-button icon="pi pi-plus" ariaLabel="Add campaign" />
-  </ng-template>
-</p-toolbar>
+  <p-tabpanels>
+    <p-tabpanel value="campaigns">
+      <p-toolbar class="campaigns-list-toolbar">
+        <ng-template #start>
+          <h1>Campaigns</h1>
+        </ng-template>
 
-<p-card>
-  <admin-app-campaigns-table [campaigns]="campaigns()" [loading]="loading()" />
-</p-card>
+        <ng-template #end>
+          <p-button icon="pi pi-plus" ariaLabel="Add campaign" />
+        </ng-template>
+      </p-toolbar>
+
+      <p-card>
+        <admin-app-campaigns-table [campaigns]="campaigns()" [loading]="campaignsLoading()" />
+      </p-card>
+    </p-tabpanel>
+
+    <p-tabpanel value="categories">
+      <p-toolbar class="campaigns-list-toolbar">
+        <ng-template #start>
+          <h1>Categories</h1>
+        </ng-template>
+
+        <ng-template #end>
+          <p-button icon="pi pi-plus" ariaLabel="Add category" />
+        </ng-template>
+      </p-toolbar>
+
+      <p-card>
+        <admin-app-categories-table [categories]="categories()" [loading]="categoriesLoading()" />
+      </p-card>
+    </p-tabpanel>
+  </p-tabpanels>
+</p-tabs>

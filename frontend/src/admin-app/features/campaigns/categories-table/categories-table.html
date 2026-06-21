@@ -1,0 +1,74 @@
+<p-table
+  #categoriesTable
+  [value]="categories()"
+  [loading]="loading()"
+  [paginator]="true"
+  [rows]="10"
+  [rowsPerPageOptions]="[10, 25, 50]"
+  [globalFilterFields]="['id', 'name', 'parent_category_name']"
+  [showCurrentPageReport]="true"
+  currentPageReportTemplate="{first}-{last} of {totalRecords}"
+>
+  <ng-template #caption>
+    <p-iconfield iconPosition="left">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        placeholder="ID, Name"
+        (input)="onSearch($event)"
+      />
+    </p-iconfield>
+  </ng-template>
+
+  <ng-template #header>
+    <tr>
+      <th pSortableColumn="id">
+        ID
+        <p-sortIcon field="id" />
+      </th>
+      <th pSortableColumn="name">
+        Name
+        <p-sortIcon field="name" />
+      </th>
+      <th pSortableColumn="parent_category_name">
+        Parent Category
+        <p-sortIcon field="parent_category_name" />
+      </th>
+      <th>Actions</th>
+    </tr>
+  </ng-template>
+
+  <ng-template #body let-category let-rowIndex="rowIndex">
+    <tr>
+      <td>{{ rowIndex + 1 }}</td>
+      <td>{{ category.name }}</td>
+      <td>{{ category.parent_category_name }}</td>
+      <td>
+        <div class="table-actions">
+          <p-button
+            icon="pi pi-pencil"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="Edit category"
+          />
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="Delete category"
+          />
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+
+  <ng-template #emptymessage>
+    <tr>
+      <td colspan="4">No categories found.</td>
+    </tr>
+  </ng-template>
+</p-table>
