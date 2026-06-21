@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { UsersPublic, UserPublic, AccountBankPublic } from '../models/user.model';
+import { UsersPublic, UserPublic, AccountBankPublic, UserUpdate } from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
@@ -19,6 +19,10 @@ export class UsersService {
 
   getById(userId: string): Observable<UserPublic> {
     return this.http.get<UserPublic>(`${environment.apiUrl}/users/${userId}`);
+  }
+
+  update(userId: string, user: UserUpdate): Observable<UserPublic> {
+    return this.http.patch<UserPublic>(`${environment.apiUrl}/users/${userId}`, user);
   }
 
   setAccountBankEnabled(

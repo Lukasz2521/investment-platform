@@ -9,7 +9,18 @@
     <div class="user-detail-layout">
       <admin-app-user-detail-profile [user]="currentUser" />
 
-      <admin-app-user-detail-account-details [account]="currentUser.account" />
+      <div class="user-detail-account-column">
+        <admin-app-user-detail-account-details [account]="currentUser.account" />
+
+        @if (!currentUser.is_superuser) {
+          <p-button
+            class="user-detail-make-admin-button"
+            label="make as admin"
+            [outlined]="true"
+            (onClick)="openMakeAdminDialog()"
+          />
+        }
+      </div>
     </div>
 
     @if (currentUser.account; as userAccount) {
@@ -63,3 +74,10 @@
 } @else {
   <p-message severity="error" text="User not found" />
 }
+
+<admin-app-user-detail-make-admin-dialog
+  [(visible)]="makeAdminDialogVisible"
+  [user]="user()"
+  [submitting]="makeAdminSubmitting()"
+  (confirm)="confirmMakeAdmin()"
+/>

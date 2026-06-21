@@ -1,6 +1,7 @@
 import { DecimalPipe, isPlatformBrowser } from '@angular/common';
-import { afterNextRender, Component, computed, inject, PLATFORM_ID } from '@angular/core';
+import { afterNextRender, Component, computed, inject, PLATFORM_ID, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { Message } from 'primeng/message';
 import { ProgressSpinner } from 'primeng/progressspinner';
@@ -8,6 +9,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 
 import { getUserDisplayName } from '../../../core/users/utils/user-display.utils';
 import { UserDetailAccountDetails } from './account-details/user-detail-account-details';
+import { UserDetailMakeAdminDialog } from './make-admin-dialog/user-detail-make-admin-dialog';
 import { UserDetailProfile } from './profile/user-detail-profile';
 import { UserDetailProfileBanks } from './profile-banks/user-detail-profile-banks';
 import { UserDetailsService } from './user-details.service';
@@ -16,6 +18,7 @@ import { UserDetailsService } from './user-details.service';
   selector: 'admin-app-user-detail',
   imports: [
     DecimalPipe,
+    Button,
     Card,
     Message,
     ProgressSpinner,
@@ -25,6 +28,7 @@ import { UserDetailsService } from './user-details.service';
     TabPanels,
     Tabs,
     UserDetailAccountDetails,
+    UserDetailMakeAdminDialog,
     UserDetailProfile,
     UserDetailProfileBanks,
   ],
@@ -54,6 +58,9 @@ export class UserDetail {
     return currentUser.username.trim() || getUserDisplayName(currentUser);
   });
 
+  protected readonly makeAdminDialogVisible = signal(false);
+  protected readonly makeAdminSubmitting = signal(false);
+
   constructor() {
     afterNextRender(() => {
       if (!isPlatformBrowser(this.platformId)) {
@@ -67,6 +74,28 @@ export class UserDetail {
 
       this.userDetailsService.loadUserDetails(userId);
       this.userDetailsService.loadUserTransactions(userId);
+    });
+  }
+
+  protected openMakeAdminDialog(): void {
+    this.makeAdminDialogVisible.set(true);
+  }
+
+  protected confirmMakeAdmin(): void {
+    const currentUser = this.user();
+    if (!currentUser.id || currentUser.is_superuser || this.makeAdminSubmitting()) {
+      return;
+    }
+
+    this.makeAdminSubmitting.set(true);
+    this.userDetailsService.makeAdmin(currentUser.id, {
+      onSuccess: () => {
+        this.makeAdminDialogVisible.set(false);
+        this.makeAdminSubmitting.set(false);
+      },
+      onError: () => {
+        this.makeAdminSubmitting.set(false);
+      },
     });
   }
 }

@@ -1,0 +1,38 @@
+<p-dialog
+  header="Make as Admin"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '28rem', maxWidth: '95vw' }"
+>
+  @if (user(); as currentUser) {
+    <p>
+      Are you sure you want to make
+      <strong>{{ displayName(currentUser) }}</strong>
+      an admin?
+    </p>
+  }
+
+  <ng-template #footer>
+    <div class="user-detail-make-admin-footer">
+      <p-button
+        type="button"
+        label="CANCEL"
+        [outlined]="true"
+        [disabled]="submitting()"
+        (onClick)="onCancel()"
+      />
+      <p-button
+        type="button"
+        label="CONFIRM"
+        severity="secondary"
+        [loading]="submitting()"
+        [disabled]="submitting()"
+        (onClick)="confirm.emit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

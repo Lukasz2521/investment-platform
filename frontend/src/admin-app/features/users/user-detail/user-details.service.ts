@@ -69,4 +69,24 @@ export class UserDetailsService {
       )
       .subscribe();
   }
+
+  makeAdmin(
+    userId: string,
+    callbacks: { onSuccess: () => void; onError: () => void },
+  ): void {
+    this.usersService
+      .update(userId, { is_superuser: true })
+      .pipe(
+        take(1),
+        tap((user) => {
+          this.user.set({ ...this.user(), ...user, account: this.user().account });
+          callbacks.onSuccess();
+        }),
+        catchError(() => {
+          callbacks.onError();
+          return EMPTY;
+        }),
+      )
+      .subscribe();
+  }
 }

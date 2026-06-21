@@ -43,3 +43,7 @@ export type UsersPublic = {
   data: UserPublic[];
   count: number;
 };
+
+export type UserUpdate = {
+  is_superuser?: boolean;
+};
