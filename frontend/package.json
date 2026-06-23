@@ -3,11 +3,15 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve --port 4200",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:frontend": "node dist/frontend/server/server.mjs"
+    "start:admin": "ng serve admin-app --port 4200",
+    "start:client": "ng serve client-app",
+    "build:admin": "ng build admin-app",
+    "build:client": "ng build client-app",
+    "watch:admin": "ng build admin-app --watch --configuration development",
+    "watch:client": "ng build client-app --watch --configuration development",
+    "test": "ng test admin-app",
+    "test:client": "ng test client-app",
+    "test:admin": "ng test admin-app"
   },
   "private": true,
   "packageManager": "bun@1.3.12",
