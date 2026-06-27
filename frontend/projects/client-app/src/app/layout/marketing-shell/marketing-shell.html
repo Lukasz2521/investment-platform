@@ -1,0 +1,79 @@
+<header class="marketing-header">
+  <div class="marketing-header-inner">
+    <a class="marketing-logo" routerLink="/" aria-label="Shopify home">
+      <svg class="marketing-logo-icon" viewBox="0 0 28 32" aria-hidden="true">
+        <path
+          fill="currentColor"
+          d="M24.7 6.8c-.1-.7-.7-1.2-1.4-1.2h-3.5l-.5-2.1C19.1 2.3 18.2 1.6 17.1 1.6h-6.2c-1.1 0-2 .7-2.2 1.9l-.5 2.1H4.7c-.7 0-1.3.5-1.4 1.2L.3 24.4c0 .8.6 1.5 1.4 1.5h24.6c.8 0 1.4-.7 1.4-1.5L24.7 6.8ZM11 4.5c.1-.4.4-.7.9-.7h4.2c.5 0 .8.3.9.7l.4 1.6H10.6l.4-1.6Z"
+        />
+      </svg>
+      <span class="marketing-logo-text">{{ 'marketing.brand' | translate }}</span>
+    </a>
+
+    <nav class="marketing-nav" aria-label="Main navigation">
+      @for (item of navItems; track item.labelKey) {
+        <a class="marketing-nav-link" [href]="item.href">{{ item.labelKey | translate }}</a>
+      }
+    </nav>
+
+    <div class="marketing-header-actions">
+      <app-language-selector class="marketing-language" />
+      <a class="marketing-link" [routerLink]="['/', routes.login]">{{ 'marketing.nav.login' | translate }}</a>
+      <a class="marketing-btn marketing-btn--primary" href="#start">{{ 'marketing.nav.startFree' | translate }}</a>
+    </div>
+  </div>
+</header>
+
+<main class="marketing-main">
+  <router-outlet />
+</main>
+
+<footer class="marketing-footer">
+  <div class="marketing-footer-inner">
+    <div class="marketing-footer-grid">
+      <div class="marketing-footer-column">
+        <h3>{{ 'marketing.footer.shopify' | translate }}</h3>
+        <a href="#">{{ 'marketing.footer.whatIs' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.editions' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.careers' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.investors' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.newsroom' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.sustainability' | translate }}</a>
+      </div>
+      <div class="marketing-footer-column">
+        <h3>{{ 'marketing.footer.ecosystem' | translate }}</h3>
+        <a href="#">{{ 'marketing.footer.devDocs' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.themeStore' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.appStore' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.partners' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.affiliates' | translate }}</a>
+      </div>
+      <div class="marketing-footer-column">
+        <h3>{{ 'marketing.footer.resources' | translate }}</h3>
+        <a href="#">{{ 'marketing.footer.blog' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.compare' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.guides' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.courses' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.freeTools' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.changelog' | translate }}</a>
+      </div>
+      <div class="marketing-footer-column">
+        <h3>{{ 'marketing.footer.support' | translate }}</h3>
+        <a href="#">{{ 'marketing.footer.helpCenter' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.community' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.hirePartner' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.status' | translate }}</a>
+      </div>
+    </div>
+
+    <div class="marketing-footer-bottom">
+      <span>{{ 'marketing.footer.region' | translate }}</span>
+      <div class="marketing-footer-legal">
+        <a href="#">{{ 'marketing.footer.terms' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.legal' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.privacy' | translate }}</a>
+        <a href="#">{{ 'marketing.footer.sitemap' | translate }}</a>
+      </div>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,12 @@
+<label class="language-selector">
+  <span class="language-selector-label">{{ 'language.label' | translate }}</span>
+  <select
+    class="language-selector-control"
+    [value]="activeLanguage()"
+    (change)="onLanguageChange($event)"
+  >
+    @for (language of languages; track language.code) {
+      <option [value]="language.code">{{ language.label }}</option>
+    }
+  </select>
+</label>

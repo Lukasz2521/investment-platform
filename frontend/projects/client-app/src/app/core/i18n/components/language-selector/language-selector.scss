@@ -1,0 +1,31 @@
+.language-selector {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.language-selector-label {
+  color: #a8a8a8;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.language-selector-control {
+  background: #1a1a1a;
+  border: 1px solid rgb(255 255 255 / 14%);
+  border-radius: 0.5rem;
+  color: #ffffff;
+  font: inherit;
+  min-width: 9rem;
+  padding: 0.5rem 0.75rem;
+}
+
+.language-selector-control:focus {
+  border-color: #36e0a0;
+  outline: none;
+}
+
+.language-selector-control option {
+  background: #1a1a1a;
+  color: #ffffff;
+}
