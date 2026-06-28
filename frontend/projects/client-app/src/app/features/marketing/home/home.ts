@@ -14,9 +14,6 @@ export class Home {
     'marketing.hero.phrase2',
     'marketing.hero.phrase3',
     'marketing.hero.phrase4',
-    'marketing.hero.phrase5',
-    'marketing.hero.phrase6',
-    'marketing.hero.phrase7',
   ];
 
   protected readonly storeShowcases = [
