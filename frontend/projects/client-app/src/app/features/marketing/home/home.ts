@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
+import { APP_SHOWCASE_BRANDS } from './app-showcase-brands';
 
 @Component({
   selector: 'app-home',
@@ -15,6 +16,8 @@ export class Home {
     'marketing.hero.phrase3',
     'marketing.hero.phrase4',
   ];
+
+  protected readonly appShowcaseBrands = APP_SHOWCASE_BRANDS;
 
   protected readonly storeShowcases = [
     { name: 'stevemadden.com', tone: 'tone-1', labelKey: 'marketing.stores.stevemadden' },
@@ -66,4 +69,20 @@ export class Home {
     'marketing.build.step2',
     'marketing.build.step3',
   ];
+
+  protected onAppsShowcaseMouseMove(event: MouseEvent): void {
+    const section = event.currentTarget as HTMLElement;
+    const rect = section.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+
+    section.style.setProperty('--spotlight-x', `${x}px`);
+    section.style.setProperty('--spotlight-y', `${y}px`);
+    section.style.setProperty('--spotlight-opacity', '1');
+  }
+
+  protected onAppsShowcaseMouseLeave(event: MouseEvent): void {
+    const section = event.currentTarget as HTMLElement;
+    section.style.setProperty('--spotlight-opacity', '0');
+  }
 }

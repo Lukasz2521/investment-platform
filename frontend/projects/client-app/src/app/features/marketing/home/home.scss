@@ -252,6 +252,152 @@
   background: #e8e8e8;
 }
 
+.apps-showcase {
+  --spotlight-opacity: 0;
+  --spotlight-x: 50%;
+  --spotlight-y: 50%;
+  background: #020617;
+  overflow: hidden;
+  position: relative;
+}
+
+.apps-showcase-spotlight {
+  background: radial-gradient(
+    22rem circle at var(--spotlight-x) var(--spotlight-y),
+    rgb(255 255 255 / 10%),
+    rgb(56 224 160 / 5%) 38%,
+    transparent 68%
+  );
+  inset: 0;
+  mix-blend-mode: screen;
+  opacity: var(--spotlight-opacity);
+  pointer-events: none;
+  position: absolute;
+  transition: opacity 0.4s ease;
+  z-index: 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apps-showcase-spotlight {
+    display: none;
+  }
+}
+
+.apps-showcase-header {
+  margin: 0 auto;
+  max-width: 38rem;
+  padding: 4.5rem 1.5rem 0;
+  position: relative;
+  z-index: 3;
+}
+
+.apps-showcase-title {
+  font-size: clamp(1.85rem, 4vw, 2.85rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  margin: 0 0 1rem;
+}
+
+.apps-showcase-body {
+  color: #d1d5db;
+  font-size: 1.05rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+.apps-showcase-stage {
+  margin-top: 1.5rem;
+  min-height: 24rem;
+  position: relative;
+}
+
+.apps-showcase-grid {
+  display: grid;
+  gap: 0.55rem;
+  grid-template-columns: repeat(14, 4.65rem);
+  margin-left: max(1.5rem, calc((100% - 90rem) / 2 + 1.5rem));
+  padding-bottom: 3rem;
+  position: relative;
+  width: max-content;
+  z-index: 1;
+}
+
+.apps-showcase-tile {
+  aspect-ratio: 1;
+  border-radius: 22%;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 35%);
+  cursor: default;
+  display: grid;
+  filter: brightness(0.72) saturate(0.85);
+  opacity: 0.55;
+  place-items: center;
+  position: relative;
+  transform: scale(1);
+  transition:
+    filter 0.28s ease,
+    opacity 0.28s ease,
+    transform 0.28s ease,
+    box-shadow 0.28s ease;
+}
+
+.apps-showcase-tile:hover {
+  box-shadow: 0 8px 28px rgb(0 0 0 / 45%);
+  filter: brightness(1.12) saturate(1.05);
+  opacity: 1;
+  transform: scale(1.06);
+  z-index: 2;
+}
+
+.apps-showcase-logo {
+  display: block;
+  filter: brightness(0) invert(1);
+  height: 42%;
+  object-fit: contain;
+  pointer-events: none;
+  width: 42%;
+}
+
+.apps-showcase-tile--light .apps-showcase-logo {
+  filter: brightness(0);
+}
+
+.apps-showcase-vignette {
+  background:
+    radial-gradient(ellipse 55% 70% at 12% 8%, #020617 0%, rgb(2 6 23 / 92%) 38%, transparent 72%),
+    linear-gradient(to right, #020617 0%, rgb(2 6 23 / 85%) 18%, transparent 42%),
+    linear-gradient(to top, transparent 55%, rgb(2 6 23 / 35%) 85%, #020617 100%);
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+  z-index: 2;
+}
+
+@media (max-width: 960px) {
+  .apps-showcase-grid {
+    grid-template-columns: repeat(10, 4.15rem);
+  }
+
+  .apps-showcase-stage {
+    min-height: 20rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .apps-showcase-header {
+    padding-top: 3rem;
+  }
+
+  .apps-showcase-grid {
+    gap: 0.45rem;
+    grid-template-columns: repeat(7, 3.65rem);
+  }
+
+  .apps-showcase-stage {
+    min-height: 16rem;
+  }
+}
+
 .stores-section {
   background: var(--shopify-ink);
   padding: 0 0 4rem;
