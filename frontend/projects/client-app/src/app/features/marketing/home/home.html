@@ -52,6 +52,55 @@
   </div>
 </section>
 
+<section class="pricing-plans" id="plans" [attr.aria-label]="'marketing.pricingPlans.ariaLabel' | translate">
+  <header class="pricing-plans-header">
+    <h2 class="pricing-plans-title">{{ 'marketing.pricingPlans.title' | translate }}</h2>
+    <p class="pricing-plans-intro">{{ 'marketing.pricingPlans.intro' | translate }}</p>
+  </header>
+
+  <div class="pricing-plans-grid-wrap">
+    <div class="pricing-plans-grid">
+      @for (plan of pricingPlans; track plan.id) {
+        <article class="pricing-plan-card">
+          <header class="pricing-plan-header">
+            <div class="pricing-plan-heading">
+              <h3 class="pricing-plan-name">{{ plan.nameKey | translate }}</h3>
+              @if (plan.subtitleKey) {
+                <p class="pricing-plan-subtitle">{{ plan.subtitleKey | translate }}</p>
+              }
+            </div>
+            <div class="pricing-plan-price">
+              @if (plan.priceFrom) {
+                <span class="pricing-plan-price-from">{{ 'marketing.pricingPlans.from' | translate }}</span>
+              }
+              <span class="pricing-plan-price-value">
+                <span class="pricing-plan-currency">{{ 'marketing.pricingPlans.currency' | translate }}</span>
+                {{ plan.priceAmount }}
+              </span>
+              <span class="pricing-plan-period">{{ 'marketing.pricingPlans.period' | translate }}</span>
+            </div>
+          </header>
+
+          <div class="pricing-plan-cta-wrap">
+            <span class="pricing-plan-cta">{{ plan.ctaKey | translate }}</span>
+          </div>
+
+          <ul class="pricing-plan-features">
+            @for (featureKey of plan.featureKeys; track featureKey; let index = $index) {
+              <li class="pricing-plan-feature">
+                <span>{{ featureKey | translate }}</span>
+                @if (plan.infoFeatureIndexes?.includes(index)) {
+                  <span class="pricing-plan-info" aria-hidden="true">i</span>
+                }
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
 <section class="stores-section">
   <div class="stores-section-inner">
     <p class="stores-eyebrow">{{ 'marketing.channels.eyebrow' | translate }}</p>

@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { APP_SHOWCASE_BRANDS } from './app-showcase-brands';
+import { PRICING_PLANS } from './pricing-plans';
 
 @Component({
   selector: 'app-home',
@@ -18,6 +19,8 @@ export class Home {
   ];
 
   protected readonly appShowcaseBrands = APP_SHOWCASE_BRANDS;
+
+  protected readonly pricingPlans = PRICING_PLANS;
 
   protected readonly storeShowcases = [
     { name: 'stevemadden.com', tone: 'tone-1', labelKey: 'marketing.stores.stevemadden' },
