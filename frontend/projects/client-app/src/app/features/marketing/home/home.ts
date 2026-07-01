@@ -4,6 +4,7 @@ import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { APP_SHOWCASE_BRANDS } from './app-showcase-brands';
 import { HOW_IT_WORKS_STEPS } from './how-it-works-steps';
 import { PRICING_PLANS } from './pricing-plans';
+import { WHY_SEEDLEE_REASON_KEYS } from './why-seedlee-reasons';
 
 @Component({
   selector: 'app-home',
@@ -24,6 +25,8 @@ export class Home {
   protected readonly pricingPlans = PRICING_PLANS;
 
   protected readonly howItWorksSteps = HOW_IT_WORKS_STEPS;
+
+  protected readonly whySeedleeReasons = WHY_SEEDLEE_REASON_KEYS;
 
   protected readonly storeShowcases = [
     { name: 'stevemadden.com', tone: 'tone-1', labelKey: 'marketing.stores.stevemadden' },

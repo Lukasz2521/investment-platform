@@ -143,6 +143,25 @@
   </div>
 </section>
 
+<section
+  class="why-seedlee"
+  id="why-seedlee"
+  [attr.aria-label]="'marketing.whySeedlee.ariaLabel' | translate"
+>
+  <header class="why-seedlee-header">
+    <h2 class="why-seedlee-title">{{ 'marketing.whySeedlee.title' | translate }}</h2>
+  </header>
+
+  <ul class="why-seedlee-grid">
+    @for (reasonKey of whySeedleeReasons; track reasonKey) {
+      <li class="why-seedlee-item">
+        <span class="why-seedlee-marker" aria-hidden="true"></span>
+        <span class="why-seedlee-text">{{ reasonKey | translate }}</span>
+      </li>
+    }
+  </ul>
+</section>
+
 <section class="stores-section">
   <div class="stores-section-inner">
     <p class="stores-eyebrow">{{ 'marketing.channels.eyebrow' | translate }}</p>
