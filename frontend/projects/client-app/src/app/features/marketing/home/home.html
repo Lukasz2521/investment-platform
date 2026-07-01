@@ -162,276 +162,40 @@
   </ul>
 </section>
 
-<section class="stores-section">
-  <div class="stores-section-inner">
-    <p class="stores-eyebrow">{{ 'marketing.channels.eyebrow' | translate }}</p>
+<section class="faq" id="faq" [attr.aria-label]="'marketing.faq.ariaLabel' | translate">
+  <header class="faq-header">
+    <p class="faq-eyebrow">{{ 'marketing.faq.eyebrow' | translate }}</p>
+    <h2 class="faq-title">{{ 'marketing.faq.title' | translate }}</h2>
+  </header>
 
-    <div class="stores-scroll">
-      @for (store of storeShowcases; track store.name) {
-        <article class="store-card" [class]="store.tone">
-          <div class="store-card-preview">
-            <div class="store-card-toolbar">
-              <span></span><span></span><span></span>
-            </div>
-            <div class="store-card-body">
-              <div class="store-card-hero"></div>
-              <div class="store-card-products">
-                <span></span><span></span><span></span>
-              </div>
-            </div>
+  <div class="faq-list">
+    @for (item of faqItems; track item.id) {
+      <article class="faq-item" [class.faq-item--open]="isFaqOpen(item.id)">
+        <h3 class="faq-question-wrap">
+          <button
+            type="button"
+            class="faq-question"
+            [attr.aria-expanded]="isFaqOpen(item.id)"
+            [attr.aria-controls]="'faq-answer-' + item.id"
+            (click)="toggleFaq(item.id)"
+          >
+            <span class="faq-question-text">{{ item.questionKey | translate }}</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <div
+          class="faq-answer"
+          [id]="'faq-answer-' + item.id"
+          [attr.aria-hidden]="!isFaqOpen(item.id)"
+        >
+          <div class="faq-answer-inner">
+            <p class="faq-answer-text">{{ item.answerKey | translate }}</p>
           </div>
-          <p class="store-card-domain">{{ store.name }}</p>
-        </article>
-      }
-    </div>
-  </div>
-</section>
-
-<section class="section section--ink" id="products">
-  <div class="section-inner section-split">
-    <div class="section-copy">
-      <h2 class="section-title">{{ 'marketing.chat.title' | translate }}</h2>
-      <p class="section-text">{{ 'marketing.chat.body' | translate }}</p>
-    </div>
-    <div class="chat-demo">
-      <div class="chat-demo-header">{{ 'marketing.chat.demoTitle' | translate }}</div>
-      <div class="chat-demo-messages">
-        <div class="chat-bubble chat-bubble--user">{{ 'marketing.chat.userMessage' | translate }}</div>
-        <div class="chat-bubble chat-bubble--bot">{{ 'marketing.chat.botMessage' | translate }}</div>
-        <div class="chat-product-card">
-          <div class="chat-product-image"></div>
-          <div>
-            <strong>{{ 'marketing.chat.productName' | translate }}</strong>
-            <p>{{ 'marketing.chat.productPrice' | translate }}</p>
-          </div>
-          <button type="button">{{ 'marketing.chat.buyNow' | translate }}</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section section--white">
-  <div class="section-inner">
-    <div class="sell-more-header">
-      <h2 class="section-title">{{ 'marketing.features.sellMore.title' | translate }}</h2>
-      <p class="section-text">{{ 'marketing.features.sellMore.body' | translate }}</p>
-    </div>
-
-    <div class="sell-more-grid">
-      <article class="sell-more-card sell-more-card--featured">
-        <h3>{{ 'marketing.features.channels.title' | translate }}</h3>
-        <p>{{ 'marketing.features.channels.body' | translate }}</p>
-        <div class="sell-more-visual sell-more-visual--channels"></div>
-      </article>
-      <article class="sell-more-card">
-        <h3>{{ 'marketing.features.inPerson.title' | translate }}</h3>
-        <p>{{ 'marketing.features.inPerson.body' | translate }}</p>
-        <div class="sell-more-visual sell-more-visual--pos"></div>
-      </article>
-      <article class="sell-more-card">
-        <h3>{{ 'marketing.features.shopApp.title' | translate }}</h3>
-        <p>{{ 'marketing.features.shopApp.body' | translate }}</p>
-        <div class="sell-more-visual sell-more-visual--shop"></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="section section--mint" id="why">
-  <div class="section-inner section-split">
-    <div class="section-copy">
-      <h2 class="section-title">{{ 'marketing.global.title' | translate }}</h2>
-      <h3 class="section-subtitle">{{ 'marketing.global.subtitle' | translate }}</h3>
-      <p class="section-text">{{ 'marketing.global.body' | translate }}</p>
-    </div>
-    <div class="orders-stack">
-      @for (order of [1, 2, 3, 4, 5, 6]; track order) {
-        <div class="order-card">
-          <span>{{ 'marketing.global.buyNow' | translate }}</span>
-          <span>🇺🇸</span>
-          <strong>{{ 'marketing.global.orderAmount' | translate }}</strong>
-        </div>
-      }
-    </div>
-  </div>
-</section>
-
-<section class="section section--gray" id="pricing">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center">{{ 'marketing.growth.title' | translate }}</h2>
-    <div class="story-grid">
-      @for (story of growthStories; track story.titleKey) {
-        <article class="story-card">
-          <div class="story-image"></div>
-          <h3>{{ story.titleKey | translate }}</h3>
-          <p>{{ story.bodyKey | translate }}</p>
-        </article>
-      }
-    </div>
-    <div class="section-cta">
-      <a class="btn btn--green" href="#">{{ 'marketing.growth.cta' | translate }}</a>
-    </div>
-  </div>
-</section>
-
-<section class="section section--sidekick" id="enterprise">
-  <div class="section-inner">
-    <p class="section-eyebrow section-eyebrow--light">{{ 'marketing.sidekick.eyebrow' | translate }}</p>
-    <h2 class="section-title section-title--center section-title--light">
-      {{ 'marketing.sidekick.title' | translate }}
-    </h2>
-
-    <div class="sidekick-grid">
-      <article class="sidekick-card">
-        <h3>{{ 'marketing.sidekick.subtitle' | translate }}</h3>
-        <p>{{ 'marketing.sidekick.body' | translate }}</p>
-        <div class="sidekick-panel">
-          <div class="sidekick-prompt">{{ 'marketing.sidekick.prompt' | translate }}</div>
-          <div class="sidekick-response">{{ 'marketing.sidekick.response' | translate }}</div>
         </div>
       </article>
-      <article class="sidekick-card">
-        <h3>{{ 'marketing.sidekick.winning' | translate }}</h3>
-        <p>{{ 'marketing.sidekick.winningBody' | translate }}</p>
-        <div class="sidekick-video"></div>
-      </article>
-    </div>
+    }
   </div>
 </section>
 
-<section class="section section--white">
-  <div class="section-inner section-split">
-    <div class="section-copy">
-      <h2 class="section-title">{{ 'marketing.apps.title' | translate }}</h2>
-      <p class="section-text">{{ 'marketing.apps.body' | translate }}</p>
-    </div>
-    <div class="apps-grid">
-      @for (app of [1, 2, 3, 4, 5, 6, 7, 8]; track app) {
-        <div class="app-tile"></div>
-      }
-    </div>
-  </div>
-</section>
 
-<section class="section section--gray">
-  <div class="section-inner section-split">
-    <div class="section-copy">
-      <h2 class="section-title">{{ 'marketing.dev.title' | translate }}</h2>
-      <p class="section-text">{{ 'marketing.dev.body' | translate }}</p>
-      <p class="section-subtitle section-subtitle--muted">{{ 'marketing.dev.toolkit' | translate }}</p>
-      <div class="dev-links">
-        <a href="#">{{ 'marketing.dev.link1' | translate }}</a>
-        <a href="#">{{ 'marketing.dev.link2' | translate }}</a>
-        <a href="#">{{ 'marketing.dev.link3' | translate }}</a>
-      </div>
-    </div>
-    <div class="code-panel">
-      <pre><code>{{ 'marketing.dev.code' | translate }}</code></pre>
-    </div>
-  </div>
-</section>
 
-<section class="section section--ink stats-section">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center section-title--light">
-      {{ 'marketing.stats.title' | translate }}
-    </h2>
-    <h3 class="section-subtitle section-subtitle--center section-subtitle--light">
-      {{ 'marketing.stats.checkoutTitle' | translate }}
-    </h3>
-
-    <div class="stats-grid">
-      <article class="stat-card">
-        <span class="stat-label">{{ 'marketing.stats.conversion' | translate }}</span>
-        <span class="stat-value">15%</span>
-      </article>
-      <article class="stat-card">
-        <span class="stat-label">{{ 'marketing.stats.buyers' | translate }}</span>
-        <span class="stat-value">250M+</span>
-      </article>
-    </div>
-
-    <p class="stats-note">{{ 'marketing.stats.note' | translate }}</p>
-
-    <div class="checkout-demo">
-      <div class="checkout-card">
-        <span class="checkout-brand">Shop Pay</span>
-        <strong>{{ 'marketing.stats.checkoutAmount' | translate }}</strong>
-        <button type="button">{{ 'marketing.global.buyNow' | translate }}</button>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="section section--white">
-  <div class="section-inner section-split">
-    <div class="section-copy">
-      <h2 class="section-title">{{ 'marketing.stability.title' | translate }}</h2>
-      <p class="section-text">{{ 'marketing.stability.body' | translate }}</p>
-      <blockquote class="quote-card">
-        <p>{{ 'marketing.stability.quote' | translate }}</p>
-        <footer>
-          <strong>{{ 'marketing.stability.quoteAuthor' | translate }}</strong>
-          <span>{{ 'marketing.stability.quoteRole' | translate }}</span>
-        </footer>
-      </blockquote>
-    </div>
-    <div class="stability-visual"></div>
-  </div>
-</section>
-
-<section class="section section--capital">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center">{{ 'marketing.capital.title' | translate }}</h2>
-    <p class="section-text section-text--center">{{ 'marketing.capital.body' | translate }}</p>
-
-    <div class="capital-grid">
-      @for (stat of capitalStats; track stat.valueKey) {
-        <article class="capital-card">
-          <strong>{{ stat.valueKey | translate }}</strong>
-          <span>{{ stat.labelKey | translate }}</span>
-        </article>
-      }
-    </div>
-  </div>
-</section>
-
-<section class="section section--build">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center">{{ 'marketing.build.title' | translate }}</h2>
-    <div class="build-steps">
-      @for (step of buildSteps; track step; let index = $index) {
-        <article class="build-step">
-          <span class="build-step-number">0{{ index + 1 }}</span>
-          <h3>{{ step | translate }}</h3>
-        </article>
-      }
-    </div>
-    <p class="build-footer">{{ 'marketing.build.footer' | translate }}</p>
-  </div>
-</section>
-
-<section class="section section--gray" id="contact">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center">{{ 'marketing.nav.contact' | translate }}</h2>
-  </div>
-</section>
-
-<section class="section section--white" id="company">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center">{{ 'marketing.nav.company' | translate }}</h2>
-  </div>
-</section>
-
-<section class="section section--gray" id="partnerships">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center">{{ 'marketing.nav.partnerships' | translate }}</h2>
-  </div>
-</section>
-
-<section class="section section--white" id="news">
-  <div class="section-inner">
-    <h2 class="section-title section-title--center">{{ 'marketing.nav.news' | translate }}</h2>
-  </div>
-</section>

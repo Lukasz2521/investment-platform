@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { APP_SHOWCASE_BRANDS } from './app-showcase-brands';
+import { FAQ_ITEMS } from './faq-items';
 import { HOW_IT_WORKS_STEPS } from './how-it-works-steps';
 import { PRICING_PLANS } from './pricing-plans';
 import { WHY_SEEDLEE_REASON_KEYS } from './why-seedlee-reasons';
@@ -27,6 +28,10 @@ export class Home {
   protected readonly howItWorksSteps = HOW_IT_WORKS_STEPS;
 
   protected readonly whySeedleeReasons = WHY_SEEDLEE_REASON_KEYS;
+
+  protected readonly faqItems = FAQ_ITEMS;
+
+  private readonly openFaqIds = signal<ReadonlySet<string>>(new Set());
 
   protected readonly storeShowcases = [
     { name: 'stevemadden.com', tone: 'tone-1', labelKey: 'marketing.stores.stevemadden' },
@@ -93,5 +98,23 @@ export class Home {
   protected onAppsShowcaseMouseLeave(event: MouseEvent): void {
     const section = event.currentTarget as HTMLElement;
     section.style.setProperty('--spotlight-opacity', '0');
+  }
+
+  protected isFaqOpen(id: string): boolean {
+    return this.openFaqIds().has(id);
+  }
+
+  protected toggleFaq(id: string): void {
+    this.openFaqIds.update((current) => {
+      const next = new Set(current);
+
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+
+      return next;
+    });
   }
 }
