@@ -153,7 +153,27 @@
     url('/images/homepage.jpg') center / cover no-repeat;
   color: var(--shopify-white);
   min-height: clamp(28rem, 72vh, 42rem);
+  overflow: hidden;
   padding: 6rem 1.5rem 4rem;
+  position: relative;
+}
+
+.hero::after {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgb(2 6 23 / 35%) 45%,
+    rgb(2 6 23 / 82%) 78%,
+    #020617 100%
+  );
+  bottom: 0;
+  content: '';
+  height: min(14rem, 38%);
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: 0;
 }
 
 .hero-inner {
@@ -164,7 +184,9 @@
   margin: 0 auto;
   max-width: 58rem;
   min-height: inherit;
+  position: relative;
   text-align: center;
+  z-index: 1;
 }
 
 .hero-title {
@@ -257,6 +279,7 @@
   --spotlight-x: 50%;
   --spotlight-y: 50%;
   background: #020617;
+  margin-top: -1px;
   overflow: hidden;
   position: relative;
 }
