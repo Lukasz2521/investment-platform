@@ -1,0 +1,16 @@
+<section class="hero" id="start">
+  <div class="hero-inner">
+    <h1 class="hero-title">
+      <span class="hero-lead">{{ 'marketing.hero.lead' | translate }}</span>
+      <span class="hero-rotator" aria-live="polite">
+        <span class="hero-rotator-track">
+          @for (phrase of heroPhrases; track phrase) {
+            <span class="hero-rotator-item">{{ phrase | translate }}</span>
+          }
+        </span>
+      </span>
+    </h1>
+
+    <a class="hero-cta" href="#start">{{ 'marketing.hero.startFree' | translate }}</a>
+  </div>
+</section>

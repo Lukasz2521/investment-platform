@@ -10,7 +10,7 @@ export const routes: Routes = [
     children: [
       {
         path: APP_ROUTE_PATHS.home,
-        loadComponent: () => import('./features/marketing/home/home').then((m) => m.Home),
+        loadComponent: () => import('./features/home/home').then((m) => m.Home),
       },
     ],
   },

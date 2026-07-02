@@ -1,0 +1,34 @@
+<section class="faq" id="faq" [attr.aria-label]="'marketing.faq.ariaLabel' | translate">
+  <header class="faq-header">
+    <p class="faq-eyebrow">{{ 'marketing.faq.eyebrow' | translate }}</p>
+    <h2 class="faq-title">{{ 'marketing.faq.title' | translate }}</h2>
+  </header>
+
+  <div class="faq-list">
+    @for (item of items; track item.id) {
+      <article class="faq-item" [class.faq-item--open]="isOpen(item.id)">
+        <h3 class="faq-question-wrap">
+          <button
+            type="button"
+            class="faq-question"
+            [attr.aria-expanded]="isOpen(item.id)"
+            [attr.aria-controls]="'faq-answer-' + item.id"
+            (click)="toggle(item.id)"
+          >
+            <span class="faq-question-text">{{ item.questionKey | translate }}</span>
+            <span class="faq-icon" aria-hidden="true"></span>
+          </button>
+        </h3>
+        <div
+          class="faq-answer"
+          [id]="'faq-answer-' + item.id"
+          [attr.aria-hidden]="!isOpen(item.id)"
+        >
+          <div class="faq-answer-inner">
+            <p class="faq-answer-text">{{ item.answerKey | translate }}</p>
+          </div>
+        </div>
+      </article>
+    }
+  </div>
+</section>

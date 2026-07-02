@@ -1,0 +1,18 @@
+<section
+  class="why-seedlee"
+  id="why-seedlee"
+  [attr.aria-label]="'marketing.whySeedlee.ariaLabel' | translate"
+>
+  <header class="why-seedlee-header">
+    <h2 class="why-seedlee-title">{{ 'marketing.whySeedlee.title' | translate }}</h2>
+  </header>
+
+  <ul class="why-seedlee-grid">
+    @for (reasonKey of reasons; track reasonKey) {
+      <li class="why-seedlee-item">
+        <span class="why-seedlee-marker" aria-hidden="true"></span>
+        <span class="why-seedlee-text">{{ reasonKey | translate }}</span>
+      </li>
+    }
+  </ul>
+</section>

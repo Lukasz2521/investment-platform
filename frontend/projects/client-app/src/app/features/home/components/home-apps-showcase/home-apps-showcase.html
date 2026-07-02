@@ -1,0 +1,36 @@
+<section
+  class="apps-showcase"
+  aria-labelledby="apps-showcase-title"
+  (mousemove)="onMouseMove($event)"
+  (mouseleave)="onMouseLeave($event)"
+>
+  <div class="apps-showcase-spotlight" aria-hidden="true"></div>
+  <div class="apps-showcase-header">
+    <h2 class="apps-showcase-title" id="apps-showcase-title">
+      {{ 'marketing.appsShowcase.title' | translate }}
+    </h2>
+    <p class="apps-showcase-body">{{ 'marketing.appsShowcase.body' | translate }}</p>
+  </div>
+
+  <div class="apps-showcase-stage">
+    <div class="apps-showcase-grid">
+      @for (brand of brands; track brand.slug) {
+        <div
+          class="apps-showcase-tile"
+          [class.apps-showcase-tile--light]="brand.lightLogo"
+          [style.background-color]="brand.bg"
+          [attr.title]="brand.name"
+        >
+          <img
+            class="apps-showcase-logo"
+            [src]="'/images/apps/' + brand.slug + '.svg'"
+            [alt]=""
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      }
+    </div>
+    <div class="apps-showcase-vignette" aria-hidden="true"></div>
+  </div>
+</section>

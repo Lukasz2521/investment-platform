@@ -1,0 +1,130 @@
+:host {
+  display: block;
+}
+
+.hero {
+  background:
+    linear-gradient(rgb(0 0 0 / 45%), rgb(0 0 0 / 55%)),
+    url('/images/homepage.jpg') center / cover no-repeat;
+  color: var(--shopify-white);
+  min-height: clamp(28rem, 72vh, 42rem);
+  overflow: hidden;
+  padding: 6rem 1.5rem 4rem;
+  position: relative;
+}
+
+.hero::after {
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgb(2 6 23 / 35%) 45%,
+    rgb(2 6 23 / 82%) 78%,
+    #020617 100%
+  );
+  bottom: 0;
+  content: '';
+  height: min(14rem, 38%);
+  left: 0;
+  pointer-events: none;
+  position: absolute;
+  right: 0;
+  z-index: 0;
+}
+
+.hero-inner {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 58rem;
+  min-height: inherit;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.hero-title {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(3rem, 8vw, 6.25rem);
+  font-weight: 600;
+  gap: 0.15rem;
+  letter-spacing: -0.05em;
+  line-height: 0.95;
+  margin: 0 0 1.5rem;
+}
+
+.hero-lead {
+  color: var(--shopify-white);
+}
+
+.hero-rotator {
+  color: var(--shopify-white);
+  font-size: clamp(1.1rem, 2.8vw, 2.25rem);
+  font-weight: 200;
+  height: 3.6em;
+  line-height: 1.2;
+  max-width: 52rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+.hero-rotator-track {
+  animation: hero-scroll 16s ease-in-out infinite;
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-rotator-item {
+  align-items: center;
+  display: flex;
+  flex-shrink: 0;
+  height: 3.6em;
+  justify-content: center;
+  line-height: 1.2;
+  text-align: center;
+  letter-spacing: normal;
+}
+
+@keyframes hero-scroll {
+  0%,
+  20% {
+    transform: translateY(0);
+  }
+
+  24%,
+  44% {
+    transform: translateY(-25%);
+  }
+
+  48%,
+  68% {
+    transform: translateY(-50%);
+  }
+
+  72%,
+  92% {
+    transform: translateY(-75%);
+  }
+
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.hero-cta {
+  background: var(--shopify-white);
+  border-radius: 999px;
+  color: var(--shopify-ink);
+  display: inline-flex;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.95rem 1.5rem;
+  text-decoration: none;
+}
+
+.hero-cta:hover {
+  background: #e8e8e8;
+}

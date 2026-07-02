@@ -1,0 +1,41 @@
+<section
+  class="how-it-works"
+  id="how-it-works"
+  [attr.aria-label]="'marketing.howItWorks.ariaLabel' | translate"
+>
+  <div class="how-it-works-backdrop" aria-hidden="true">
+    <span class="how-it-works-orb how-it-works-orb--violet"></span>
+    <span class="how-it-works-orb how-it-works-orb--emerald"></span>
+    <span class="how-it-works-orb how-it-works-orb--indigo"></span>
+  </div>
+
+  <header class="how-it-works-header">
+    <h2 class="how-it-works-title">{{ 'marketing.howItWorks.title' | translate }}</h2>
+  </header>
+
+  <div class="how-it-works-steps">
+    @for (step of steps; track step.id; let index = $index) {
+      <article
+        class="how-it-works-step"
+        [class.how-it-works-step--reverse]="index % 2 === 1"
+      >
+        <div class="how-it-works-content">
+          <h3 class="how-it-works-step-title">{{ step.titleKey | translate }}</h3>
+          <p class="how-it-works-step-body">{{ step.bodyKey | translate }}</p>
+          @if (step.extraBodyKey) {
+            <p class="how-it-works-step-extra">{{ step.extraBodyKey | translate }}</p>
+          }
+        </div>
+        <div class="how-it-works-visual">
+          <div class="how-it-works-visual-glow" aria-hidden="true"></div>
+          <img
+            [src]="step.image"
+            [alt]="step.imageAltKey | translate"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </article>
+    }
+  </div>
+</section>
