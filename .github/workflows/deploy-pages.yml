@@ -38,9 +38,11 @@ jobs:
         working-directory: frontend/dist/client-app/browser
         run: cp index.html 404.html
 
+      - uses: actions/configure-pages@v5
+
       - uses: actions/upload-pages-artifact@v3
         with:
           path: frontend/dist/client-app/browser
 
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
