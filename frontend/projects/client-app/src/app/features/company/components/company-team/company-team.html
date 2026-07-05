@@ -1,0 +1,28 @@
+<section class="company-team" [attr.aria-label]="'marketing.company.team.ariaLabel' | translate">
+  <header class="company-team-header">
+    <h2 class="company-section-title">{{ 'marketing.company.team.title' | translate }}</h2>
+    <p class="company-team-subtitle">{{ 'marketing.company.team.subtitle' | translate }}</p>
+  </header>
+
+  <div class="company-team-list">
+    @for (member of members; track member.id; let index = $index) {
+      <article
+        class="company-member"
+        [class.company-member--reverse]="index % 2 === 1"
+      >
+        <div class="company-member-visual">
+          <img
+            [src]="member.image"
+            [alt]="member.imageAltKey | translate"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+        <div class="company-member-copy">
+          <h3 class="company-member-name">{{ member.nameKey | translate }}</h3>
+          <p class="company-member-body">{{ member.bodyKey | translate }}</p>
+        </div>
+      </article>
+    }
+  </div>
+</section>

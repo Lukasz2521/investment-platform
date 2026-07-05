@@ -1,0 +1,27 @@
+<section class="company-fundamentals" [attr.aria-label]="'marketing.company.fundamentals.ariaLabel' | translate">
+  <header class="company-fundamentals-header">
+    <h2 class="company-section-title">{{ 'marketing.company.fundamentals.title' | translate }}</h2>
+  </header>
+
+  <div class="company-fundamentals-list">
+    @for (item of fundamentals; track item.id; let index = $index) {
+      <article
+        class="company-fundamental"
+        [class.company-fundamental--reverse]="index % 2 === 1"
+      >
+        <div class="company-fundamental-copy">
+          <h3 class="company-fundamental-title">{{ item.titleKey | translate }}</h3>
+          <p class="company-fundamental-body">{{ item.bodyKey | translate }}</p>
+        </div>
+        <div class="company-fundamental-visual">
+          <img
+            [src]="item.image"
+            [alt]="item.imageAltKey | translate"
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </article>
+    }
+  </div>
+</section>

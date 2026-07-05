@@ -12,6 +12,10 @@ export const routes: Routes = [
         path: APP_ROUTE_PATHS.home,
         loadComponent: () => import('./features/home/home').then((m) => m.Home),
       },
+      {
+        path: APP_ROUTE_PATHS.company,
+        loadComponent: () => import('./features/company/company').then((m) => m.Company),
+      },
     ],
   },
 ];

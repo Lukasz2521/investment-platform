@@ -6,7 +6,11 @@
 
     <nav class="marketing-nav" aria-label="Main navigation">
       @for (item of navItems; track item.labelKey) {
-        <a class="marketing-nav-link" [href]="item.href">{{ item.labelKey | translate }}</a>
+        @if (item.route) {
+          <a class="marketing-nav-link" [routerLink]="['/', item.route]">{{ item.labelKey | translate }}</a>
+        } @else {
+          <a class="marketing-nav-link" [href]="item.href">{{ item.labelKey | translate }}</a>
+        }
       }
     </nav>
 

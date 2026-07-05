@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+.company-fundamentals {
+  background: #f6f6f7;
+  padding: 5rem 1.5rem;
+}
+
+.company-fundamentals-header {
+  margin: 0 auto 3.5rem;
+  max-width: 42rem;
+  text-align: center;
+}
+
+.company-section-title {
+  color: #111111;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.company-fundamentals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.company-fundamental {
+  align-items: center;
+  display: grid;
+  gap: clamp(2rem, 4vw, 3.5rem);
+  grid-template-columns: 1fr 1fr;
+  margin: 0 auto;
+  max-width: 76rem;
+}
+
+.company-fundamental--reverse .company-fundamental-copy {
+  order: 2;
+}
+
+.company-fundamental--reverse .company-fundamental-visual {
+  order: 1;
+}
+
+.company-fundamental-title {
+  color: #111111;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+}
+
+.company-fundamental-body {
+  color: #555555;
+  font-size: 1.05rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.company-fundamental-visual img {
+  aspect-ratio: 4 / 3;
+  border-radius: 1.15rem;
+  box-shadow: 0 16px 48px rgb(17 24 39 / 10%);
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .company-fundamentals {
+    padding: 3.5rem 1.5rem;
+  }
+
+  .company-fundamental,
+  .company-fundamental--reverse {
+    grid-template-columns: 1fr;
+  }
+
+  .company-fundamental--reverse .company-fundamental-copy,
+  .company-fundamental--reverse .company-fundamental-visual {
+    order: unset;
+  }
+
+  .company-fundamental-visual {
+    order: -1;
+  }
+}
