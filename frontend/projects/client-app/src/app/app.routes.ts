@@ -16,6 +16,11 @@ export const routes: Routes = [
         path: APP_ROUTE_PATHS.company,
         loadComponent: () => import('./features/company/company').then((m) => m.Company),
       },
+      {
+        path: APP_ROUTE_PATHS.partnerships,
+        loadComponent: () =>
+          import('./features/partnerships/partnerships').then((m) => m.Partnerships),
+      },
     ],
   },
 ];

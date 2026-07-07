@@ -1,0 +1,42 @@
+<section class="partnerships-work" [attr.aria-label]="'marketing.partnerships.work.ariaLabel' | translate">
+  <div class="partnerships-work-toolbar">
+    <span class="partnerships-work-filter-label">{{ 'marketing.partnerships.filterLabel' | translate }}</span>
+    <div class="partnerships-work-filters" role="tablist">
+      @for (category of categories; track category.id) {
+        <button
+          type="button"
+          class="partnerships-work-filter"
+          role="tab"
+          [class.partnerships-work-filter--active]="activeCategory() === category.id"
+          [attr.aria-selected]="activeCategory() === category.id"
+          (click)="setCategory(category.id)"
+        >
+          {{ category.labelKey | translate }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <div class="partnerships-work-grid">
+    @for (project of filteredProjects(); track project.id) {
+      <article class="partnerships-work-card">
+        <div class="partnerships-work-card-media">
+          <img
+            [src]="project.image"
+            [alt]="project.imageAltKey | translate"
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="partnerships-work-card-shine" aria-hidden="true"></span>
+          <span class="partnerships-work-card-overlay" aria-hidden="true">
+            <span class="partnerships-work-card-arrow"></span>
+          </span>
+        </div>
+        <div class="partnerships-work-card-copy">
+          <p class="partnerships-work-card-client">{{ project.clientKey | translate }}</p>
+          <h2 class="partnerships-work-card-title">{{ project.titleKey | translate }}</h2>
+        </div>
+      </article>
+    }
+  </div>
+</section>

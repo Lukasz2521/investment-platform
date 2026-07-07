@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.partnerships-hero {
+  background: #ffffff;
+  padding: 5rem 1.5rem 2.5rem;
+}
+
+.partnerships-hero-inner {
+  margin: 0 auto;
+  max-width: 52rem;
+  text-align: center;
+}
+
+.partnerships-hero-title {
+  color: #111111;
+  font-size: clamp(2rem, 4.5vw, 3.25rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  margin: 0 0 1.25rem;
+}
+
+.partnerships-hero-subtitle {
+  color: #555555;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.65;
+  margin: 0 auto;
+  max-width: 40rem;
+}
+
+@media (max-width: 768px) {
+  .partnerships-hero {
+    padding-top: 3.5rem;
+  }
+}
