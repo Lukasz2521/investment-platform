@@ -1,0 +1,61 @@
+@if (project(); as current) {
+  <article class="partnership-detail">
+    <a class="partnership-detail-back" [routerLink]="['/', routes.partnerships]">
+      {{ 'marketing.partnerships.detail.back' | translate }}
+    </a>
+
+    <header class="partnership-detail-hero">
+      <h1 class="partnership-detail-title">{{ current.titleKey | translate }}</h1>
+      <p class="partnership-detail-client">{{ current.clientKey | translate }}</p>
+    </header>
+
+    <div class="partnership-detail-cover">
+      <img
+        [src]="current.image"
+        [alt]="current.imageAltKey | translate"
+        loading="eager"
+        decoding="async"
+      />
+    </div>
+
+    <p class="partnership-detail-intro">{{ current.detailIntroKey | translate }}</p>
+
+    @for (block of current.detailBlocks; track block.titleKey) {
+      <section class="partnership-detail-section">
+        <h2 class="partnership-detail-section-title">{{ block.titleKey | translate }}</h2>
+        <p class="partnership-detail-section-body">{{ block.bodyKey | translate }}</p>
+        @if (block.image && block.imageAltKey) {
+          <figure class="partnership-detail-figure">
+            <img
+              [src]="block.image"
+              [alt]="block.imageAltKey | translate"
+              loading="lazy"
+              decoding="async"
+            />
+          </figure>
+        }
+      </section>
+    }
+
+    <section class="partnership-detail-outro">
+      <h2 class="partnership-detail-outro-title">{{ current.detailOutroTitleKey | translate }}</h2>
+      <p class="partnership-detail-outro-body">{{ current.detailOutroKey | translate }}</p>
+    </section>
+
+    <footer class="partnership-detail-footer">
+      @if (nextProject(); as next) {
+        <a class="partnership-detail-next" [routerLink]="['/', routes.partnerships, next.id]">
+          <span class="partnership-detail-next-label">
+            {{ 'marketing.partnerships.detail.nextProject' | translate }}
+          </span>
+          <span class="partnership-detail-next-title">{{ next.titleKey | translate }}</span>
+          <span class="partnership-detail-next-client">{{ next.clientKey | translate }}</span>
+        </a>
+      }
+
+      <a class="partnership-detail-all" [routerLink]="['/', routes.partnerships]">
+        {{ 'marketing.partnerships.detail.viewAll' | translate }}
+      </a>
+    </footer>
+  </article>
+}

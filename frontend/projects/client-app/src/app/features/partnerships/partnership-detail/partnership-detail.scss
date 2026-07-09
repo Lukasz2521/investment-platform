@@ -1,0 +1,189 @@
+:host {
+  color: #111111;
+  display: block;
+}
+
+.partnership-detail {
+  background: #ffffff;
+  margin: 0 auto;
+  max-width: 52rem;
+  padding: 3rem 1.5rem 5rem;
+}
+
+.partnership-detail-back {
+  color: #008060;
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 2.5rem;
+  text-decoration: none;
+}
+
+.partnership-detail-back:hover {
+  color: #004c3f;
+}
+
+.partnership-detail-hero {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.partnership-detail-title {
+  font-size: clamp(2.25rem, 5vw, 3.75rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  margin: 0 0 0.5rem;
+}
+
+.partnership-detail-client {
+  color: #6b7280;
+  font-size: 1.05rem;
+  font-style: italic;
+  margin: 0;
+}
+
+.partnership-detail-cover {
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 56px rgb(17 24 39 / 12%);
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+
+.partnership-detail-cover img {
+  aspect-ratio: 16 / 9;
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.partnership-detail-intro {
+  color: #374151;
+  font-size: clamp(1.125rem, 2.2vw, 1.35rem);
+  line-height: 1.75;
+  margin: 0 0 3.5rem;
+}
+
+.partnership-detail-section {
+  border-top: 1px solid rgb(17 24 39 / 10%);
+  margin-bottom: 3rem;
+  padding-top: 2.5rem;
+}
+
+.partnership-detail-section-title {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 0 1rem;
+}
+
+.partnership-detail-section-body {
+  color: #4b5563;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.partnership-detail-figure {
+  margin: 2rem 0 0;
+}
+
+.partnership-detail-figure img {
+  border-radius: 0.65rem;
+  box-shadow: 0 12px 36px rgb(17 24 39 / 10%);
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.partnership-detail-outro {
+  background: #f6f6f7;
+  border-radius: 1rem;
+  margin-top: 1rem;
+  padding: 2rem 1.75rem;
+}
+
+.partnership-detail-outro-title {
+  font-size: clamp(1.35rem, 2.5vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.25;
+  margin: 0 0 0.85rem;
+}
+
+.partnership-detail-outro-body {
+  color: #4b5563;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  margin: 0;
+}
+
+.partnership-detail-footer {
+  border-top: 1px solid rgb(17 24 39 / 10%);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 3.5rem;
+  padding-top: 2rem;
+}
+
+.partnership-detail-next {
+  border: 1px solid rgb(17 24 39 / 12%);
+  border-radius: 0.85rem;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1.25rem 1.35rem;
+  text-decoration: none;
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.partnership-detail-next:hover {
+  border-color: rgb(0 128 96 / 40%);
+  box-shadow: 0 12px 32px rgb(17 24 39 / 8%);
+  transform: translateY(-2px);
+}
+
+.partnership-detail-next-label {
+  color: #008060;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.partnership-detail-next-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.partnership-detail-next-client {
+  color: #6b7280;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.partnership-detail-all {
+  align-self: flex-start;
+  color: #111111;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.partnership-detail-all:hover {
+  color: #008060;
+}
+
+@media (max-width: 768px) {
+  .partnership-detail {
+    padding-top: 2rem;
+  }
+}

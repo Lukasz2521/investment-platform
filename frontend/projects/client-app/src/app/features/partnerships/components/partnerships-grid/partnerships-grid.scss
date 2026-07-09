@@ -17,6 +17,7 @@
   margin: 0 auto 2.5rem;
   max-width: 90rem;
   padding-bottom: 1.25rem;
+  padding-top: 2.5rem;
 }
 
 .partnerships-work-filter-label {
@@ -71,11 +72,13 @@
 
 .partnerships-work-card {
   border-radius: 0.85rem;
+  color: inherit;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
   padding: 0.35rem;
+  text-decoration: none;
   transition: transform 0.35s ease;
 }
 

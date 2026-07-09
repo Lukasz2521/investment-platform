@@ -19,7 +19,10 @@
 
   <div class="partnerships-work-grid">
     @for (project of filteredProjects(); track project.id) {
-      <article class="partnerships-work-card">
+      <a
+        class="partnerships-work-card"
+        [routerLink]="['/', routes.partnerships, project.id]"
+      >
         <div class="partnerships-work-card-media">
           <img
             [src]="project.image"
@@ -36,7 +39,7 @@
           <p class="partnerships-work-card-client">{{ project.clientKey | translate }}</p>
           <h2 class="partnerships-work-card-title">{{ project.titleKey | translate }}</h2>
         </div>
-      </article>
+      </a>
     }
   </div>
 </section>

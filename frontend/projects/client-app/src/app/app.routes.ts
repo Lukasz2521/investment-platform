@@ -21,6 +21,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/partnerships/partnerships').then((m) => m.Partnerships),
       },
+      {
+        path: `${APP_ROUTE_PATHS.partnerships}/:id`,
+        loadComponent: () =>
+          import('./features/partnerships/partnership-detail/partnership-detail').then(
+            (m) => m.PartnershipDetail,
+          ),
+      },
     ],
   },
 ];
