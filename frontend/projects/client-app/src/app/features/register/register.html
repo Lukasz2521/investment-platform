@@ -1,0 +1,242 @@
+<div class="register-page">
+  <a class="register-logo" routerLink="/" [attr.aria-label]="'marketing.brand' | translate">
+    <img src="/images/logo.svg" alt="" width="332" height="145" />
+  </a>
+
+  <div class="register-card">
+    <header class="register-card-header">
+      <h1 class="register-title">{{ 'marketing.register.title' | translate }}</h1>
+      <p class="register-subtitle">{{ 'marketing.register.subtitle' | translate }}</p>
+    </header>
+
+    <form class="register-form" (submit)="onSubmit($event)" novalidate>
+      <div class="register-field">
+        <label class="register-label" for="register-username">{{ 'marketing.register.username' | translate }}</label>
+        <input
+          id="register-username"
+          class="register-input"
+          type="text"
+          name="username"
+          autocomplete="username"
+          [value]="form().username"
+          (input)="updateField('username', $event)"
+        />
+      </div>
+
+      <div class="register-row">
+        <div class="register-field">
+          <label class="register-label" for="register-first-name">{{ 'marketing.register.firstName' | translate }}</label>
+          <input
+            id="register-first-name"
+            class="register-input"
+            type="text"
+            name="firstName"
+            autocomplete="given-name"
+            [value]="form().firstName"
+            (input)="updateField('firstName', $event)"
+          />
+        </div>
+
+        <div class="register-field">
+          <label class="register-label" for="register-last-name">{{ 'marketing.register.lastName' | translate }}</label>
+          <input
+            id="register-last-name"
+            class="register-input"
+            type="text"
+            name="lastName"
+            autocomplete="family-name"
+            [value]="form().lastName"
+            (input)="updateField('lastName', $event)"
+          />
+        </div>
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-phone">{{ 'marketing.register.phone' | translate }}</label>
+        <input
+          id="register-phone"
+          class="register-input"
+          type="tel"
+          name="phone"
+          autocomplete="tel"
+          [value]="form().phone"
+          (input)="updateField('phone', $event)"
+        />
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-country">{{ 'marketing.register.country' | translate }}</label>
+        <select
+          id="register-country"
+          class="register-input register-select"
+          name="country"
+          autocomplete="country-name"
+          [value]="form().country"
+          (change)="updateField('country', $event)"
+        >
+          <option value="" disabled selected hidden>{{ 'marketing.register.selectCountry' | translate }}</option>
+          @for (country of countries; track country) {
+            <option [value]="country">{{ country }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="register-row">
+        <div class="register-field">
+          <label class="register-label" for="register-town">{{ 'marketing.register.town' | translate }}</label>
+          <input
+            id="register-town"
+            class="register-input"
+            type="text"
+            name="town"
+            autocomplete="address-level2"
+            [value]="form().town"
+            (input)="updateField('town', $event)"
+          />
+        </div>
+
+        <div class="register-field">
+          <label class="register-label" for="register-zip">{{ 'marketing.register.zipCode' | translate }}</label>
+          <input
+            id="register-zip"
+            class="register-input"
+            type="text"
+            name="zipCode"
+            autocomplete="postal-code"
+            [value]="form().zipCode"
+            (input)="updateField('zipCode', $event)"
+          />
+        </div>
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-address-1">{{ 'marketing.register.addressLine1' | translate }}</label>
+        <input
+          id="register-address-1"
+          class="register-input"
+          type="text"
+          name="addressLine1"
+          autocomplete="address-line1"
+          [value]="form().addressLine1"
+          (input)="updateField('addressLine1', $event)"
+        />
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-address-2">{{ 'marketing.register.addressLine2' | translate }}</label>
+        <input
+          id="register-address-2"
+          class="register-input"
+          type="text"
+          name="addressLine2"
+          autocomplete="address-line2"
+          [value]="form().addressLine2"
+          (input)="updateField('addressLine2', $event)"
+        />
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-timezone">{{ 'marketing.register.timeZone' | translate }}</label>
+        <select
+          id="register-timezone"
+          class="register-input register-select"
+          name="timeZone"
+          [value]="form().timeZone"
+          (change)="updateField('timeZone', $event)"
+        >
+          <option value="" disabled selected hidden>{{ 'marketing.register.selectTimeZone' | translate }}</option>
+          @for (zone of timeZones; track zone) {
+            <option [value]="zone">{{ zone }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-email">{{ 'marketing.register.email' | translate }}</label>
+        <input
+          id="register-email"
+          class="register-input"
+          type="email"
+          name="email"
+          autocomplete="email"
+          [value]="form().email"
+          (input)="updateField('email', $event)"
+        />
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-password">{{ 'marketing.register.password' | translate }}</label>
+        <input
+          id="register-password"
+          class="register-input"
+          type="password"
+          name="password"
+          autocomplete="new-password"
+          [value]="form().password"
+          (input)="updateField('password', $event)"
+        />
+      </div>
+
+      <ul class="register-password-rules" aria-live="polite">
+        @for (requirement of passwordRequirements(); track requirement.id) {
+          <li
+            class="register-password-rule"
+            [class.register-password-rule--met]="requirement.met"
+          >
+            <span class="register-password-rule-icon" aria-hidden="true"></span>
+            <span>{{ requirement.labelKey | translate }}</span>
+          </li>
+        }
+      </ul>
+
+      <div class="register-field">
+        <label class="register-label" for="register-confirm-password">{{ 'marketing.register.confirmPassword' | translate }}</label>
+        <input
+          id="register-confirm-password"
+          class="register-input"
+          type="password"
+          name="confirmPassword"
+          autocomplete="new-password"
+          [value]="form().confirmPassword"
+          (input)="updateField('confirmPassword', $event)"
+        />
+      </div>
+
+      <div class="register-checkboxes">
+        <label class="register-checkbox">
+          <input
+            class="register-checkbox-input"
+            type="checkbox"
+            name="acceptTerms"
+            [checked]="form().acceptTerms"
+            (change)="toggleCheckbox('acceptTerms', $event)"
+          />
+          <span class="register-checkbox-label">
+            {{ 'marketing.register.acceptTermsPrefix' | translate }}
+            <a class="register-checkbox-link" href="#">{{ 'marketing.register.termsOfService' | translate }}</a>
+            {{ 'marketing.register.acceptTermsJoin' | translate }}
+            <a class="register-checkbox-link" href="#">{{ 'marketing.register.privacyPolicy' | translate }}</a>
+          </span>
+        </label>
+
+        <label class="register-checkbox">
+          <input
+            class="register-checkbox-input"
+            type="checkbox"
+            name="marketingConsent"
+            [checked]="form().marketingConsent"
+            (change)="toggleCheckbox('marketingConsent', $event)"
+          />
+          <span class="register-checkbox-label">{{ 'marketing.register.marketingConsent' | translate }}</span>
+        </label>
+      </div>
+
+      <button class="register-submit" type="submit">{{ 'marketing.register.submit' | translate }}</button>
+    </form>
+
+    <p class="register-footer">
+      {{ 'marketing.register.hasAccount' | translate }}
+      <a class="register-footer-link" [routerLink]="['/', routes.login]">{{ 'marketing.register.loginLink' | translate }}</a>
+    </p>
+  </div>
+</div>

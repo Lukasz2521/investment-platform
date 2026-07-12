@@ -38,5 +38,10 @@
 
       <button class="login-submit" type="submit">{{ 'marketing.login.submit' | translate }}</button>
     </form>
+
+    <p class="login-footer">
+      {{ 'marketing.login.noAccount' | translate }}
+      <a class="login-footer-link" [routerLink]="['/', routes.register]">{{ 'marketing.login.registerLink' | translate }}</a>
+    </p>
   </div>
 </div>

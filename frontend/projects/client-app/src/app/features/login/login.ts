@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 
 @Component({
   selector: 'app-login',
@@ -10,6 +11,7 @@ import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
   styleUrl: './login.scss',
 })
 export class Login {
+  protected readonly routes = APP_ROUTE_PATHS;
   protected readonly username = signal('');
   protected readonly password = signal('');
 

@@ -17,7 +17,7 @@
     <div class="marketing-header-actions">
       <app-language-selector class="marketing-language" />
       <a class="marketing-link" [routerLink]="['/', routes.login]">{{ 'marketing.nav.login' | translate }}</a>
-      <a class="marketing-btn marketing-btn--primary" href="#start">{{ 'marketing.nav.startFree' | translate }}</a>
+      <a class="marketing-btn marketing-btn--primary" [routerLink]="['/', routes.register]">{{ 'marketing.nav.startFree' | translate }}</a>
     </div>
   </div>
 </header>

@@ -1,0 +1,260 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.register-page {
+  align-items: center;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2.5rem 1.25rem 3rem;
+}
+
+.register-logo {
+  display: block;
+  margin-bottom: 2rem;
+}
+
+.register-logo img {
+  display: block;
+  height: 2.5rem;
+  width: auto;
+}
+
+.register-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  box-shadow: 0 18px 48px rgb(0 0 0 / 35%);
+  color: #111111;
+  max-width: 40rem;
+  padding: 2rem 2rem 2.25rem;
+  width: 100%;
+}
+
+.register-card-header {
+  margin-bottom: 1.75rem;
+}
+
+.register-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 0 0.5rem;
+}
+
+.register-subtitle {
+  color: #6b7280;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.register-row {
+  display: grid;
+  gap: 1.15rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.register-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.register-label {
+  color: #374151;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.register-input {
+  background: #ffffff;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  color: #111111;
+  line-height: 1.4;
+  outline: none;
+  padding: 0.7rem 0.85rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+  width: 100%;
+}
+
+.register-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 0.85rem center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  padding-right: 2.25rem;
+}
+
+.register-input::placeholder {
+  color: #9ca3af;
+}
+
+.register-input:hover {
+  border-color: #9ca3af;
+}
+
+.register-input:focus {
+  border-color: #2c6ecb;
+  box-shadow: 0 0 0 1px #2c6ecb;
+}
+
+.register-password-rules {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  list-style: none;
+  margin: -0.35rem 0 0;
+  padding: 0;
+}
+
+.register-password-rule {
+  align-items: flex-start;
+  color: #6b7280;
+  display: flex;
+  font-size: 0.8125rem;
+  gap: 0.5rem;
+  line-height: 1.45;
+}
+
+.register-password-rule-icon {
+  background: #d1d5db;
+  border-radius: 50%;
+  flex-shrink: 0;
+  height: 0.45rem;
+  margin-top: 0.35rem;
+  position: relative;
+  width: 0.45rem;
+}
+
+.register-password-rule--met {
+  color: #047857;
+}
+
+.register-password-rule--met .register-password-rule-icon {
+  background: #047857;
+}
+
+.register-password-rule--met .register-password-rule-icon::after {
+  border-bottom: 1.5px solid #ffffff;
+  border-right: 1.5px solid #ffffff;
+  content: '';
+  height: 0.3rem;
+  left: 0.1rem;
+  position: absolute;
+  top: 0.02rem;
+  transform: rotate(45deg);
+  width: 0.15rem;
+}
+
+.register-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 0.15rem;
+}
+
+.register-checkbox {
+  align-items: flex-start;
+  cursor: pointer;
+  display: flex;
+  gap: 0.65rem;
+}
+
+.register-checkbox-input {
+  accent-color: #111111;
+  cursor: pointer;
+  flex-shrink: 0;
+  height: 1rem;
+  margin-top: 0.15rem;
+  width: 1rem;
+}
+
+.register-checkbox-label {
+  color: #374151;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.register-checkbox-link {
+  color: #2c6ecb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.register-checkbox-link:hover {
+  text-decoration: underline;
+}
+
+.register-submit {
+  background: #111111;
+  border: none;
+  border-radius: 0.5rem;
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  padding: 0.8rem 1rem;
+  transition: background 0.15s ease;
+  width: 100%;
+}
+
+.register-submit:hover {
+  background: #2a2a2a;
+}
+
+.register-submit:focus-visible {
+  outline: 2px solid #2c6ecb;
+  outline-offset: 2px;
+}
+
+.register-footer {
+  border-top: 1px solid #e5e7eb;
+  color: #6b7280;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 1.5rem 0 0;
+  padding-top: 1.25rem;
+  text-align: center;
+}
+
+.register-footer-link {
+  color: #2c6ecb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.register-footer-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .register-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-card {
+    padding: 1.5rem 1.25rem 1.75rem;
+  }
+
+  .register-title {
+    font-size: 1.5rem;
+  }
+}
