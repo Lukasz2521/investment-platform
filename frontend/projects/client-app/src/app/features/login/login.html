@@ -1,0 +1,42 @@
+<div class="login-page">
+  <a class="login-logo" routerLink="/" [attr.aria-label]="'marketing.brand' | translate">
+    <img src="/images/logo.svg" alt="" width="332" height="145" />
+  </a>
+
+  <div class="login-card">
+    <header class="login-card-header">
+      <h1 class="login-title">{{ 'marketing.login.title' | translate }}</h1>
+      <p class="login-subtitle">{{ 'marketing.login.subtitle' | translate }}</p>
+    </header>
+
+    <form class="login-form" (submit)="onSubmit($event)" novalidate>
+      <div class="login-field">
+        <label class="login-label" for="login-username">{{ 'marketing.login.username' | translate }}</label>
+        <input
+          id="login-username"
+          class="login-input"
+          type="text"
+          name="username"
+          autocomplete="username"
+          [value]="username()"
+          (input)="onUsernameInput($event)"
+        />
+      </div>
+
+      <div class="login-field">
+        <label class="login-label" for="login-password">{{ 'marketing.login.password' | translate }}</label>
+        <input
+          id="login-password"
+          class="login-input"
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          [value]="password()"
+          (input)="onPasswordInput($event)"
+        />
+      </div>
+
+      <button class="login-submit" type="submit">{{ 'marketing.login.submit' | translate }}</button>
+    </form>
+  </div>
+</div>

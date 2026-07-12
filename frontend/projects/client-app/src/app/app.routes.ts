@@ -4,6 +4,10 @@ import { APP_ROUTE_PATHS } from './core/routing/app-route-paths';
 
 export const routes: Routes = [
   {
+    path: APP_ROUTE_PATHS.login,
+    loadComponent: () => import('./features/login/login').then((m) => m.Login),
+  },
+  {
     path: APP_ROUTE_PATHS.home,
     loadComponent: () =>
       import('./layout/marketing-shell/marketing-shell').then((m) => m.MarketingShell),
