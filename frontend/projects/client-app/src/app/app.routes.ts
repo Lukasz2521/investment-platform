@@ -25,6 +25,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/company/company').then((m) => m.Company),
       },
       {
+        path: APP_ROUTE_PATHS.contact,
+        loadComponent: () => import('./features/contact/contact').then((m) => m.Contact),
+      },
+      {
         path: APP_ROUTE_PATHS.partnerships,
         loadComponent: () =>
           import('./features/partnerships/partnerships').then((m) => m.Partnerships),
