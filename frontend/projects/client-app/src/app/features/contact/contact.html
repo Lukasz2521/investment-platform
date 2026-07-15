@@ -8,122 +8,52 @@
       <h1 class="contact-title">{{ 'marketing.contact.title' | translate }}</h1>
       <p class="contact-intro">
         {{ 'marketing.contact.intro' | translate }}
-        <a class="contact-email" href="mailto:hello@seedleemedia.com">hello@seedleemedia.com</a>
+        @if ('marketing.contact.email' | translate; as email) {
+          @if (email) {
+            <a class="contact-email" [href]="'mailto:' + email">{{ email }}</a>
+          }
+        }
+        {{ 'marketing.contact.introSuffix' | translate }}
       </p>
     </header>
 
     <form class="contact-form" (submit)="onSubmit($event)" novalidate>
       <div class="contact-row">
         <div class="contact-field">
-          <label class="contact-label" for="contact-first-name">
-            {{ 'marketing.contact.firstName' | translate }}
+          <label class="contact-label" for="contact-login">
+            {{ 'marketing.contact.login' | translate }}
             <span class="contact-required" aria-hidden="true">*</span>
           </label>
           <input
-            id="contact-first-name"
+            id="contact-login"
             class="contact-input"
             type="text"
-            name="firstName"
-            autocomplete="given-name"
-            [placeholder]="'marketing.contact.firstNamePlaceholder' | translate"
-            [value]="form().firstName"
-            (input)="updateField('firstName', $event)"
+            name="login"
+            autocomplete="username"
+            [placeholder]="'marketing.contact.loginPlaceholder' | translate"
+            [value]="form().login"
+            (input)="updateField('login', $event)"
             required
           />
         </div>
 
         <div class="contact-field">
-          <label class="contact-label" for="contact-last-name">
-            {{ 'marketing.contact.lastName' | translate }}
+          <label class="contact-label" for="contact-phone-number">
+            {{ 'marketing.contact.phoneNumber' | translate }}
             <span class="contact-required" aria-hidden="true">*</span>
           </label>
           <input
-            id="contact-last-name"
+            id="contact-phone-number"
             class="contact-input"
-            type="text"
-            name="lastName"
-            autocomplete="family-name"
-            [placeholder]="'marketing.contact.lastNamePlaceholder' | translate"
-            [value]="form().lastName"
-            (input)="updateField('lastName', $event)"
+            type="tel"
+            name="phoneNumber"
+            autocomplete="tel"
+            [placeholder]="'marketing.contact.phoneNumberPlaceholder' | translate"
+            [value]="form().phoneNumber"
+            (input)="updateField('phoneNumber', $event)"
             required
           />
         </div>
-      </div>
-
-      <div class="contact-row">
-        <div class="contact-field">
-          <label class="contact-label" for="contact-work-email">
-            {{ 'marketing.contact.workEmail' | translate }}
-            <span class="contact-required" aria-hidden="true">*</span>
-          </label>
-          <input
-            id="contact-work-email"
-            class="contact-input"
-            type="email"
-            name="workEmail"
-            autocomplete="email"
-            [placeholder]="'marketing.contact.workEmailPlaceholder' | translate"
-            [value]="form().workEmail"
-            (input)="updateField('workEmail', $event)"
-            required
-          />
-        </div>
-
-        <div class="contact-field">
-          <label class="contact-label" for="contact-company-website">
-            {{ 'marketing.contact.companyWebsite' | translate }}
-            <span class="contact-required" aria-hidden="true">*</span>
-          </label>
-          <input
-            id="contact-company-website"
-            class="contact-input"
-            type="url"
-            name="companyWebsite"
-            autocomplete="url"
-            [placeholder]="'marketing.contact.companyWebsitePlaceholder' | translate"
-            [value]="form().companyWebsite"
-            (input)="updateField('companyWebsite', $event)"
-            required
-          />
-        </div>
-      </div>
-
-      <div class="contact-field">
-        <label class="contact-label" for="contact-hear-about">
-          {{ 'marketing.contact.hearAboutUs' | translate }}
-        </label>
-        <select
-          id="contact-hear-about"
-          class="contact-input contact-select"
-          name="hearAboutUs"
-          [value]="form().hearAboutUs"
-          (change)="updateField('hearAboutUs', $event)"
-        >
-          <option value="" disabled selected hidden>
-            {{ 'marketing.contact.hearAboutUsPlaceholder' | translate }}
-          </option>
-          @for (option of hearAboutOptions; track option) {
-            <option [value]="option">
-              {{ 'marketing.contact.hearAboutUsOptions.' + option | translate }}
-            </option>
-          }
-        </select>
-      </div>
-
-      <div class="contact-field">
-        <label class="contact-label" for="contact-message">
-          {{ 'marketing.contact.message' | translate }}
-        </label>
-        <textarea
-          id="contact-message"
-          class="contact-input contact-textarea"
-          name="message"
-          rows="6"
-          [placeholder]="'marketing.contact.messagePlaceholder' | translate"
-          [value]="form().message"
-          (input)="updateField('message', $event)"
-        ></textarea>
       </div>
 
       <div class="contact-actions">

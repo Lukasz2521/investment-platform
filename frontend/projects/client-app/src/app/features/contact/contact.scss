@@ -10,33 +10,50 @@
 }
 
 .contact-hero {
-  align-items: flex-end;
+  align-items: center;
   background:
     linear-gradient(rgb(0 0 0 / 20%), rgb(0 0 0 / 20%)),
     url('/images/contact/background.jpg') center / cover no-repeat;
   display: flex;
-  margin-bottom: 3rem;
-  min-height: clamp(16rem, 38vw, 26rem);
-  padding: 2rem clamp(1.5rem, 5vw, 4rem) 2.5rem;
+  justify-content: center;
+  min-height: clamp(18rem, 44vw, 30rem);
+  padding: 3rem clamp(1.5rem, 5vw, 4rem) clamp(6rem, 14vw, 10rem);
+  position: relative;
+  text-align: center;
   width: 100%;
+
+  &::after {
+    background: linear-gradient(to bottom, transparent 0%, #0a0a0a 100%);
+    bottom: 0;
+    content: '';
+    height: min(14rem, 55%);
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    right: 0;
+  }
 }
 
 .contact-hero-tagline {
   color: #ffffff;
-  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-size: clamp(2.25rem, 5.5vw, 3.75rem);
   font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.35;
-  margin: 0;
-  max-width: 14ch;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  margin: 0 auto;
+  max-width: 18ch;
+  position: relative;
+  text-align: center;
   text-shadow: 0 2px 18px rgb(0 0 0 / 45%);
+  z-index: 1;
 }
 
 .contact-inner {
   margin: 0 auto;
   max-width: 52rem;
-  padding: 0 1.5rem;
+  padding: clamp(4rem, 8vw, 6.5rem) 1.5rem 0;
   position: relative;
+  z-index: 1;
 }
 
 .contact-header {
@@ -172,7 +189,20 @@
   }
 
   .contact-hero {
-    min-height: 14rem;
-    padding: 1.5rem 1.25rem 2rem;
+    min-height: 16rem;
+    padding: 2rem 1.25rem 5rem;
+
+    &::after {
+      height: min(10rem, 60%);
+    }
+  }
+
+  .contact-hero-tagline {
+    font-size: clamp(1.85rem, 8vw, 2.5rem);
+    max-width: 16ch;
+  }
+
+  .contact-inner {
+    padding-top: 3rem;
   }
 }
