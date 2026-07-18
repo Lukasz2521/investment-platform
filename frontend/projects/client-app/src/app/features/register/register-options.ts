@@ -1,3 +1,7 @@
+import { UserRegisterPayload } from '../../core/auth/models/user-register.model';
+
+import { isPasswordValid } from './register-password-rules';
+
 export const REGISTER_COUNTRIES = [
   'Poland',
   'Germany',
@@ -69,6 +73,62 @@ export interface RegisterForm {
   confirmPassword: string;
   acceptTerms: boolean;
   marketingConsent: boolean;
+}
+
+export type RegisterValidationError =
+  | 'requiredFields'
+  | 'acceptTerms'
+  | 'passwordMismatch'
+  | 'passwordInvalid';
+
+export function toUserRegisterPayload(form: RegisterForm): UserRegisterPayload {
+  return {
+    username: form.username.trim(),
+    name: form.firstName.trim(),
+    last_name: form.lastName.trim(),
+    email: form.email.trim(),
+    phone: form.phone.trim(),
+    country: form.country.trim(),
+    city: form.town.trim(),
+    address_line_one: form.addressLine1.trim(),
+    address_line_two: form.addressLine2.trim(),
+    timezone: form.timeZone.trim(),
+    password: form.password,
+  };
+}
+
+export function getRegisterValidationError(form: RegisterForm): RegisterValidationError | null {
+  const requiredValues = [
+    form.username,
+    form.email,
+    form.firstName,
+    form.lastName,
+    form.phone,
+    form.country,
+    form.town,
+    form.addressLine1,
+    form.timeZone,
+    form.password,
+    form.confirmPassword,
+  ];
+
+  if (requiredValues.some((value) => !value.trim())) {
+    return 'requiredFields';
+  }
+
+  if (!form.acceptTerms) {
+    return 'acceptTerms';
+  }
+
+  if (form.password !== form.confirmPassword) {
+    return 'passwordMismatch';
+  }
+
+  if (!isPasswordValid(form.password)) {
+    return 'passwordInvalid';
+  }
+
+  return null;
 }
 
 export const EMPTY_REGISTER_FORM: RegisterForm = {

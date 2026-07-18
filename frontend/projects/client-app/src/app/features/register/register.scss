@@ -59,6 +59,26 @@
   gap: 1.15rem;
 }
 
+.register-message {
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0.75rem 0.85rem;
+}
+
+.register-message--error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.register-message--info {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1d4ed8;
+}
+
 .register-row {
   display: grid;
   gap: 1.15rem;
@@ -216,6 +236,11 @@
 
 .register-submit:hover {
   background: #2a2a2a;
+}
+
+.register-submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .register-submit:focus-visible {

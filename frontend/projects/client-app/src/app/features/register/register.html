@@ -10,6 +10,18 @@
     </header>
 
     <form class="register-form" (submit)="onSubmit($event)" novalidate>
+      @if (validationError()) {
+        <p class="register-message register-message--error" role="alert">
+          {{ ('marketing.register.error.' + validationError()) | translate }}
+        </p>
+      }
+
+      @if (apiError()) {
+        <p class="register-message register-message--error" role="alert">
+          {{ apiError() }}
+        </p>
+      }
+
       <div class="register-field">
         <label class="register-label" for="register-username">{{ 'marketing.register.username' | translate }}</label>
         <input
@@ -20,6 +32,20 @@
           autocomplete="username"
           [value]="form().username"
           (input)="updateField('username', $event)"
+        />
+      </div>
+
+      <div class="register-field">
+        <label class="register-label" for="register-email">{{ 'marketing.register.email' | translate }}</label>
+        <input
+          id="register-email"
+          class="register-input"
+          type="email"
+          name="email"
+          autocomplete="email"
+          required
+          [value]="form().email"
+          (input)="updateField('email', $event)"
         />
       </div>
 
@@ -152,19 +178,6 @@
       </div>
 
       <div class="register-field">
-        <label class="register-label" for="register-email">{{ 'marketing.register.email' | translate }}</label>
-        <input
-          id="register-email"
-          class="register-input"
-          type="email"
-          name="email"
-          autocomplete="email"
-          [value]="form().email"
-          (input)="updateField('email', $event)"
-        />
-      </div>
-
-      <div class="register-field">
         <label class="register-label" for="register-password">{{ 'marketing.register.password' | translate }}</label>
         <input
           id="register-password"
@@ -231,7 +244,9 @@
         </label>
       </div>
 
-      <button class="register-submit" type="submit">{{ 'marketing.register.submit' | translate }}</button>
+      <button class="register-submit" type="submit" [disabled]="loading()">
+        {{ (loading() ? 'marketing.register.submitting' : 'marketing.register.submit') | translate }}
+      </button>
     </form>
 
     <p class="register-footer">

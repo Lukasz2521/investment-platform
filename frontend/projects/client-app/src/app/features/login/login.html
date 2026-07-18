@@ -10,6 +10,12 @@
     </header>
 
     <form class="login-form" (submit)="onSubmit($event)" novalidate>
+      @if (registrationSuccess()) {
+        <p class="login-message login-message--success" role="status">
+          {{ 'marketing.login.registrationSuccess' | translate }}
+        </p>
+      }
+
       <div class="login-field">
         <label class="login-label" for="login-username">{{ 'marketing.login.username' | translate }}</label>
         <input
