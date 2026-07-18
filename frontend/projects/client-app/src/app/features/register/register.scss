@@ -14,13 +14,17 @@
 }
 
 .register-logo {
-  display: block;
-  margin-bottom: 2rem;
+  align-items: center;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+  margin: 0 0 1.5rem;
+  padding-bottom: 1.5rem;
 }
 
 .register-logo img {
   display: block;
-  height: 2.5rem;
+  height: 3rem;
   width: auto;
 }
 
