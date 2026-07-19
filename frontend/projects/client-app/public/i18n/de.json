@@ -584,5 +584,18 @@
   "app.dashboard.history.status.done": "Abgeschlossen",
   "app.dashboard.history.status.failed": "Fehlgeschlagen",
   "app.dashboard.history.status.unknown": "Unbekannt",
-  "app.dashboard.greeting": "Hallo {{username}}"
+  "app.dashboard.greeting": "Hallo {{username}}",
+  "app.nav.profile": "Mein Profil",
+  "app.profile.title": "Mein Profil",
+  "app.profile.loading": "Profil wird geladen...",
+  "app.profile.error": "Profil konnte nicht geladen werden.",
+  "app.profile.fields.username": "Benutzername",
+  "app.profile.fields.name": "Vorname",
+  "app.profile.fields.lastName": "Nachname",
+  "app.profile.fields.email": "E-Mail",
+  "app.profile.fields.phone": "Telefon",
+  "app.profile.fields.country": "Land",
+  "app.profile.fields.city": "Stadt",
+  "app.profile.fields.address": "Adresse",
+  "app.profile.fields.timezone": "Zeitzone"
 }

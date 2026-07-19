@@ -1,3 +1,5 @@
+import { UserPublic } from './user-public.model';
+
 export type UserRegisterPayload = {
   username: string;
   name: string;
@@ -12,11 +14,4 @@ export type UserRegisterPayload = {
   password: string;
 };
 
-export type UserPublic = {
-  id: string;
-  email: string;
-  is_active: boolean;
-  username: string;
-  name: string;
-  last_name: string;
-};
+export type { UserPublic };

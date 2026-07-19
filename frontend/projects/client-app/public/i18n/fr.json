@@ -584,5 +584,18 @@
   "app.dashboard.history.status.done": "Terminée",
   "app.dashboard.history.status.failed": "Échouée",
   "app.dashboard.history.status.unknown": "Inconnu",
-  "app.dashboard.greeting": "Bonjour {{username}}"
+  "app.dashboard.greeting": "Bonjour {{username}}",
+  "app.nav.profile": "Mon profil",
+  "app.profile.title": "Mon profil",
+  "app.profile.loading": "Chargement du profil...",
+  "app.profile.error": "Impossible de charger le profil.",
+  "app.profile.fields.username": "Nom d'utilisateur",
+  "app.profile.fields.name": "Prénom",
+  "app.profile.fields.lastName": "Nom",
+  "app.profile.fields.email": "E-mail",
+  "app.profile.fields.phone": "Téléphone",
+  "app.profile.fields.country": "Pays",
+  "app.profile.fields.city": "Ville",
+  "app.profile.fields.address": "Adresse",
+  "app.profile.fields.timezone": "Fuseau horaire"
 }

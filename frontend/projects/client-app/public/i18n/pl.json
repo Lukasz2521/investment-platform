@@ -584,5 +584,18 @@
   "app.dashboard.history.status.done": "Zakończona",
   "app.dashboard.history.status.failed": "Nieudana",
   "app.dashboard.history.status.unknown": "Nieznany",
-  "app.dashboard.greeting": "Witaj {{username}}"
+  "app.dashboard.greeting": "Witaj {{username}}",
+  "app.nav.profile": "Mój profil",
+  "app.profile.title": "Mój profil",
+  "app.profile.loading": "Ładowanie profilu...",
+  "app.profile.error": "Nie udało się wczytać profilu.",
+  "app.profile.fields.username": "Nazwa użytkownika",
+  "app.profile.fields.name": "Imię",
+  "app.profile.fields.lastName": "Nazwisko",
+  "app.profile.fields.email": "E-mail",
+  "app.profile.fields.phone": "Telefon",
+  "app.profile.fields.country": "Kraj",
+  "app.profile.fields.city": "Miasto",
+  "app.profile.fields.address": "Adres",
+  "app.profile.fields.timezone": "Strefa czasowa"
 }

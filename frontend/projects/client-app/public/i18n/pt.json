@@ -584,5 +584,18 @@
   "app.dashboard.history.status.done": "Concluída",
   "app.dashboard.history.status.failed": "Falhada",
   "app.dashboard.history.status.unknown": "Desconhecido",
-  "app.dashboard.greeting": "Olá {{username}}"
+  "app.dashboard.greeting": "Olá {{username}}",
+  "app.nav.profile": "O meu perfil",
+  "app.profile.title": "O meu perfil",
+  "app.profile.loading": "A carregar perfil...",
+  "app.profile.error": "Não foi possível carregar o perfil.",
+  "app.profile.fields.username": "Nome de utilizador",
+  "app.profile.fields.name": "Nome",
+  "app.profile.fields.lastName": "Apelido",
+  "app.profile.fields.email": "E-mail",
+  "app.profile.fields.phone": "Telefone",
+  "app.profile.fields.country": "País",
+  "app.profile.fields.city": "Cidade",
+  "app.profile.fields.address": "Morada",
+  "app.profile.fields.timezone": "Fuso horário"
 }

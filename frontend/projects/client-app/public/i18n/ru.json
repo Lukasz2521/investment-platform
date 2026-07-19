@@ -584,5 +584,18 @@
   "app.dashboard.history.status.done": "Завершена",
   "app.dashboard.history.status.failed": "Ошибка",
   "app.dashboard.history.status.unknown": "Неизвестно",
-  "app.dashboard.greeting": "Привет, {{username}}"
+  "app.dashboard.greeting": "Привет, {{username}}",
+  "app.nav.profile": "Мой профиль",
+  "app.profile.title": "Мой профиль",
+  "app.profile.loading": "Загрузка профиля...",
+  "app.profile.error": "Не удалось загрузить профиль.",
+  "app.profile.fields.username": "Имя пользователя",
+  "app.profile.fields.name": "Имя",
+  "app.profile.fields.lastName": "Фамилия",
+  "app.profile.fields.email": "Эл. почта",
+  "app.profile.fields.phone": "Телефон",
+  "app.profile.fields.country": "Страна",
+  "app.profile.fields.city": "Город",
+  "app.profile.fields.address": "Адрес",
+  "app.profile.fields.timezone": "Часовой пояс"
 }

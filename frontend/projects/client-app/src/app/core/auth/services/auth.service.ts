@@ -6,7 +6,8 @@ import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { APP_ROUTE_PATHS } from '../../routing/app-route-paths';
 import { TokenResponse } from '../models/token-response.model';
-import { UserPublic, UserRegisterPayload } from '../models/user-register.model';
+import { UserPublic } from '../models/user-public.model';
+import { UserRegisterPayload } from '../models/user-register.model';
 import { isTokenExpired } from '../utils/auth.utils';
 
 @Injectable({ providedIn: 'root' })

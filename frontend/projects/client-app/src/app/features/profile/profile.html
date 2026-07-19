@@ -1,0 +1,63 @@
+<section class="profile">
+  <header class="profile-header">
+    <svg class="profile-header-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"
+      />
+    </svg>
+    <h1 class="profile-title">{{ 'app.profile.title' | translate }}</h1>
+  </header>
+
+  @if (loading()) {
+    <p class="profile-state">{{ 'app.profile.loading' | translate }}</p>
+  } @else if (error()) {
+    <p class="profile-state profile-state--error" role="alert">{{ 'app.profile.error' | translate }}</p>
+  } @else if (user(); as currentUser) {
+    <div class="profile-card">
+      <dl class="profile-fields">
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.username' | translate }}</dt>
+          <dd>{{ currentUser.username || '—' }}</dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.name' | translate }}</dt>
+          <dd>{{ currentUser.name || '—' }}</dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.lastName' | translate }}</dt>
+          <dd>{{ currentUser.last_name || '—' }}</dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.email' | translate }}</dt>
+          <dd>{{ currentUser.email }}</dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.phone' | translate }}</dt>
+          <dd>{{ currentUser.phone || '—' }}</dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.country' | translate }}</dt>
+          <dd>{{ currentUser.country || '—' }}</dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.city' | translate }}</dt>
+          <dd>{{ currentUser.city || '—' }}</dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.address' | translate }}</dt>
+          <dd>
+            {{ currentUser.address_line_one || '—' }}
+            @if (currentUser.address_line_two) {
+              <span>, {{ currentUser.address_line_two }}</span>
+            }
+          </dd>
+        </div>
+        <div class="profile-field">
+          <dt>{{ 'app.profile.fields.timezone' | translate }}</dt>
+          <dd>{{ currentUser.timezone || '—' }}</dd>
+        </div>
+      </dl>
+    </div>
+  }
+</section>

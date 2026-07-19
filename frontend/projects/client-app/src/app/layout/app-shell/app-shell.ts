@@ -6,6 +6,8 @@ import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 import { ThemeService } from '../../core/theme/theme.service';
 
+type NavIcon = 'home' | 'user';
+
 @Component({
   selector: 'app-app-shell',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe, LanguageSelector],
@@ -20,8 +22,9 @@ export class AppShell {
   protected readonly routes = APP_ROUTE_PATHS;
   protected readonly sideMenuOpen = signal(false);
 
-  protected readonly navItems = [
-    { labelKey: 'app.nav.dashboard', route: APP_ROUTE_PATHS.dashboard, icon: 'home' as const },
+  protected readonly navItems: { labelKey: string; route: string; icon: NavIcon }[] = [
+    { labelKey: 'app.nav.dashboard', route: APP_ROUTE_PATHS.dashboard, icon: 'home' },
+    { labelKey: 'app.nav.profile', route: APP_ROUTE_PATHS.profile, icon: 'user' },
   ];
 
   protected toggleSideMenu(): void {
