@@ -1,0 +1,96 @@
+<div class="app-shell" [class.app-shell--menu-open]="sideMenuOpen()">
+  <header class="app-shell-topbar">
+    <div class="app-shell-topbar-start">
+      <button
+        class="app-shell-menu-btn"
+        type="button"
+        [attr.aria-label]="(sideMenuOpen() ? 'app.shell.closeMenu' : 'app.shell.openMenu') | translate"
+        [attr.aria-expanded]="sideMenuOpen()"
+        (click)="toggleSideMenu()"
+      >
+        <span class="app-shell-menu-icon" aria-hidden="true"></span>
+      </button>
+
+      <a
+        class="app-shell-brand"
+        [routerLink]="['/', routes.dashboard]"
+        [attr.aria-label]="'app.shell.brand' | translate"
+      >
+        <img class="app-shell-brand-logo" src="/images/logo.svg" alt="" width="332" height="145" />
+      </a>
+    </div>
+
+    <div class="app-shell-topbar-end">
+      <button
+        class="app-shell-theme-toggle"
+        type="button"
+        role="switch"
+        [attr.aria-checked]="!themeService.isDark()"
+        [attr.aria-label]="'app.shell.themeToggle' | translate"
+        (click)="themeService.toggle()"
+      >
+        <span class="app-shell-theme-thumb" aria-hidden="true">
+          @if (themeService.isDark()) {
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+              />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="4" />
+              <path
+                stroke-linecap="round"
+                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+              />
+            </svg>
+          }
+        </span>
+      </button>
+
+      <app-language-selector variant="compact" />
+
+      <button
+        class="app-shell-user-btn"
+        type="button"
+        [attr.aria-label]="'app.shell.userMenu' | translate"
+      >
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <circle cx="12" cy="8" r="3.25" />
+          <path stroke-linecap="round" d="M5.5 19.5c1.6-3.2 4-4.75 6.5-4.75s4.9 1.55 6.5 4.75" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  @if (sideMenuOpen()) {
+    <button
+      class="app-shell-backdrop"
+      type="button"
+      tabindex="-1"
+      [attr.aria-label]="'app.shell.closeMenu' | translate"
+      (click)="closeSideMenu()"
+    ></button>
+  }
+
+  <aside class="app-shell-sidebar" [attr.aria-hidden]="!sideMenuOpen()">
+    <nav class="app-shell-nav" [attr.aria-label]="'app.shell.navLabel' | translate">
+      @for (item of navItems; track item.route) {
+        <a
+          class="app-shell-nav-link"
+          [routerLink]="['/', item.route]"
+          routerLinkActive="app-shell-nav-link--active"
+          (click)="closeSideMenu()"
+        >
+          {{ item.labelKey | translate }}
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="app-shell-main">
+    <router-outlet />
+  </main>
+</div>

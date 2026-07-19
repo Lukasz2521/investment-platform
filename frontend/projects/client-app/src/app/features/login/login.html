@@ -16,16 +16,22 @@
         </p>
       }
 
+      @if (apiError()) {
+        <p class="login-message login-message--error" role="alert">
+          {{ apiError() }}
+        </p>
+      }
+
       <div class="login-field">
-        <label class="login-label" for="login-username">{{ 'marketing.login.username' | translate }}</label>
+        <label class="login-label" for="login-email">{{ 'marketing.login.email' | translate }}</label>
         <input
-          id="login-username"
+          id="login-email"
           class="login-input"
-          type="text"
-          name="username"
-          autocomplete="username"
-          [value]="username()"
-          (input)="onUsernameInput($event)"
+          type="email"
+          name="email"
+          autocomplete="email"
+          [value]="email()"
+          (input)="onEmailInput($event)"
         />
       </div>
 
@@ -42,7 +48,9 @@
         />
       </div>
 
-      <button class="login-submit" type="submit">{{ 'marketing.login.submit' | translate }}</button>
+      <button class="login-submit" type="submit" [disabled]="loading()">
+        {{ (loading() ? 'marketing.login.submitting' : 'marketing.login.submit') | translate }}
+      </button>
     </form>
 
     <p class="login-footer">

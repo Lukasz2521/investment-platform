@@ -525,5 +525,18 @@
   "marketing.contact.phoneNumber": "Номер телефона",
   "marketing.contact.phoneNumberPlaceholder": "Номер телефона",
   "marketing.contact.submit": "Отправить",
-  "marketing.contact.heroTagline": "Здравствуйте. Поделитесь с нами своими наблюдениями"
+  "marketing.contact.heroTagline": "Здравствуйте. Поделитесь с нами своими наблюдениями",
+  "app.shell.brand": "Seedlee Media",
+  "app.shell.openMenu": "Открыть меню",
+  "app.shell.closeMenu": "Закрыть меню",
+  "app.shell.navLabel": "Меню приложения",
+  "app.shell.themeToggle": "Переключить светлую или тёмную тему",
+  "app.shell.userMenu": "Аккаунт пользователя",
+  "app.nav.dashboard": "Панель",
+  "app.dashboard.title": "Панель",
+  "app.dashboard.subtitle": "Добро пожаловать в аккаунт Seedlee Media.",
+  "marketing.login.email": "Эл. почта",
+  "marketing.login.submitting": "Вход...",
+  "marketing.login.error.required": "Введите электронную почту и пароль.",
+  "marketing.login.error.generic": "Не удалось войти. Попробуйте ещё раз."
 }

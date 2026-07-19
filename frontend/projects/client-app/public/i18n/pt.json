@@ -525,5 +525,18 @@
   "marketing.contact.phoneNumber": "Número de telefone",
   "marketing.contact.phoneNumberPlaceholder": "Número de telefone",
   "marketing.contact.submit": "Enviar",
-  "marketing.contact.heroTagline": "Olá. Partilhe connosco as suas ideias"
+  "marketing.contact.heroTagline": "Olá. Partilhe connosco as suas ideias",
+  "app.shell.brand": "Seedlee Media",
+  "app.shell.openMenu": "Abrir menu",
+  "app.shell.closeMenu": "Fechar menu",
+  "app.shell.navLabel": "Menu da aplicação",
+  "app.shell.themeToggle": "Alternar tema claro ou escuro",
+  "app.shell.userMenu": "Conta do utilizador",
+  "app.nav.dashboard": "Painel",
+  "app.dashboard.title": "Painel",
+  "app.dashboard.subtitle": "Bem-vindo à sua conta Seedlee Media.",
+  "marketing.login.email": "E-mail",
+  "marketing.login.submitting": "A iniciar sessão...",
+  "marketing.login.error.required": "Introduza o e-mail e a palavra-passe.",
+  "marketing.login.error.generic": "Não foi possível iniciar sessão. Tente novamente."
 }

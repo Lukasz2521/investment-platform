@@ -525,5 +525,18 @@
   "marketing.contact.phoneNumber": "Phone number",
   "marketing.contact.phoneNumberPlaceholder": "Phone number",
   "marketing.contact.submit": "Submit",
-  "marketing.contact.heroTagline": "Hello. Share your insights with us"
+  "marketing.contact.heroTagline": "Hello. Share your insights with us",
+  "app.shell.brand": "Seedlee Media",
+  "app.shell.openMenu": "Open menu",
+  "app.shell.closeMenu": "Close menu",
+  "app.shell.navLabel": "Application menu",
+  "app.shell.themeToggle": "Toggle light or dark theme",
+  "app.shell.userMenu": "User account",
+  "app.nav.dashboard": "Dashboard",
+  "app.dashboard.title": "Dashboard",
+  "app.dashboard.subtitle": "Welcome to your Seedlee Media account.",
+  "marketing.login.email": "Email",
+  "marketing.login.submitting": "Logging in...",
+  "marketing.login.error.required": "Enter your email and password.",
+  "marketing.login.error.generic": "Unable to log in. Please try again."
 }
