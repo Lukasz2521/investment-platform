@@ -583,5 +583,6 @@
   "app.dashboard.history.status.pending": "Oczekująca",
   "app.dashboard.history.status.done": "Zakończona",
   "app.dashboard.history.status.failed": "Nieudana",
-  "app.dashboard.history.status.unknown": "Nieznany"
+  "app.dashboard.history.status.unknown": "Nieznany",
+  "app.dashboard.greeting": "Witaj {{username}}"
 }

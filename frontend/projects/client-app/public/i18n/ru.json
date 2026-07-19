@@ -583,5 +583,6 @@
   "app.dashboard.history.status.pending": "В ожидании",
   "app.dashboard.history.status.done": "Завершена",
   "app.dashboard.history.status.failed": "Ошибка",
-  "app.dashboard.history.status.unknown": "Неизвестно"
+  "app.dashboard.history.status.unknown": "Неизвестно",
+  "app.dashboard.greeting": "Привет, {{username}}"
 }

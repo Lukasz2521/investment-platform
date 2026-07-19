@@ -25,6 +25,10 @@ export class AuthService {
       .pipe(tap((response) => this.storeToken(response.access_token)));
   }
 
+  getMe(): Observable<UserPublic> {
+    return this.http.get<UserPublic>(`${environment.apiUrl}/users/me`);
+  }
+
   getToken(): string | null {
     if (typeof localStorage === 'undefined') {
       return null;

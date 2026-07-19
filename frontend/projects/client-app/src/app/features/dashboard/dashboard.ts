@@ -3,6 +3,7 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { interval } from 'rxjs';
 
+import { AuthService } from '../../core/auth/services/auth.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../core/i18n/services/translation.service';
 import { TransactionPublic } from '../../core/transactions/models/transaction.model';
@@ -27,6 +28,7 @@ const HISTORY_PAGE_SIZE = 20;
 })
 export class Dashboard implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
+  private readonly authService = inject(AuthService);
   private readonly translationService = inject(TranslationService);
   private readonly transactionsService = inject(TransactionsService);
 
@@ -35,6 +37,7 @@ export class Dashboard implements OnInit {
   protected readonly profitSharePercent = PROFIT_SHARE_PERCENT;
   protected readonly donutDasharray = `${(PROFIT_SHARE_PERCENT / 100) * DONUT_CIRCUMFERENCE} ${DONUT_CIRCUMFERENCE}`;
   protected readonly countdownLabel = signal('');
+  protected readonly username = signal('');
 
   protected readonly transactions = signal<TransactionPublic[]>([]);
   protected readonly transactionsCount = signal(0);
@@ -49,7 +52,19 @@ export class Dashboard implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.updateCountdown());
 
+    this.loadUser();
     this.loadHistory();
+  }
+
+  private loadUser(): void {
+    this.authService.getMe().subscribe({
+      next: (user) => {
+        this.username.set(user.username || user.name || user.email);
+      },
+      error: () => {
+        this.username.set('');
+      },
+    });
   }
 
   protected formatAmount(amount: string): string {

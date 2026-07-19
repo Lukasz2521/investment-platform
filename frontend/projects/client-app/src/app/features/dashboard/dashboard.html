@@ -6,7 +6,13 @@
         d="M12 3.2 3.5 10.2c-.3.25-.35.7-.1 1 .25.3.7.35 1 .1L6 9.85V19c0 .55.45 1 1 1h3.25c.4 0 .75-.35.75-.75V14.5h2v4.75c0 .4.35.75.75.75H17c.55 0 1-.45 1-1v-9.15l1.6 1.45c.3.25.75.2 1-.1.25-.3.2-.75-.1-1L12 3.2z"
       />
     </svg>
-    <h1 class="dashboard-title">{{ 'app.dashboard.title' | translate }}</h1>
+    <h1 class="dashboard-title">
+      @if (username()) {
+        {{ 'app.dashboard.greeting' | translate: { username: username() } }}
+      } @else {
+        {{ 'app.dashboard.title' | translate }}
+      }
+    </h1>
   </header>
 
   <div class="dashboard-layout">

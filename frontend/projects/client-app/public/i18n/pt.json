@@ -583,5 +583,6 @@
   "app.dashboard.history.status.pending": "Pendente",
   "app.dashboard.history.status.done": "Concluída",
   "app.dashboard.history.status.failed": "Falhada",
-  "app.dashboard.history.status.unknown": "Desconhecido"
+  "app.dashboard.history.status.unknown": "Desconhecido",
+  "app.dashboard.greeting": "Olá {{username}}"
 }
