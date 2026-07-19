@@ -1,4 +1,155 @@
 <section class="dashboard">
-  <h1 class="dashboard-title">{{ 'app.dashboard.title' | translate }}</h1>
-  <p class="dashboard-subtitle">{{ 'app.dashboard.subtitle' | translate }}</p>
+  <header class="dashboard-header">
+    <svg class="dashboard-header-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 3.2 3.5 10.2c-.3.25-.35.7-.1 1 .25.3.7.35 1 .1L6 9.85V19c0 .55.45 1 1 1h3.25c.4 0 .75-.35.75-.75V14.5h2v4.75c0 .4.35.75.75.75H17c.55 0 1-.45 1-1v-9.15l1.6 1.45c.3.25.75.2 1-.1.25-.3.2-.75-.1-1L12 3.2z"
+      />
+    </svg>
+    <h1 class="dashboard-title">{{ 'app.dashboard.title' | translate }}</h1>
+  </header>
+
+  <div class="dashboard-layout">
+    <section class="dashboard-left" [attr.aria-label]="'app.dashboard.tilesAria' | translate">
+      <div class="dashboard-tiles">
+        @for (tile of tiles; track tile.id) {
+          <article class="dashboard-tile">
+            <h2 class="dashboard-tile-title">{{ tile.titleKey | translate }}</h2>
+            <button class="dashboard-tile-action" type="button">
+              <span>{{ tile.valueKey | translate }}</span>
+              <svg class="dashboard-tile-chevron" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+                <path
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.75"
+                  d="M6 3.5 10.5 8 6 12.5"
+                />
+              </svg>
+            </button>
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="dashboard-right" [attr.aria-label]="'app.dashboard.profitShare.aria' | translate">
+      <article class="dashboard-profit">
+        <h2 class="dashboard-profit-title">{{ 'app.dashboard.profitShare.title' | translate }}</h2>
+
+        <div class="dashboard-profit-body">
+          <div
+            class="dashboard-profit-chart"
+            role="img"
+            [attr.aria-label]="('app.dashboard.profitShare.percent' | translate) + ' — ' + ('app.dashboard.profitShare.levelHigh' | translate)"
+          >
+            <svg class="dashboard-profit-donut" viewBox="0 0 120 120" aria-hidden="true">
+              <circle class="dashboard-profit-donut-track" cx="60" cy="60" r="46" />
+              <circle
+                class="dashboard-profit-donut-value"
+                cx="60"
+                cy="60"
+                r="46"
+                [style.stroke-dasharray]="donutDasharray"
+              />
+            </svg>
+          </div>
+
+          <div class="dashboard-profit-meta">
+            <ul class="dashboard-profit-legend">
+              <li>
+                <span class="dashboard-profit-swatch dashboard-profit-swatch--mine" aria-hidden="true"></span>
+                <span>{{ 'app.dashboard.profitShare.myProfit' | translate }}</span>
+              </li>
+              <li>
+                <span class="dashboard-profit-swatch dashboard-profit-swatch--platform" aria-hidden="true"></span>
+                <span>{{ 'app.dashboard.profitShare.platformFee' | translate }}</span>
+              </li>
+            </ul>
+
+            <p class="dashboard-profit-percent">{{ 'app.dashboard.profitShare.percent' | translate }}</p>
+            <p class="dashboard-profit-level">{{ 'app.dashboard.profitShare.levelHigh' | translate }}</p>
+          </div>
+        </div>
+
+        <footer class="dashboard-profit-footer">
+          <p class="dashboard-profit-campaign">
+            {{ 'app.dashboard.profitShare.campaignPrefix' | translate }}
+            <strong>{{ campaignName }}</strong>
+            {{ 'app.dashboard.profitShare.campaignSuffix' | translate }}
+          </p>
+          <p class="dashboard-profit-countdown">{{ countdownLabel() }}</p>
+        </footer>
+      </article>
+    </section>
+  </div>
+
+  <section class="dashboard-history" [attr.aria-label]="'app.dashboard.history.aria' | translate">
+    <header class="dashboard-history-header">
+      <h2 class="dashboard-history-title">{{ 'app.dashboard.history.title' | translate }}</h2>
+      @if (!historyLoading() && !historyError() && transactionsCount() > 0) {
+        <p class="dashboard-history-count">
+          {{ 'app.dashboard.history.count' | translate: { count: '' + transactionsCount() } }}
+        </p>
+      }
+    </header>
+
+    @if (historyLoading()) {
+      <p class="dashboard-history-state">{{ 'app.dashboard.history.loading' | translate }}</p>
+    } @else if (historyError()) {
+      <p class="dashboard-history-state dashboard-history-state--error" role="alert">
+        {{ 'app.dashboard.history.error' | translate }}
+      </p>
+    } @else if (transactions().length === 0) {
+      <p class="dashboard-history-state">{{ 'app.dashboard.history.empty' | translate }}</p>
+    } @else {
+      <div class="dashboard-history-table-wrap">
+        <table class="dashboard-history-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'app.dashboard.history.columns.date' | translate }}</th>
+              <th scope="col">{{ 'app.dashboard.history.columns.type' | translate }}</th>
+              <th scope="col">{{ 'app.dashboard.history.columns.description' | translate }}</th>
+              <th scope="col">{{ 'app.dashboard.history.columns.status' | translate }}</th>
+              <th scope="col" class="dashboard-history-col-amount">
+                {{ 'app.dashboard.history.columns.amount' | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (transaction of transactions(); track transaction.id) {
+              <tr>
+                <td>
+                  @if (transaction.created_at) {
+                    {{ transaction.created_at | date: 'medium' }}
+                  } @else {
+                    —
+                  }
+                </td>
+                <td>{{ typeLabelKey(transaction.transaction_type) | translate }}</td>
+                <td class="dashboard-history-description">
+                  {{ transaction.description || ('app.dashboard.history.noDescription' | translate) }}
+                </td>
+                <td>
+                  <span
+                    class="dashboard-history-status"
+                    [attr.data-status]="transaction.status"
+                  >
+                    {{ statusLabelKey(transaction.status) | translate }}
+                  </span>
+                </td>
+                <td
+                  class="dashboard-history-col-amount"
+                  [class.dashboard-history-amount--out]="isOutgoing(transaction)"
+                  [class.dashboard-history-amount--in]="!isOutgoing(transaction)"
+                >
+                  {{ amountPrefix(transaction) }}{{ formatAmount(transaction.amount) }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
 </section>

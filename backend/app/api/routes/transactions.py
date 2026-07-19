@@ -4,7 +4,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException
 
 from app import crud
-from app.api.deps import SessionDep, get_current_active_superuser
+from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.models import (
     CreateTransaction,
     Message,
@@ -40,7 +40,6 @@ def create_transaction(
     return TransactionPublic.model_validate(tx)
 
 
-
 @router.get(
     "/",
     response_model=TransactionsPublic,
@@ -55,6 +54,23 @@ def get_transactions(
     Get all transactions.
     """
     transactions, count = crud.get_transactions(session=session, skip=skip, limit=limit)
+    data = [TransactionPublic.model_validate(tx) for tx in transactions]
+    return TransactionsPublic(data=data, count=count)
+
+
+@router.get("/me", response_model=TransactionsPublic)
+def get_my_transactions(
+    session: SessionDep,
+    current_user: CurrentUser,
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """
+    Get transactions for the currently authenticated user.
+    """
+    transactions, count = crud.get_transactions_by_user_id(
+        session=session, user_id=current_user.id, skip=skip, limit=limit
+    )
     data = [TransactionPublic.model_validate(tx) for tx in transactions]
     return TransactionsPublic(data=data, count=count)
 

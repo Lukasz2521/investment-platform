@@ -222,21 +222,33 @@
 }
 
 .app-shell-nav-link {
+  align-items: center;
   border-radius: 0.65rem;
-  color: var(--app-text);
+  color: var(--app-muted);
+  display: flex;
   font-size: 0.9375rem;
   font-weight: 500;
+  gap: 0.7rem;
   padding: 0.7rem 0.85rem;
   text-decoration: none;
-  transition: background 0.15s ease;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.app-shell-nav-icon {
+  display: block;
+  flex-shrink: 0;
 }
 
 .app-shell-nav-link:hover {
   background: var(--app-hover);
+  color: var(--app-text);
 }
 
 .app-shell-nav-link--active {
   background: var(--app-active);
+  color: var(--app-text);
 }
 
 .app-shell-main {

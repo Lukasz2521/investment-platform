@@ -21,7 +21,7 @@ export class AppShell {
   protected readonly sideMenuOpen = signal(false);
 
   protected readonly navItems = [
-    { labelKey: 'app.nav.dashboard', route: APP_ROUTE_PATHS.dashboard },
+    { labelKey: 'app.nav.dashboard', route: APP_ROUTE_PATHS.dashboard, icon: 'home' as const },
   ];
 
   protected toggleSideMenu(): void {
