@@ -597,5 +597,14 @@
   "app.profile.fields.country": "País",
   "app.profile.fields.city": "Cidade",
   "app.profile.fields.address": "Morada",
-  "app.profile.fields.timezone": "Fuso horário"
+  "app.profile.fields.timezone": "Fuso horário",
+  "app.dashboard.addFunds": "Adicionar fundos",
+  "app.deposit.title": "Depósito",
+  "app.deposit.subtitle": "Adicione fundos à sua conta. As opções de depósito aparecerão aqui em breve.",
+  "app.nav.finance": "Finanças",
+  "app.deposit.paymentMethods.title": "Métodos de pagamento",
+  "app.deposit.paymentMethods.bankTransfer": "Transferência bancária",
+  "app.deposit.paymentMethods.card": "Cartão",
+  "app.deposit.paymentMethods.statusActive": "Ativa",
+  "app.deposit.paymentMethods.statusInactive": "Inativa"
 }

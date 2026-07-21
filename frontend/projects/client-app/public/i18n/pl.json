@@ -597,5 +597,14 @@
   "app.profile.fields.country": "Kraj",
   "app.profile.fields.city": "Miasto",
   "app.profile.fields.address": "Adres",
-  "app.profile.fields.timezone": "Strefa czasowa"
+  "app.profile.fields.timezone": "Strefa czasowa",
+  "app.dashboard.addFunds": "Dodaj środki",
+  "app.deposit.title": "Depozyt",
+  "app.deposit.subtitle": "Dodaj środki do swojego konta. Opcje depozytu pojawią się tutaj wkrótce.",
+  "app.nav.finance": "Finanse",
+  "app.deposit.paymentMethods.title": "Metody płatności",
+  "app.deposit.paymentMethods.bankTransfer": "Przelew bankowy",
+  "app.deposit.paymentMethods.card": "Karta",
+  "app.deposit.paymentMethods.statusActive": "Aktywna",
+  "app.deposit.paymentMethods.statusInactive": "Nieaktywna"
 }

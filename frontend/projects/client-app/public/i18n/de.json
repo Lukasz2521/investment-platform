@@ -597,5 +597,14 @@
   "app.profile.fields.country": "Land",
   "app.profile.fields.city": "Stadt",
   "app.profile.fields.address": "Adresse",
-  "app.profile.fields.timezone": "Zeitzone"
+  "app.profile.fields.timezone": "Zeitzone",
+  "app.dashboard.addFunds": "Guthaben hinzufügen",
+  "app.deposit.title": "Einzahlung",
+  "app.deposit.subtitle": "Fügen Sie Ihrem Konto Guthaben hinzu. Einzahlungsoptionen erscheinen hier bald.",
+  "app.nav.finance": "Finanzen",
+  "app.deposit.paymentMethods.title": "Zahlungsmethoden",
+  "app.deposit.paymentMethods.bankTransfer": "Banküberweisung",
+  "app.deposit.paymentMethods.card": "Karte",
+  "app.deposit.paymentMethods.statusActive": "Aktiv",
+  "app.deposit.paymentMethods.statusInactive": "Inaktiv"
 }

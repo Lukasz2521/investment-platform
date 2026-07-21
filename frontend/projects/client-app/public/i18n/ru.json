@@ -597,5 +597,14 @@
   "app.profile.fields.country": "Страна",
   "app.profile.fields.city": "Город",
   "app.profile.fields.address": "Адрес",
-  "app.profile.fields.timezone": "Часовой пояс"
+  "app.profile.fields.timezone": "Часовой пояс",
+  "app.dashboard.addFunds": "Добавить средства",
+  "app.deposit.title": "Депозит",
+  "app.deposit.subtitle": "Пополните свой счёт. Варианты депозита скоро появятся здесь.",
+  "app.nav.finance": "Финансы",
+  "app.deposit.paymentMethods.title": "Способы оплаты",
+  "app.deposit.paymentMethods.bankTransfer": "Банковский перевод",
+  "app.deposit.paymentMethods.card": "Карта",
+  "app.deposit.paymentMethods.statusActive": "Активна",
+  "app.deposit.paymentMethods.statusInactive": "Неактивна"
 }

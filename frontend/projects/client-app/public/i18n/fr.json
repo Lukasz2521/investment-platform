@@ -597,5 +597,14 @@
   "app.profile.fields.country": "Pays",
   "app.profile.fields.city": "Ville",
   "app.profile.fields.address": "Adresse",
-  "app.profile.fields.timezone": "Fuseau horaire"
+  "app.profile.fields.timezone": "Fuseau horaire",
+  "app.dashboard.addFunds": "Ajouter des fonds",
+  "app.deposit.title": "Dépôt",
+  "app.deposit.subtitle": "Ajoutez des fonds à votre compte. Les options de dépôt apparaîtront bientôt ici.",
+  "app.nav.finance": "Finances",
+  "app.deposit.paymentMethods.title": "Moyens de paiement",
+  "app.deposit.paymentMethods.bankTransfer": "Virement bancaire",
+  "app.deposit.paymentMethods.card": "Carte",
+  "app.deposit.paymentMethods.statusActive": "Active",
+  "app.deposit.paymentMethods.statusInactive": "Inactive"
 }

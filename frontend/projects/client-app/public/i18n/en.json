@@ -597,5 +597,14 @@
   "app.profile.fields.country": "Country",
   "app.profile.fields.city": "City",
   "app.profile.fields.address": "Address",
-  "app.profile.fields.timezone": "Time zone"
+  "app.profile.fields.timezone": "Time zone",
+  "app.dashboard.addFunds": "Add funds",
+  "app.deposit.title": "Deposit",
+  "app.deposit.subtitle": "Add funds to your account. Deposit options will appear here soon.",
+  "app.nav.finance": "Finance",
+  "app.deposit.paymentMethods.title": "Payment methods",
+  "app.deposit.paymentMethods.bankTransfer": "Bank transfer",
+  "app.deposit.paymentMethods.card": "Card",
+  "app.deposit.paymentMethods.statusActive": "Active",
+  "app.deposit.paymentMethods.statusInactive": "Inactive"
 }

@@ -7,4 +7,5 @@ export const APP_ROUTE_PATHS = {
   register: 'register',
   dashboard: 'dashboard',
   profile: 'profil',
+  deposit: 'depozyt',
 } as const;

@@ -1,0 +1,52 @@
+<section class="deposit">
+  <header class="deposit-header">
+    <svg class="deposit-header-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 2.5c-.4 0-.8.2-1 .5L4.2 14.2c-.4.7.1 1.6.9 1.6h4.4V20c0 .8.7 1.5 1.5 1.5h2c.8 0 1.5-.7 1.5-1.5v-4.2h4.4c.8 0 1.3-.9.9-1.6L13 3c-.2-.3-.6-.5-1-.5z"
+      />
+    </svg>
+    <h1 class="deposit-title">{{ 'app.deposit.title' | translate }}</h1>
+  </header>
+
+  <section class="deposit-section" [attr.aria-label]="'app.deposit.paymentMethods.title' | translate">
+    <header class="deposit-section-header">
+      <h2 class="deposit-section-title">{{ 'app.deposit.paymentMethods.title' | translate }}</h2>
+    </header>
+
+    <ul class="deposit-methods">
+      @for (method of paymentMethods; track method.id) {
+        <li
+          class="deposit-method"
+          [class.deposit-method--active]="method.status === 'active'"
+          [class.deposit-method--inactive]="method.status === 'inactive'"
+        >
+          <span class="deposit-method-icon" aria-hidden="true">
+            @if (method.icon === 'bank') {
+              <svg viewBox="0 0 24 24" width="28" height="28">
+                <path
+                  fill="currentColor"
+                  d="M12 3 2 8.2V10h20V8.2L12 3zm-6.5 8.5v5.5H4v1.8h16v-1.8h-1.5v-5.5H17v5.5h-3.2v-5.5h-1.6v5.5H9.2v-5.5H7.5zm-3.3 9.2v1.8h17.6v-1.8H3.2z"
+                />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" width="28" height="28">
+                <path
+                  fill="currentColor"
+                  d="M20.4 5H3.6C2.7 5 2 5.7 2 6.6v10.8c0 .9.7 1.6 1.6 1.6h16.8c.9 0 1.6-.7 1.6-1.6V6.6c0-.9-.7-1.6-1.6-1.6zM3.6 7.2h16.8v1.8H3.6V7.2zm0 4.2h6.4v1.5H3.6v-1.5zm0 5.4v-1.5h4.2v1.5H3.6z"
+                />
+              </svg>
+            }
+          </span>
+
+          <span class="deposit-method-label">{{ method.labelKey | translate }}</span>
+
+          <span class="deposit-method-status" [attr.data-status]="method.status">
+            <span class="deposit-method-status-dot" aria-hidden="true"></span>
+            {{ method.statusKey | translate }}
+          </span>
+        </li>
+      }
+    </ul>
+  </section>
+</section>

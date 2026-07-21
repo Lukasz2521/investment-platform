@@ -35,6 +35,17 @@ export const routes: Routes = [
     ],
   },
   {
+    path: APP_ROUTE_PATHS.deposit,
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./features/deposit/deposit').then((m) => m.Deposit),
+      },
+    ],
+  },
+  {
     path: APP_ROUTE_PATHS.home,
     loadComponent: () =>
       import('./layout/marketing-shell/marketing-shell').then((m) => m.MarketingShell),

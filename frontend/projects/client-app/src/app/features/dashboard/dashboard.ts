@@ -1,11 +1,13 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Router } from '@angular/router';
 import { interval } from 'rxjs';
 
 import { AuthService } from '../../core/auth/services/auth.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../core/i18n/services/translation.service';
+import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 import { TransactionPublic } from '../../core/transactions/models/transaction.model';
 import { TransactionsService } from '../../core/transactions/services/transactions.service';
 import {
@@ -29,8 +31,11 @@ const HISTORY_PAGE_SIZE = 20;
 export class Dashboard implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
   private readonly translationService = inject(TranslationService);
   private readonly transactionsService = inject(TransactionsService);
+
+  protected readonly routes = APP_ROUTE_PATHS;
 
   protected readonly tiles = DASHBOARD_TILES;
   protected readonly campaignName = 'Lays';
@@ -54,6 +59,10 @@ export class Dashboard implements OnInit {
 
     this.loadUser();
     this.loadHistory();
+  }
+
+  protected goToDeposit(): void {
+    void this.router.navigate(['/', this.routes.deposit]);
   }
 
   private loadUser(): void {

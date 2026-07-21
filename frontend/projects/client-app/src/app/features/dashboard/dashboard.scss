@@ -17,6 +17,9 @@
   --dash-swatch-platform: #2a2140;
   --dash-swatch-platform-border: #3f335c;
   --dash-focus: #36e0a0;
+  --dash-btn-bg: #36e0a0;
+  --dash-btn-text: #0a0a0a;
+  --dash-btn-hover: #2bc48c;
 
   display: block;
 }
@@ -39,7 +42,10 @@
   --dash-donut-value: #7c3aed;
   --dash-swatch-platform: #ece6f8;
   --dash-swatch-platform-border: #ddd3f5;
-  --dash-focus: #2c6ecb;
+  --dash-focus: #008060;
+  --dash-btn-bg: #008060;
+  --dash-btn-text: #ffffff;
+  --dash-btn-hover: #004c3f;
 }
 
 .dashboard {
@@ -53,7 +59,15 @@
   align-items: center;
   color: var(--dash-header);
   display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.dashboard-header-start {
+  align-items: center;
+  display: flex;
   gap: 0.65rem;
+  min-width: 0;
 }
 
 .dashboard-header-icon {
@@ -67,6 +81,30 @@
   letter-spacing: -0.02em;
   line-height: 1.2;
   margin: 0;
+}
+
+.dashboard-add-funds {
+  background: var(--dash-btn-bg);
+  border: none;
+  border-radius: 0.65rem;
+  color: var(--dash-btn-text);
+  cursor: pointer;
+  flex-shrink: 0;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.65rem 1rem;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.dashboard-add-funds:hover {
+  background: var(--dash-btn-hover);
+}
+
+.dashboard-add-funds:focus-visible {
+  outline: 2px solid var(--dash-focus);
+  outline-offset: 2px;
 }
 
 .dashboard-layout {
