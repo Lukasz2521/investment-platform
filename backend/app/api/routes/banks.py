@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 
 from app import crud
-from app.api.deps import SessionDep, get_current_active_superuser
+from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.models import (
     Bank,
     BankCreate,
@@ -28,21 +28,36 @@ def create_bank(*, session: SessionDep, bank_in: BankCreate) -> BankPublic:
     return BankPublic.model_validate(bank)
 
 
-@router.get(
-    "/",
-    dependencies=[Depends(get_current_active_superuser)],
-)
+@router.get("/", response_model=BanksPublic)
 def get_banks(
     session: SessionDep,
+    current_user: CurrentUser,
     skip: int = 0,
     limit: int = 100,
 ) -> BanksPublic:
     """
-    Get all banks. Superuser only.
+    Get all banks. Available to any authenticated user.
     """
+    _ = current_user
     banks, count = crud.get_banks(session=session, skip=skip, limit=limit)
     data = [BankPublic.model_validate(bank) for bank in banks]
     return BanksPublic(data=data, count=count)
+
+
+@router.get("/{bank_id}", response_model=BankPublic)
+def get_bank(
+    session: SessionDep,
+    current_user: CurrentUser,
+    bank_id: uuid.UUID,
+) -> BankPublic:
+    """
+    Get a bank by id. Available to any authenticated user.
+    """
+    _ = current_user
+    bank = session.get(Bank, bank_id)
+    if not bank:
+        raise HTTPException(status_code=404, detail="Bank not found")
+    return BankPublic.model_validate(bank)
 
 
 @router.put(

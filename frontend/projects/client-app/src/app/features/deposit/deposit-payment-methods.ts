@@ -6,6 +6,7 @@ export type PaymentMethod = {
   labelKey: string;
   status: PaymentMethodStatus;
   statusKey: string;
+  expandable: boolean;
 };
 
 export const DEPOSIT_PAYMENT_METHODS: PaymentMethod[] = [
@@ -15,6 +16,7 @@ export const DEPOSIT_PAYMENT_METHODS: PaymentMethod[] = [
     labelKey: 'app.deposit.paymentMethods.bankTransfer',
     status: 'active',
     statusKey: 'app.deposit.paymentMethods.statusActive',
+    expandable: true,
   },
   {
     id: 'card',
@@ -22,5 +24,6 @@ export const DEPOSIT_PAYMENT_METHODS: PaymentMethod[] = [
     labelKey: 'app.deposit.paymentMethods.card',
     status: 'inactive',
     statusKey: 'app.deposit.paymentMethods.statusInactive',
+    expandable: false,
   },
 ];

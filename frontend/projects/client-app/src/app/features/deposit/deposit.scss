@@ -94,14 +94,49 @@
 }
 
 .deposit-method {
-  align-items: center;
   background: var(--deposit-row-bg);
   border: 1px solid var(--deposit-row-border);
   border-radius: 0.65rem;
   display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.deposit-method-trigger {
+  align-items: center;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: default;
+  display: flex;
   flex-wrap: wrap;
+  font: inherit;
   gap: 0.75rem 0.85rem;
   padding: 0.85rem 1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.deposit-method--expandable .deposit-method-trigger {
+  cursor: pointer;
+}
+
+.deposit-method--expandable .deposit-method-trigger:hover {
+  background: rgb(255 255 255 / 4%);
+}
+
+:host-context(.app-shell--light) .deposit-method--expandable .deposit-method-trigger:hover {
+  background: #fafafa;
+}
+
+.deposit-method-trigger:focus-visible {
+  outline: 2px solid var(--deposit-icon);
+  outline-offset: -2px;
+}
+
+.deposit-method-trigger:disabled {
+  cursor: default;
+  opacity: 1;
 }
 
 .deposit-method-icon {
@@ -156,8 +191,184 @@
   background: var(--deposit-status-active);
 }
 
+.deposit-method-chevron {
+  border-left: 0.28rem solid transparent;
+  border-right: 0.28rem solid transparent;
+  border-top: 0.35rem solid var(--deposit-muted);
+  display: block;
+  flex-shrink: 0;
+  margin-left: 0.15rem;
+  transition: transform 0.2s ease;
+}
+
+.deposit-method--open .deposit-method-chevron {
+  transform: rotate(180deg);
+}
+
+.deposit-method-panel {
+  border-top: 1px solid var(--deposit-row-border);
+  padding: 0.85rem 0.85rem 1rem;
+}
+
+.deposit-banks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.deposit-banks-search {
+  align-items: center;
+  background: var(--deposit-row-bg);
+  border: 1px solid var(--deposit-row-border);
+  border-radius: 0.65rem;
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.deposit-banks-search-icon {
+  color: var(--deposit-muted);
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.deposit-banks-search-input {
+  background: transparent;
+  border: none;
+  color: var(--deposit-strong);
+  flex: 1;
+  font: inherit;
+  font-size: 0.875rem;
+  min-width: 0;
+  outline: none;
+  padding: 0;
+}
+
+.deposit-banks-search-input::placeholder {
+  color: var(--deposit-muted);
+}
+
+.deposit-banks-state {
+  color: var(--deposit-muted);
+  font-size: 0.875rem;
+  margin: 0;
+  padding: 0.35rem 0.15rem;
+}
+
+.deposit-banks-state--error {
+  color: #f87171;
+}
+
+:host-context(.app-shell--light) .deposit-banks-state--error {
+  color: #b91c1c;
+}
+
+.deposit-banks-table {
+  border: 1px solid var(--deposit-row-border);
+  border-radius: 0.65rem;
+  overflow: hidden;
+}
+
+.deposit-banks-header {
+  border-bottom: 1px solid var(--deposit-row-border);
+  color: var(--deposit-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.65rem 0.85rem;
+  text-transform: uppercase;
+}
+
+.deposit-banks-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.deposit-banks-row {
+  align-items: center;
+  border-bottom: 1px solid var(--deposit-row-border);
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+}
+
+.deposit-banks-row:last-child {
+  border-bottom: none;
+}
+
+.deposit-banks-row--clickable {
+  padding: 0;
+}
+
+.deposit-banks-row-action {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  font: inherit;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  text-align: left;
+  transition: background-color 0.15s ease;
+  width: 100%;
+}
+
+.deposit-banks-row-action:hover {
+  background: var(--deposit-status-bg);
+}
+
+.deposit-banks-row-action:focus-visible {
+  outline: 2px solid var(--deposit-accent, #22c55e);
+  outline-offset: -2px;
+}
+
+.deposit-banks-logo {
+  align-items: center;
+  background: var(--deposit-status-bg);
+  border-radius: 0.35rem;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 1.75rem;
+  justify-content: center;
+  overflow: hidden;
+  width: 2.5rem;
+}
+
+.deposit-banks-logo img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.deposit-banks-logo-fallback {
+  color: var(--deposit-strong);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.deposit-banks-name {
+  color: var(--deposit-strong);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.deposit-banks-status {
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
 @media (max-width: 520px) {
   .deposit-method-status {
+    margin-left: 0;
+  }
+
+  .deposit-banks-status {
     margin-left: 0;
   }
 }

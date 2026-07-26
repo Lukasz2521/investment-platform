@@ -1,0 +1,134 @@
+<section class="transactions">
+  <header class="transactions-header">
+    <svg class="transactions-header-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M4 4h16c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1zm0 6h16c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1zm0 6h16c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1z"
+      />
+    </svg>
+    <h1 class="transactions-title">{{ 'app.transactions.title' | translate }}</h1>
+  </header>
+
+  <article class="transactions-card" [attr.aria-label]="'app.transactions.availableAmount' | translate">
+    <header class="transactions-card-header">
+      <h2 class="transactions-card-title">{{ 'app.transactions.availableAmount' | translate }}</h2>
+      <button class="transactions-withdraw" type="button">
+        {{ 'app.transactions.withdraw' | translate }}
+      </button>
+    </header>
+
+    <p class="transactions-amount">
+      <span class="transactions-amount-value">0,00 zł</span>
+      <span class="transactions-amount-currency">PLN</span>
+    </p>
+
+    <p class="transactions-note">{{ 'app.transactions.sepaNote' | translate }}</p>
+  </article>
+
+  <section class="transactions-table-card" [attr.aria-label]="'app.transactions.table.aria' | translate">
+    @if (loading()) {
+      <p class="transactions-state">{{ 'app.transactions.table.loading' | translate }}</p>
+    } @else if (error()) {
+      <p class="transactions-state transactions-state--error" role="alert">
+        {{ 'app.transactions.table.error' | translate }}
+      </p>
+    } @else if (transactions().length === 0) {
+      <p class="transactions-state">{{ 'app.transactions.table.empty' | translate }}</p>
+    } @else {
+      <div class="transactions-table-wrap">
+        <table class="transactions-table">
+          <thead>
+            <tr>
+              <th scope="col">{{ 'app.transactions.table.columns.type' | translate }}</th>
+              <th scope="col">{{ 'app.transactions.table.columns.description' | translate }}</th>
+              <th scope="col">{{ 'app.transactions.table.columns.date' | translate }}</th>
+              <th scope="col">{{ 'app.transactions.table.columns.currency' | translate }}</th>
+              <th scope="col" class="transactions-table-col-amount">
+                {{ 'app.transactions.table.columns.amount' | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (transaction of transactions(); track transaction.id) {
+              <tr>
+                <td>{{ typeLabelKey(transaction.transaction_type) | translate }}</td>
+                <td class="transactions-table-description">
+                  {{ transaction.description || ('app.transactions.table.noDescription' | translate) }}
+                </td>
+                <td>
+                  @if (transaction.created_at) {
+                    {{ transaction.created_at | date: 'longDate' }}
+                  } @else {
+                    —
+                  }
+                </td>
+                <td>{{ currency }}</td>
+                <td class="transactions-table-col-amount">
+                  {{ formatAmount(transaction.amount) }} {{ currency }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <footer class="transactions-pagination">
+        <label class="transactions-pagination-size">
+          <span>{{ 'app.transactions.table.rowsPerPage' | translate }}</span>
+          <select
+            class="transactions-pagination-select"
+            [value]="pageSize()"
+            (change)="onPageSizeChange($event)"
+          >
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
+        </label>
+
+        <p class="transactions-pagination-range">
+          {{
+            'app.transactions.table.range'
+              | translate
+                : {
+                    start: '' + rangeStart(),
+                    end: '' + rangeEnd(),
+                    total: '' + totalCount(),
+                  }
+          }}
+        </p>
+
+        <div class="transactions-pagination-nav">
+          <button
+            class="transactions-pagination-btn"
+            type="button"
+            [disabled]="!canGoPrevious()"
+            [attr.aria-label]="'app.transactions.table.previousPage' | translate"
+            (click)="goToPreviousPage()"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+              />
+            </svg>
+          </button>
+          <button
+            class="transactions-pagination-btn"
+            type="button"
+            [disabled]="!canGoNext()"
+            [attr.aria-label]="'app.transactions.table.nextPage' | translate"
+            (click)="goToNextPage()"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M8.59 16.59 10 18l6-6-6-6-1.41 1.41L13.17 12z"
+              />
+            </svg>
+          </button>
+        </div>
+      </footer>
+    }
+  </section>
+</section>

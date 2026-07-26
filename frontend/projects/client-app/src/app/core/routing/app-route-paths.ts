@@ -8,4 +8,5 @@ export const APP_ROUTE_PATHS = {
   dashboard: 'dashboard',
   profile: 'profil',
   deposit: 'depozyt',
+  transactions: 'transakcje',
 } as const;

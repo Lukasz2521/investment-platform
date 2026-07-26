@@ -18,33 +18,148 @@
       @for (method of paymentMethods; track method.id) {
         <li
           class="deposit-method"
+          [class.deposit-method--expandable]="method.expandable"
+          [class.deposit-method--open]="isExpanded(method)"
           [class.deposit-method--active]="method.status === 'active'"
           [class.deposit-method--inactive]="method.status === 'inactive'"
         >
-          <span class="deposit-method-icon" aria-hidden="true">
-            @if (method.icon === 'bank') {
-              <svg viewBox="0 0 24 24" width="28" height="28">
-                <path
-                  fill="currentColor"
-                  d="M12 3 2 8.2V10h20V8.2L12 3zm-6.5 8.5v5.5H4v1.8h16v-1.8h-1.5v-5.5H17v5.5h-3.2v-5.5h-1.6v5.5H9.2v-5.5H7.5zm-3.3 9.2v1.8h17.6v-1.8H3.2z"
-                />
-              </svg>
-            } @else {
-              <svg viewBox="0 0 24 24" width="28" height="28">
-                <path
-                  fill="currentColor"
-                  d="M20.4 5H3.6C2.7 5 2 5.7 2 6.6v10.8c0 .9.7 1.6 1.6 1.6h16.8c.9 0 1.6-.7 1.6-1.6V6.6c0-.9-.7-1.6-1.6-1.6zM3.6 7.2h16.8v1.8H3.6V7.2zm0 4.2h6.4v1.5H3.6v-1.5zm0 5.4v-1.5h4.2v1.5H3.6z"
-                />
-              </svg>
+          <button
+            class="deposit-method-trigger"
+            type="button"
+            [disabled]="!method.expandable"
+            [attr.aria-expanded]="method.expandable ? isExpanded(method) : null"
+            [attr.aria-controls]="method.expandable ? 'deposit-method-panel-' + method.id : null"
+            (click)="toggleMethod(method)"
+          >
+            <span class="deposit-method-icon" aria-hidden="true">
+              @if (method.icon === 'bank') {
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                  <path
+                    fill="currentColor"
+                    d="M12 3 2 8.2V10h20V8.2L12 3zm-6.5 8.5v5.5H4v1.8h16v-1.8h-1.5v-5.5H17v5.5h-3.2v-5.5h-1.6v5.5H9.2v-5.5H7.5zm-3.3 9.2v1.8h17.6v-1.8H3.2z"
+                  />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" width="28" height="28">
+                  <path
+                    fill="currentColor"
+                    d="M20.4 5H3.6C2.7 5 2 5.7 2 6.6v10.8c0 .9.7 1.6 1.6 1.6h16.8c.9 0 1.6-.7 1.6-1.6V6.6c0-.9-.7-1.6-1.6-1.6zM3.6 7.2h16.8v1.8H3.6V7.2zm0 4.2h6.4v1.5H3.6v-1.5zm0 5.4v-1.5h4.2v1.5H3.6z"
+                  />
+                </svg>
+              }
+            </span>
+
+            <span class="deposit-method-label">{{ method.labelKey | translate }}</span>
+
+            <span class="deposit-method-status" [attr.data-status]="method.status">
+              <span class="deposit-method-status-dot" aria-hidden="true"></span>
+              {{ method.statusKey | translate }}
+            </span>
+
+            @if (method.expandable) {
+              <span class="deposit-method-chevron" aria-hidden="true"></span>
             }
-          </span>
+          </button>
 
-          <span class="deposit-method-label">{{ method.labelKey | translate }}</span>
+          @if (method.expandable) {
+            <div
+              class="deposit-method-panel"
+              [id]="'deposit-method-panel-' + method.id"
+              [hidden]="!isExpanded(method)"
+            >
+              <div class="deposit-banks">
+                <label class="deposit-banks-search">
+                  <span class="deposit-banks-search-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="6.5" />
+                      <path stroke-linecap="round" d="m16.5 16.5 4 4" />
+                    </svg>
+                  </span>
+                  <input
+                    class="deposit-banks-search-input"
+                    type="search"
+                    [value]="bankSearch()"
+                    [placeholder]="'app.deposit.banks.search' | translate"
+                    [attr.aria-label]="'app.deposit.banks.search' | translate"
+                    (input)="onBankSearch($event)"
+                  />
+                </label>
 
-          <span class="deposit-method-status" [attr.data-status]="method.status">
-            <span class="deposit-method-status-dot" aria-hidden="true"></span>
-            {{ method.statusKey | translate }}
-          </span>
+                @if (banksLoading()) {
+                  <p class="deposit-banks-state">{{ 'app.deposit.banks.loading' | translate }}</p>
+                } @else if (banksError()) {
+                  <p class="deposit-banks-state deposit-banks-state--error" role="alert">
+                    {{ 'app.deposit.banks.error' | translate }}
+                  </p>
+                } @else if (filteredBanks().length === 0) {
+                  <p class="deposit-banks-state">{{ 'app.deposit.banks.empty' | translate }}</p>
+                } @else {
+                  <div class="deposit-banks-table">
+                    <div class="deposit-banks-header">
+                      <span>{{ 'app.deposit.banks.columnBank' | translate }}</span>
+                    </div>
+                    <ul class="deposit-banks-list">
+                      @for (row of filteredBanks(); track row.bank.id) {
+                        <li class="deposit-banks-row" [class.deposit-banks-row--clickable]="row.isEnabled">
+                          @if (row.isEnabled) {
+                            <button
+                              type="button"
+                              class="deposit-banks-row-action"
+                              (click)="openBankDetail(row)"
+                            >
+                              <span class="deposit-banks-logo" aria-hidden="true">
+                                @if (showLogo(row.bank)) {
+                                  <img
+                                    [src]="row.bank.bank_logo"
+                                    [alt]=""
+                                    (error)="onLogoError(row.bank.id)"
+                                  />
+                                } @else {
+                                  <span class="deposit-banks-logo-fallback">{{
+                                    getBankInitials(row.bank.name)
+                                  }}</span>
+                                }
+                              </span>
+                              <span class="deposit-banks-name">{{ row.bank.name }}</span>
+                              <span
+                                class="deposit-method-status deposit-banks-status"
+                                data-status="active"
+                              >
+                                <span class="deposit-method-status-dot" aria-hidden="true"></span>
+                                {{ 'app.deposit.paymentMethods.statusActive' | translate }}
+                              </span>
+                            </button>
+                          } @else {
+                            <span class="deposit-banks-logo" aria-hidden="true">
+                              @if (showLogo(row.bank)) {
+                                <img
+                                  [src]="row.bank.bank_logo"
+                                  [alt]=""
+                                  (error)="onLogoError(row.bank.id)"
+                                />
+                              } @else {
+                                <span class="deposit-banks-logo-fallback">{{
+                                  getBankInitials(row.bank.name)
+                                }}</span>
+                              }
+                            </span>
+                            <span class="deposit-banks-name">{{ row.bank.name }}</span>
+                            <span
+                              class="deposit-method-status deposit-banks-status"
+                              data-status="inactive"
+                            >
+                              <span class="deposit-method-status-dot" aria-hidden="true"></span>
+                              {{ 'app.deposit.paymentMethods.statusInactive' | translate }}
+                            </span>
+                          }
+                        </li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         </li>
       }
     </ul>

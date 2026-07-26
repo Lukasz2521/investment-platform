@@ -6,7 +6,7 @@ import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 import { ThemeService } from '../../core/theme/theme.service';
 
-type NavIcon = 'home' | 'user' | 'bank';
+type NavIcon = 'home' | 'user' | 'bank' | 'list';
 
 @Component({
   selector: 'app-app-shell',
@@ -25,6 +25,7 @@ export class AppShell {
   protected readonly navItems: { labelKey: string; route: string; icon: NavIcon }[] = [
     { labelKey: 'app.nav.dashboard', route: APP_ROUTE_PATHS.dashboard, icon: 'home' },
     { labelKey: 'app.nav.finance', route: APP_ROUTE_PATHS.deposit, icon: 'bank' },
+    { labelKey: 'app.nav.transactions', route: APP_ROUTE_PATHS.transactions, icon: 'list' },
     { labelKey: 'app.nav.profile', route: APP_ROUTE_PATHS.profile, icon: 'user' },
   ];
 

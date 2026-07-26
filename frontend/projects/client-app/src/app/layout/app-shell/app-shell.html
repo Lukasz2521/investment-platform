@@ -105,6 +105,13 @@
                 d="M12 3 3 8v2h18V8L12 3zm-7 8v6H3v2h18v-2h-2v-6h-2v6h-3v-6h-2v6H8v-6H5zm-2 10v2h18v-2H3z"
               />
             </svg>
+          } @else if (item.icon === 'list') {
+            <svg class="app-shell-nav-icon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M4 4h16c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1V5c0-.55.45-1 1-1zm0 6h16c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1zm0 6h16c.55 0 1 .45 1 1v2c0 .55-.45 1-1 1H4c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1z"
+              />
+            </svg>
           }
           <span>{{ item.labelKey | translate }}</span>
         </a>

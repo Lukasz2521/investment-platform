@@ -1,0 +1,165 @@
+:host {
+  --bank-detail-header: #e5e5e5;
+  --bank-detail-muted: #a8a8a8;
+  --bank-detail-card-bg: #141414;
+  --bank-detail-card-border: rgb(255 255 255 / 10%);
+  --bank-detail-card-shadow: none;
+  --bank-detail-label: #a8a8a8;
+  --bank-detail-value: #f3f4f6;
+  --bank-detail-logo-bg: rgb(255 255 255 / 8%);
+  --bank-detail-back: #a8a8a8;
+  --bank-detail-back-hover: #f3f4f6;
+  --bank-detail-error: #f87171;
+
+  display: block;
+}
+
+:host-context(.app-shell--light) {
+  --bank-detail-header: #111111;
+  --bank-detail-muted: #6b7280;
+  --bank-detail-card-bg: #ffffff;
+  --bank-detail-card-border: #e8e8e8;
+  --bank-detail-card-shadow: 0 1px 2px rgb(0 0 0 / 4%);
+  --bank-detail-label: #6b7280;
+  --bank-detail-value: #111111;
+  --bank-detail-logo-bg: #f3f4f6;
+  --bank-detail-back: #6b7280;
+  --bank-detail-back-hover: #111111;
+  --bank-detail-error: #b91c1c;
+}
+
+.bank-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 48rem;
+}
+
+.bank-detail-back {
+  align-items: center;
+  color: var(--bank-detail-back);
+  display: inline-flex;
+  font-size: 0.875rem;
+  font-weight: 500;
+  gap: 0.15rem;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  width: fit-content;
+}
+
+.bank-detail-back:hover {
+  color: var(--bank-detail-back-hover);
+}
+
+.bank-detail-state {
+  color: var(--bank-detail-muted);
+  font-size: 0.9375rem;
+  margin: 0;
+}
+
+.bank-detail-state--error {
+  color: var(--bank-detail-error);
+}
+
+.bank-detail-header {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+}
+
+.bank-detail-logo {
+  align-items: center;
+  background: var(--bank-detail-logo-bg);
+  border-radius: 0.5rem;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 3.25rem;
+  justify-content: center;
+  overflow: hidden;
+  width: 4.5rem;
+}
+
+.bank-detail-logo img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.bank-detail-logo-fallback {
+  color: var(--bank-detail-header);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.bank-detail-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.bank-detail-title {
+  color: var(--bank-detail-header);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.bank-detail-subtitle {
+  color: var(--bank-detail-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.bank-detail-card {
+  background: var(--bank-detail-card-bg);
+  border: 1px solid var(--bank-detail-card-border);
+  border-radius: 1rem;
+  box-shadow: var(--bank-detail-card-shadow);
+  padding: 1.25rem 1.35rem;
+}
+
+.bank-detail-fields {
+  display: grid;
+  gap: 1rem 1.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+}
+
+.bank-detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin: 0;
+}
+
+.bank-detail-field--full {
+  grid-column: 1 / -1;
+}
+
+.bank-detail-field dt {
+  color: var(--bank-detail-label);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.bank-detail-field dd {
+  color: var(--bank-detail-value);
+  font-size: 0.975rem;
+  line-height: 1.4;
+  margin: 0;
+  word-break: break-word;
+}
+
+@media (max-width: 640px) {
+  .bank-detail-fields {
+    grid-template-columns: 1fr;
+  }
+}

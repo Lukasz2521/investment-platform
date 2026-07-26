@@ -43,6 +43,25 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./features/deposit/deposit').then((m) => m.Deposit),
       },
+      {
+        path: ':bankId',
+        loadComponent: () =>
+          import('./features/deposit/deposit-bank-detail/deposit-bank-detail').then(
+            (m) => m.DepositBankDetail,
+          ),
+      },
+    ],
+  },
+  {
+    path: APP_ROUTE_PATHS.transactions,
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/transactions/transactions').then((m) => m.Transactions),
+      },
     ],
   },
   {

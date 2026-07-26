@@ -1,0 +1,72 @@
+<section class="bank-detail">
+  <a class="bank-detail-back" [routerLink]="depositPath">
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+      />
+    </svg>
+    {{ 'app.deposit.bankDetail.back' | translate }}
+  </a>
+
+  @if (loading()) {
+    <p class="bank-detail-state">{{ 'app.deposit.bankDetail.loading' | translate }}</p>
+  } @else if (error()) {
+    <p class="bank-detail-state bank-detail-state--error" role="alert">
+      {{ 'app.deposit.bankDetail.error' | translate }}
+    </p>
+  } @else if (bank(); as currentBank) {
+    <header class="bank-detail-header">
+      <span class="bank-detail-logo" aria-hidden="true">
+        @if (showLogo(currentBank)) {
+          <img [src]="currentBank.bank_logo" [alt]="" (error)="onLogoError()" />
+        } @else {
+          <span class="bank-detail-logo-fallback">{{ getBankInitials(currentBank.name) }}</span>
+        }
+      </span>
+      <div class="bank-detail-heading">
+        <h1 class="bank-detail-title">{{ currentBank.name }}</h1>
+        <p class="bank-detail-subtitle">{{ 'app.deposit.bankDetail.subtitle' | translate }}</p>
+      </div>
+    </header>
+
+    <div class="bank-detail-card">
+      <dl class="bank-detail-fields">
+        <div class="bank-detail-field">
+          <dt>{{ 'app.deposit.bankDetail.fields.accountName' | translate }}</dt>
+          <dd>{{ displayValue(currentBank.account_name) }}</dd>
+        </div>
+        <div class="bank-detail-field">
+          <dt>{{ 'app.deposit.bankDetail.fields.iban' | translate }}</dt>
+          <dd>{{ displayValue(currentBank.iban) }}</dd>
+        </div>
+        <div class="bank-detail-field">
+          <dt>{{ 'app.deposit.bankDetail.fields.swift' | translate }}</dt>
+          <dd>{{ displayValue(currentBank.swift) }}</dd>
+        </div>
+        <div class="bank-detail-field">
+          <dt>{{ 'app.deposit.bankDetail.fields.sepa' | translate }}</dt>
+          <dd>{{ displayValue(currentBank.sepa) }}</dd>
+        </div>
+        <div class="bank-detail-field">
+          <dt>{{ 'app.deposit.bankDetail.fields.transferTitle' | translate }}</dt>
+          <dd>{{ displayValue(currentBank.transfer_title) }}</dd>
+        </div>
+        <div class="bank-detail-field">
+          <dt>{{ 'app.deposit.bankDetail.fields.bankAddress' | translate }}</dt>
+          <dd>{{ displayValue(currentBank.bank_address) }}</dd>
+        </div>
+        <div class="bank-detail-field bank-detail-field--full">
+          <dt>{{ 'app.deposit.bankDetail.fields.companyAddress' | translate }}</dt>
+          <dd>{{ displayValue(currentBank.company_address) }}</dd>
+        </div>
+        @if (currentBank.bank_description) {
+          <div class="bank-detail-field bank-detail-field--full">
+            <dt>{{ 'app.deposit.bankDetail.fields.description' | translate }}</dt>
+            <dd>{{ currentBank.bank_description }}</dd>
+          </div>
+        }
+      </dl>
+    </div>
+  }
+</section>
