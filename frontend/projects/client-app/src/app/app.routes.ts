@@ -65,6 +65,18 @@ export const routes: Routes = [
     ],
   },
   {
+    path: APP_ROUTE_PATHS.changePassword,
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/change-password/change-password').then((m) => m.ChangePassword),
+      },
+    ],
+  },
+  {
     path: APP_ROUTE_PATHS.home,
     loadComponent: () =>
       import('./layout/marketing-shell/marketing-shell').then((m) => m.MarketingShell),

@@ -30,6 +30,13 @@ export class AuthService {
     return this.http.get<UserPublic>(`${environment.apiUrl}/users/me`);
   }
 
+  updatePassword(currentPassword: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.patch<{ message: string }>(`${environment.apiUrl}/users/me/password`, {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+  }
+
   getToken(): string | null {
     if (typeof localStorage === 'undefined') {
       return null;
