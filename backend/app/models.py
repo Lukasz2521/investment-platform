@@ -231,6 +231,20 @@ class CreateTransaction(SQLModel):
     description: str | None = Field(default=None, max_length=1024)
 
 
+class WithdrawTransferType(str, Enum):
+    SEPA = "sepa"
+    SWIFT = "swift"
+
+
+class CreateWithdrawRequest(SQLModel):
+    amount: Decimal = Field(gt=0)
+    account_holder_name: str = Field(min_length=1, max_length=255)
+    payment_purpose: str = Field(min_length=1, max_length=255)
+    transfer_type: WithdrawTransferType
+    sepa_address: str = Field(min_length=1, max_length=255)
+    bank_address: str = Field(min_length=1, max_length=512)
+
+
 class UpdateTransaction(SQLModel):
     status: TransactionStatus
     description: str | None = Field(default=None, max_length=1024)

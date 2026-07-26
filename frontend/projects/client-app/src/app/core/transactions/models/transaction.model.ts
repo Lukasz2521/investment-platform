@@ -21,3 +21,14 @@ export type TransactionsPublic = {
   data: TransactionPublic[];
   count: number;
 };
+
+export type WithdrawTransferType = 'sepa' | 'swift';
+
+export type CreateWithdrawRequest = {
+  amount: string;
+  account_holder_name: string;
+  payment_purpose: string;
+  transfer_type: WithdrawTransferType;
+  sepa_address: string;
+  bank_address: string;
+};

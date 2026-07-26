@@ -1,0 +1,145 @@
+<div
+  class="withdraw-dialog-backdrop"
+  role="presentation"
+  (click)="onBackdropClick($event)"
+>
+  <div
+    class="withdraw-dialog"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'withdraw-dialog-title'"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="withdraw-dialog-header">
+      <h2 id="withdraw-dialog-title" class="withdraw-dialog-title">
+        {{ 'app.transactions.withdrawDialog.title' | translate }}
+      </h2>
+      <p class="withdraw-dialog-intro">
+        {{ 'app.transactions.withdrawDialog.intro' | translate }}
+      </p>
+    </header>
+
+    <form class="withdraw-dialog-form" (submit)="onSubmit($event)">
+      <label class="withdraw-dialog-field">
+        <span class="visually-hidden">{{ 'app.transactions.withdrawDialog.accountHolder' | translate }}</span>
+        <input
+          class="withdraw-dialog-input"
+          type="text"
+          autocomplete="name"
+          [value]="accountHolderName()"
+          [placeholder]="'app.transactions.withdrawDialog.accountHolder' | translate"
+          (input)="onAccountHolderNameInput($event)"
+        />
+      </label>
+
+      <label class="withdraw-dialog-field">
+        <span class="visually-hidden">{{ 'app.transactions.withdrawDialog.paymentPurpose' | translate }}</span>
+        <input
+          class="withdraw-dialog-input"
+          type="text"
+          [value]="paymentPurpose()"
+          [placeholder]="'app.transactions.withdrawDialog.paymentPurpose' | translate"
+          (input)="onPaymentPurposeInput($event)"
+        />
+      </label>
+
+      <fieldset class="withdraw-dialog-fieldset">
+        <legend class="withdraw-dialog-legend">
+          {{ 'app.transactions.withdrawDialog.transferType' | translate }}
+        </legend>
+
+        <label class="withdraw-dialog-option">
+          <input
+            class="withdraw-dialog-radio"
+            type="radio"
+            name="transferType"
+            value="sepa"
+            [checked]="transferType() === 'sepa'"
+            (change)="setTransferType('sepa')"
+          />
+          <span>{{ 'app.transactions.withdrawDialog.transferTypeSepa' | translate }}</span>
+        </label>
+
+        <label class="withdraw-dialog-option">
+          <input
+            class="withdraw-dialog-radio"
+            type="radio"
+            name="transferType"
+            value="swift"
+            [checked]="transferType() === 'swift'"
+            (change)="setTransferType('swift')"
+          />
+          <span>{{ 'app.transactions.withdrawDialog.transferTypeSwift' | translate }}</span>
+        </label>
+      </fieldset>
+
+      <label class="withdraw-dialog-field">
+        <span class="visually-hidden">{{ 'app.transactions.withdrawDialog.sepaAddress' | translate }}</span>
+        <input
+          class="withdraw-dialog-input"
+          type="text"
+          autocomplete="off"
+          [value]="sepaAddress()"
+          [placeholder]="'app.transactions.withdrawDialog.sepaAddress' | translate"
+          (input)="onSepaAddressInput($event)"
+        />
+      </label>
+
+      <label class="withdraw-dialog-field">
+        <span class="visually-hidden">{{ 'app.transactions.withdrawDialog.bankAddress' | translate }}</span>
+        <input
+          class="withdraw-dialog-input"
+          type="text"
+          autocomplete="off"
+          [value]="bankAddress()"
+          [placeholder]="'app.transactions.withdrawDialog.bankAddress' | translate"
+          (input)="onBankAddressInput($event)"
+        />
+      </label>
+
+      <label class="withdraw-dialog-field withdraw-dialog-field--amount">
+        <span class="withdraw-dialog-floating-label">
+          {{ 'app.transactions.withdrawDialog.amount' | translate }}
+        </span>
+        <input
+          class="withdraw-dialog-input"
+          type="text"
+          inputmode="decimal"
+          [value]="amount()"
+          (input)="onAmountInput($event)"
+        />
+      </label>
+
+      <footer class="withdraw-dialog-footer">
+        <p class="withdraw-dialog-note">{{ 'app.transactions.withdrawDialog.note' | translate }}</p>
+
+        @if (error()) {
+          <p class="withdraw-dialog-error" role="alert">{{ error() }}</p>
+        }
+
+        <div class="withdraw-dialog-actions">
+          <button
+            class="withdraw-dialog-btn withdraw-dialog-btn--cancel"
+            type="button"
+            [disabled]="submitting()"
+            (click)="close()"
+          >
+            {{ 'app.transactions.withdrawDialog.cancel' | translate }}
+          </button>
+          <button
+            class="withdraw-dialog-btn withdraw-dialog-btn--submit"
+            type="submit"
+            [disabled]="!canSubmit()"
+          >
+            {{
+              (submitting()
+                ? 'app.transactions.withdrawDialog.submitting'
+                : 'app.transactions.withdrawDialog.submit'
+              ) | translate
+            }}
+          </button>
+        </div>
+      </footer>
+    </form>
+  </div>
+</div>

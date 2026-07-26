@@ -12,7 +12,7 @@
   <article class="transactions-card" [attr.aria-label]="'app.transactions.availableAmount' | translate">
     <header class="transactions-card-header">
       <h2 class="transactions-card-title">{{ 'app.transactions.availableAmount' | translate }}</h2>
-      <button class="transactions-withdraw" type="button">
+      <button class="transactions-withdraw" type="button" (click)="openWithdrawDialog()">
         {{ 'app.transactions.withdraw' | translate }}
       </button>
     </header>
@@ -131,4 +131,8 @@
       </footer>
     }
   </section>
+
+  @if (withdrawDialogOpen()) {
+    <app-withdraw-dialog (closed)="closeWithdrawDialog()" (submitted)="onWithdrawSubmitted()" />
+  }
 </section>

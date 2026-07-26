@@ -3,7 +3,11 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { TransactionsPublic } from '../models/transaction.model';
+import {
+  CreateWithdrawRequest,
+  TransactionPublic,
+  TransactionsPublic,
+} from '../models/transaction.model';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionsService {
@@ -15,5 +19,12 @@ export class TransactionsService {
     return this.http.get<TransactionsPublic>(`${environment.apiUrl}/transactions/me`, {
       params,
     });
+  }
+
+  createWithdraw(payload: CreateWithdrawRequest): Observable<TransactionPublic> {
+    return this.http.post<TransactionPublic>(
+      `${environment.apiUrl}/transactions/me/withdraw`,
+      payload,
+    );
   }
 }

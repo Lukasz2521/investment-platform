@@ -7,9 +7,12 @@ from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.models import (
     CreateTransaction,
+    CreateWithdrawRequest,
     Message,
     Transaction,
     TransactionPublic,
+    TransactionStatus,
+    TransactionType,
     TransactionsPublic,
     UpdateTransaction,
     User,
@@ -73,6 +76,35 @@ def get_my_transactions(
     )
     data = [TransactionPublic.model_validate(tx) for tx in transactions]
     return TransactionsPublic(data=data, count=count)
+
+
+@router.post("/me/withdraw", response_model=TransactionPublic)
+def create_my_withdraw(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    withdraw_in: CreateWithdrawRequest,
+) -> Any:
+    """
+    Create a pending withdrawal for the currently authenticated user.
+    """
+    description = (
+        f"Withdraw ({withdraw_in.transfer_type.value.upper()}) | "
+        f"Holder: {withdraw_in.account_holder_name} | "
+        f"Purpose: {withdraw_in.payment_purpose} | "
+        f"IBAN: {withdraw_in.sepa_address} | "
+        f"Bank: {withdraw_in.bank_address}"
+    )[:1024]
+
+    transaction_in = CreateTransaction(
+        amount=withdraw_in.amount,
+        transaction_type=TransactionType.WITHDRAW,
+        status=TransactionStatus.PENDING,
+        user_id=current_user.id,
+        description=description,
+    )
+    tx = crud.create_transaction(session=session, transaction_in=transaction_in)
+    return TransactionPublic.model_validate(tx)
 
 
 @router.get(

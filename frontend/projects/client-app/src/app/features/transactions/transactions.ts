@@ -8,13 +8,14 @@ import {
   formatTransactionAmount,
   transactionTypeLabelKey,
 } from '../../core/transactions/utils/transaction-display.utils';
+import { WithdrawDialog } from './withdraw-dialog/withdraw-dialog';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25] as const;
 const DEFAULT_CURRENCY = 'PLN';
 
 @Component({
   selector: 'app-transactions',
-  imports: [TranslatePipe, DatePipe],
+  imports: [TranslatePipe, DatePipe, WithdrawDialog],
   templateUrl: './transactions.html',
   styleUrl: './transactions.scss',
 })
@@ -30,6 +31,7 @@ export class Transactions implements OnInit {
   protected readonly pageIndex = signal(0);
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
+  protected readonly withdrawDialogOpen = signal(false);
 
   protected readonly rangeStart = computed(() => {
     if (this.totalCount() === 0) {
@@ -49,6 +51,20 @@ export class Transactions implements OnInit {
   );
 
   ngOnInit(): void {
+    this.loadTransactions();
+  }
+
+  protected openWithdrawDialog(): void {
+    this.withdrawDialogOpen.set(true);
+  }
+
+  protected closeWithdrawDialog(): void {
+    this.withdrawDialogOpen.set(false);
+  }
+
+  protected onWithdrawSubmitted(): void {
+    this.withdrawDialogOpen.set(false);
+    this.pageIndex.set(0);
     this.loadTransactions();
   }
 
