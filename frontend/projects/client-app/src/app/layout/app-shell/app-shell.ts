@@ -1,7 +1,16 @@
-import { Component, inject, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import {
+  afterNextRender,
+  Component,
+  inject,
+  OnDestroy,
+  PLATFORM_ID,
+  signal,
+} from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthService } from '../../core/auth/services/auth.service';
+import { SessionTimeoutService } from '../../core/auth/services/session-timeout.service';
 import { LanguageSelector } from '../../core/i18n/components/language-selector/language-selector';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
@@ -18,8 +27,10 @@ type NavIcon = 'home' | 'user' | 'bank' | 'receipt' | 'unlock';
     '[class.app-shell--light]': 'themeService.mode() === "light"',
   },
 })
-export class AppShell {
+export class AppShell implements OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly sessionTimeoutService = inject(SessionTimeoutService);
+  private readonly platformId = inject(PLATFORM_ID);
 
   protected readonly themeService = inject(ThemeService);
   protected readonly routes = APP_ROUTE_PATHS;
@@ -33,6 +44,20 @@ export class AppShell {
     { labelKey: 'app.nav.changePassword', route: APP_ROUTE_PATHS.changePassword, icon: 'unlock' },
   ];
 
+  constructor() {
+    afterNextRender(() => {
+      if (!isPlatformBrowser(this.platformId)) {
+        return;
+      }
+
+      this.sessionTimeoutService.start();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.sessionTimeoutService.stop();
+  }
+
   protected toggleSideMenu(): void {
     this.sideMenuOpen.update((open) => !open);
   }
@@ -43,6 +68,7 @@ export class AppShell {
 
   protected logout(): void {
     this.closeSideMenu();
+    this.sessionTimeoutService.stop();
     this.authService.forceLogout();
   }
 }
