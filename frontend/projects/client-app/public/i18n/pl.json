@@ -532,6 +532,7 @@
   "app.shell.navLabel": "Menu aplikacji",
   "app.shell.themeToggle": "Przełącz jasny lub ciemny motyw",
   "app.shell.userMenu": "Konto użytkownika",
+  "app.shell.logout": "Wyloguj",
   "app.nav.dashboard": "Pulpit",
   "app.dashboard.title": "Pulpit",
   "app.dashboard.subtitle": "Witaj na koncie Seedlee Media.",

@@ -532,6 +532,7 @@
   "app.shell.navLabel": "Anwendungsmenü",
   "app.shell.themeToggle": "Hellen oder dunklen Modus umschalten",
   "app.shell.userMenu": "Benutzerkonto",
+  "app.shell.logout": "Abmelden",
   "app.nav.dashboard": "Dashboard",
   "app.dashboard.title": "Dashboard",
   "app.dashboard.subtitle": "Willkommen in Ihrem Seedlee Media-Konto.",

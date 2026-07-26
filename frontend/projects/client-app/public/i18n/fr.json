@@ -532,6 +532,7 @@
   "app.shell.navLabel": "Menu de l'application",
   "app.shell.themeToggle": "Basculer le thème clair ou sombre",
   "app.shell.userMenu": "Compte utilisateur",
+  "app.shell.logout": "Se déconnecter",
   "app.nav.dashboard": "Tableau de bord",
   "app.dashboard.title": "Tableau de bord",
   "app.dashboard.subtitle": "Bienvenue sur votre compte Seedlee Media.",

@@ -532,6 +532,7 @@
   "app.shell.navLabel": "Меню приложения",
   "app.shell.themeToggle": "Переключить светлую или тёмную тему",
   "app.shell.userMenu": "Аккаунт пользователя",
+  "app.shell.logout": "Выйти",
   "app.nav.dashboard": "Рабочий стол",
   "app.dashboard.title": "Рабочий стол",
   "app.dashboard.subtitle": "Добро пожаловать в аккаунт Seedlee Media.",

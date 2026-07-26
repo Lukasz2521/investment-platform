@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
+import { AuthService } from '../../core/auth/services/auth.service';
 import { LanguageSelector } from '../../core/i18n/components/language-selector/language-selector';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
@@ -18,6 +19,8 @@ type NavIcon = 'home' | 'user' | 'bank' | 'receipt' | 'unlock';
   },
 })
 export class AppShell {
+  private readonly authService = inject(AuthService);
+
   protected readonly themeService = inject(ThemeService);
   protected readonly routes = APP_ROUTE_PATHS;
   protected readonly sideMenuOpen = signal(false);
@@ -36,5 +39,10 @@ export class AppShell {
 
   protected closeSideMenu(): void {
     this.sideMenuOpen.set(false);
+  }
+
+  protected logout(): void {
+    this.closeSideMenu();
+    this.authService.forceLogout();
   }
 }
