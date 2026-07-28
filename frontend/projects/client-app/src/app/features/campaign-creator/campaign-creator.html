@@ -13,6 +13,13 @@
     />
   }
 
+  @if (currentStep() === 2) {
+    <app-campaign-creator-guidelines
+      [value]="guidelines()"
+      (valueChange)="onGuidelinesChange($event)"
+    />
+  }
+
   <div class="campaign-creator-nav">
     <button
       type="button"

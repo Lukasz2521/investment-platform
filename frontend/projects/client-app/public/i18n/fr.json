@@ -708,5 +708,21 @@
   "app.campaignCreator.select.plans.protector": "Protector",
   "app.campaignCreator.select.plans.dominion": "Dominion",
   "app.campaignCreator.nav.back": "Retour",
-  "app.campaignCreator.nav.next": "Suivant"
+  "app.campaignCreator.nav.next": "Suivant",
+  "app.campaignCreator.guidelines.ariaLabel": "Consignes de campagne",
+  "app.campaignCreator.guidelines.title": "Consignes de campagne",
+  "app.campaignCreator.guidelines.gender": "Sexe :",
+  "app.campaignCreator.guidelines.male": "Homme",
+  "app.campaignCreator.guidelines.female": "Femme",
+  "app.campaignCreator.guidelines.startDate": "Date de début (Min. {{min}} jours)",
+  "app.campaignCreator.guidelines.endDate": "Date de fin (Max. {{max}} jours)",
+  "app.campaignCreator.guidelines.totalDays": "Total : {{count}} Jours",
+  "app.campaignCreator.guidelines.budgetLabel": "Budget (Min:{{min}})",
+  "app.campaignCreator.guidelines.budget": "Budget",
+  "app.campaignCreator.guidelines.age": "Âge",
+  "app.campaignCreator.guidelines.ageRange": "Min:{{min}} Max:{{max}}",
+  "app.campaignCreator.guidelines.ageMin": "Âge minimum",
+  "app.campaignCreator.guidelines.ageMax": "Âge maximum",
+  "app.campaignCreator.guidelines.country": "Pays",
+  "app.campaignCreator.guidelines.countryPlaceholder": "Countries"
 }

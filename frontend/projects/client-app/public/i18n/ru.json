@@ -708,5 +708,21 @@
   "app.campaignCreator.select.plans.protector": "Protector",
   "app.campaignCreator.select.plans.dominion": "Dominion",
   "app.campaignCreator.nav.back": "Назад",
-  "app.campaignCreator.nav.next": "Далее"
+  "app.campaignCreator.nav.next": "Далее",
+  "app.campaignCreator.guidelines.ariaLabel": "Рекомендации кампании",
+  "app.campaignCreator.guidelines.title": "Рекомендации кампании",
+  "app.campaignCreator.guidelines.gender": "Пол:",
+  "app.campaignCreator.guidelines.male": "Мужчина",
+  "app.campaignCreator.guidelines.female": "Женщина",
+  "app.campaignCreator.guidelines.startDate": "Дата начала (Мин. {{min}} дн.)",
+  "app.campaignCreator.guidelines.endDate": "Дата окончания (Макс. {{max}} дн.)",
+  "app.campaignCreator.guidelines.totalDays": "Итого: {{count}} Дней",
+  "app.campaignCreator.guidelines.budgetLabel": "Бюджет (Мин:{{min}})",
+  "app.campaignCreator.guidelines.budget": "Бюджет",
+  "app.campaignCreator.guidelines.age": "Возраст",
+  "app.campaignCreator.guidelines.ageRange": "Мин:{{min}} Макс:{{max}}",
+  "app.campaignCreator.guidelines.ageMin": "Минимальный возраст",
+  "app.campaignCreator.guidelines.ageMax": "Максимальный возраст",
+  "app.campaignCreator.guidelines.country": "Страна",
+  "app.campaignCreator.guidelines.countryPlaceholder": "Countries"
 }

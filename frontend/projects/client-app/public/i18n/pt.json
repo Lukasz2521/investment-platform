@@ -708,5 +708,21 @@
   "app.campaignCreator.select.plans.protector": "Protector",
   "app.campaignCreator.select.plans.dominion": "Dominion",
   "app.campaignCreator.nav.back": "Voltar",
-  "app.campaignCreator.nav.next": "Seguinte"
+  "app.campaignCreator.nav.next": "Seguinte",
+  "app.campaignCreator.guidelines.ariaLabel": "Diretrizes da campanha",
+  "app.campaignCreator.guidelines.title": "Diretrizes da campanha",
+  "app.campaignCreator.guidelines.gender": "Género:",
+  "app.campaignCreator.guidelines.male": "Homem",
+  "app.campaignCreator.guidelines.female": "Mulher",
+  "app.campaignCreator.guidelines.startDate": "Data de início (Mín. {{min}} dias)",
+  "app.campaignCreator.guidelines.endDate": "Data de fim (Máx. {{max}} dias)",
+  "app.campaignCreator.guidelines.totalDays": "Total: {{count}} Dias",
+  "app.campaignCreator.guidelines.budgetLabel": "Orçamento (Mín:{{min}})",
+  "app.campaignCreator.guidelines.budget": "Orçamento",
+  "app.campaignCreator.guidelines.age": "Idade",
+  "app.campaignCreator.guidelines.ageRange": "Mín:{{min}} Máx:{{max}}",
+  "app.campaignCreator.guidelines.ageMin": "Idade mínima",
+  "app.campaignCreator.guidelines.ageMax": "Idade máxima",
+  "app.campaignCreator.guidelines.country": "País",
+  "app.campaignCreator.guidelines.countryPlaceholder": "Countries"
 }

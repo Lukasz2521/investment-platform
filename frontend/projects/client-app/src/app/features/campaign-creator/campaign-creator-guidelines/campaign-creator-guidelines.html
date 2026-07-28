@@ -1,0 +1,187 @@
+<section
+  class="guidelines"
+  [attr.aria-label]="'app.campaignCreator.guidelines.ariaLabel' | translate"
+>
+  <h2 class="guidelines-title">{{ 'app.campaignCreator.guidelines.title' | translate }}</h2>
+
+  <div class="guidelines-card">
+    <div class="guidelines-grid">
+      <div class="guidelines-column">
+        <fieldset class="guidelines-fieldset">
+          <legend class="guidelines-label">{{ 'app.campaignCreator.guidelines.gender' | translate }}</legend>
+
+          <div class="guidelines-toggles">
+            <label class="guidelines-toggle">
+              <button
+                type="button"
+                class="guidelines-switch"
+                role="switch"
+                [attr.aria-checked]="value().male"
+                (click)="toggleGender('male')"
+              >
+                <span class="guidelines-switch-thumb" aria-hidden="true"></span>
+              </button>
+              <span>{{ 'app.campaignCreator.guidelines.male' | translate }}</span>
+            </label>
+
+            <label class="guidelines-toggle">
+              <button
+                type="button"
+                class="guidelines-switch"
+                role="switch"
+                [attr.aria-checked]="value().female"
+                (click)="toggleGender('female')"
+              >
+                <span class="guidelines-switch-thumb" aria-hidden="true"></span>
+              </button>
+              <span>{{ 'app.campaignCreator.guidelines.female' | translate }}</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <label class="guidelines-field">
+          <span class="guidelines-label">
+            {{ 'app.campaignCreator.guidelines.startDate' | translate: { min: '' + minDays } }}
+          </span>
+          <input
+            class="guidelines-input guidelines-input--locked"
+            type="date"
+            [value]="value().startDate"
+            disabled
+          />
+        </label>
+
+        <label class="guidelines-field">
+          <span class="guidelines-label">
+            {{ 'app.campaignCreator.guidelines.endDate' | translate: { max: '' + maxDays } }}
+          </span>
+          <input
+            class="guidelines-input guidelines-input--date"
+            type="date"
+            [min]="minEndDate()"
+            [max]="maxEndDate()"
+            [value]="value().endDate"
+            (click)="openEndDatePicker($event)"
+            (input)="onEndDateInput($event)"
+          />
+        </label>
+
+        @if (durationDays() !== null) {
+          <p class="guidelines-duration">
+            {{
+              'app.campaignCreator.guidelines.totalDays'
+                | translate: { count: '' + durationDays() }
+            }}
+          </p>
+        }
+
+        <label class="guidelines-field">
+          <span class="guidelines-label">
+            {{ 'app.campaignCreator.guidelines.budgetLabel' | translate: { min: '' + minBudget } }}
+          </span>
+          <span class="guidelines-budget">
+            <span class="guidelines-budget-float">
+              {{ 'app.campaignCreator.guidelines.budget' | translate }}
+            </span>
+            <input
+              class="guidelines-input guidelines-input--budget"
+              type="number"
+              inputmode="decimal"
+              [min]="minBudget"
+              [value]="value().budget"
+              (input)="onBudgetInput($event)"
+              (blur)="onBudgetBlur($event)"
+            />
+          </span>
+        </label>
+      </div>
+
+      <div class="guidelines-column">
+        <div class="guidelines-field">
+          <div class="guidelines-age-header">
+            <span class="guidelines-label">{{ 'app.campaignCreator.guidelines.age' | translate }}</span>
+            <span class="guidelines-age-values">
+              {{
+                'app.campaignCreator.guidelines.ageRange'
+                  | translate: { min: '' + value().ageMin, max: '' + value().ageMax }
+              }}
+            </span>
+          </div>
+
+          <div
+            class="guidelines-slider"
+            [style.--age-start.%]="ageRangeFill().start"
+            [style.--age-end.%]="ageRangeFill().end"
+          >
+            <input
+              class="guidelines-range guidelines-range--min"
+              type="range"
+              [min]="ageFloor"
+              [max]="ageCeil"
+              [value]="value().ageMin"
+              (input)="onAgeMinInput($event)"
+              [attr.aria-label]="'app.campaignCreator.guidelines.ageMin' | translate"
+            />
+            <input
+              class="guidelines-range guidelines-range--max"
+              type="range"
+              [min]="ageFloor"
+              [max]="ageCeil"
+              [value]="value().ageMax"
+              (input)="onAgeMaxInput($event)"
+              [attr.aria-label]="'app.campaignCreator.guidelines.ageMax' | translate"
+            />
+          </div>
+
+          <div class="guidelines-age-ticks" aria-hidden="true">
+            @for (tick of ageTicks; track tick) {
+              <span>{{ tick }}</span>
+            }
+          </div>
+        </div>
+
+        <div class="guidelines-field">
+          <span class="guidelines-label">{{ 'app.campaignCreator.guidelines.country' | translate }}</span>
+
+          <div
+            #countriesSelect
+            class="guidelines-multiselect"
+            [class.guidelines-multiselect--open]="countriesOpen()"
+          >
+            <button
+              type="button"
+              class="guidelines-input guidelines-multiselect-trigger"
+              [attr.aria-expanded]="countriesOpen()"
+              (click)="toggleCountriesOpen()"
+            >
+              <span
+                class="guidelines-multiselect-value"
+                [class.guidelines-multiselect-value--placeholder]="!countriesSummary()"
+              >
+                {{
+                  countriesSummary() ??
+                    ('app.campaignCreator.guidelines.countryPlaceholder' | translate)
+                }}
+              </span>
+            </button>
+
+            @if (countriesOpen()) {
+              <div class="guidelines-multiselect-menu" role="listbox" aria-multiselectable="true">
+                @for (country of countries; track country) {
+                  <label class="guidelines-multiselect-option">
+                    <input
+                      type="checkbox"
+                      [checked]="isCountrySelected(country)"
+                      (change)="toggleCountry(country)"
+                    />
+                    <span>{{ country }}</span>
+                  </label>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
