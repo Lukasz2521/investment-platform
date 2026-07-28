@@ -1,0 +1,67 @@
+<section
+  class="countries-step"
+  [attr.aria-label]="'app.campaignCreator.countries.ariaLabel' | translate"
+>
+  <h2 class="countries-step-title">
+    {{ 'app.campaignCreator.countries.title' | translate }}
+  </h2>
+
+  <div
+    #mapHost
+    class="countries-step-map"
+    [attr.aria-label]="'app.campaignCreator.countries.mapAriaLabel' | translate"
+    (click)="onMapClick($event)"
+    [innerHTML]="mapHtml()"
+  ></div>
+
+  <div #countrySearch class="countries-step-search" [class.countries-step-search--open]="menuOpen()">
+    <input
+      class="countries-step-input"
+      type="search"
+      autocomplete="off"
+      [placeholder]="'app.campaignCreator.countries.searchPlaceholder' | translate"
+      [value]="query()"
+      (focus)="openMenu()"
+      (input)="onQueryInput($event)"
+    />
+
+    @if (menuOpen()) {
+      <div class="countries-step-menu" role="listbox" aria-multiselectable="true">
+        @for (country of filteredCountries(); track country) {
+          <label class="countries-step-option">
+            <input
+              type="checkbox"
+              [checked]="isSelected(country)"
+              (change)="onCountryCheckbox(country, $event)"
+            />
+            <span>{{ country }}</span>
+          </label>
+        } @empty {
+          <p class="countries-step-empty">
+            {{ 'app.campaignCreator.countries.empty' | translate }}
+          </p>
+        }
+      </div>
+    }
+  </div>
+
+  @if (selectedCountries().length > 0) {
+    <ul class="countries-step-chips">
+      @for (country of selectedCountries(); track country) {
+        <li class="countries-step-chip">
+          <span>{{ country }}</span>
+          <button
+            type="button"
+            class="countries-step-chip-remove"
+            [attr.aria-label]="
+              'app.campaignCreator.countries.remove' | translate: { country }
+            "
+            (click)="removeCountry(country)"
+          >
+            ×
+          </button>
+        </li>
+      }
+    </ul>
+  }
+</section>

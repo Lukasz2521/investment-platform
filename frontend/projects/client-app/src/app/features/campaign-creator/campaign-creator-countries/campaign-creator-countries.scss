@@ -1,0 +1,223 @@
+app-campaign-creator-countries {
+  --countries-title: #e5e5e5;
+  --countries-input-bg: #141414;
+  --countries-input-border: rgb(255 255 255 / 14%);
+  --countries-input-text: #f3f4f6;
+  --countries-placeholder: #9ca3af;
+  --countries-focus: #7c3aed;
+  --countries-menu-bg: #141414;
+  --countries-menu-border: rgb(255 255 255 / 14%);
+  --countries-option-hover: rgb(124 58 237 / 14%);
+  --countries-chip-bg: rgb(124 58 237 / 18%);
+  --countries-chip-text: #e9d5ff;
+  --countries-empty: #9ca3af;
+  --countries-map-land: #9eb6d4;
+  --countries-map-selected: #5b21b6;
+  --countries-map-stroke: #ffffff;
+  --countries-map-hover: #7c3aed;
+
+  display: block;
+  width: 100%;
+}
+
+.app-shell--light app-campaign-creator-countries {
+  --countries-title: #111827;
+  --countries-input-bg: #ffffff;
+  --countries-input-border: #d1d5db;
+  --countries-input-text: #111827;
+  --countries-placeholder: #9ca3af;
+  --countries-menu-bg: #ffffff;
+  --countries-menu-border: #e5e7eb;
+  --countries-option-hover: rgb(124 58 237 / 8%);
+  --countries-chip-bg: #ede9fe;
+  --countries-chip-text: #5b21b6;
+  --countries-empty: #6b7280;
+  --countries-map-land: #c5d4e8;
+  --countries-map-selected: #5b21b6;
+  --countries-map-stroke: #ffffff;
+  --countries-map-hover: #7c3aed;
+}
+
+.countries-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  margin-inline: auto;
+  max-width: 48rem;
+  width: 100%;
+}
+
+.countries-step-title {
+  color: var(--countries-title);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 0;
+  text-align: center;
+}
+
+.countries-step-map {
+  min-height: 12rem;
+  width: 100%;
+}
+
+.countries-step-map svg {
+  display: block;
+  height: auto;
+  max-height: 22rem;
+  width: 100%;
+}
+
+.countries-step-map path {
+  fill: var(--countries-map-land);
+  stroke: var(--countries-map-stroke);
+  stroke-width: 0.35;
+  transition:
+    fill 0.2s ease,
+    stroke 0.2s ease,
+    stroke-width 0.2s ease;
+}
+
+.countries-step-map :is(path, g)[id]:not([id='world-map']) {
+  cursor: pointer;
+}
+
+.countries-step-map :is(path, g)[id]:not([id='world-map']):hover > path,
+.countries-step-map path[id]:not([id='world-map']):hover {
+  fill: var(--countries-map-hover);
+}
+
+.countries-step-map path.is-selected,
+.countries-step-map [data-selected='true'] path,
+.countries-step-map path[data-selected='true'] {
+  fill: var(--countries-map-selected) !important;
+  stroke: var(--countries-map-selected);
+  stroke-width: 0.9;
+}
+
+.countries-step-map path.is-selected:hover,
+.countries-step-map [data-selected='true']:hover > path,
+.countries-step-map path[data-selected='true']:hover {
+  fill: var(--countries-map-hover) !important;
+  stroke: var(--countries-map-hover);
+}
+
+.countries-step-search {
+  position: relative;
+  width: 100%;
+}
+
+.countries-step-input {
+  background: var(--countries-input-bg);
+  border: 1px solid var(--countries-input-border);
+  border-radius: 0.5rem;
+  color: var(--countries-input-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  line-height: 1.3;
+  padding: 0.8rem 0.95rem;
+  width: 100%;
+}
+
+.countries-step-input::placeholder {
+  color: var(--countries-placeholder);
+}
+
+.countries-step-input:focus {
+  border-color: var(--countries-focus);
+  box-shadow: 0 0 0 1px var(--countries-focus);
+  outline: none;
+}
+
+.countries-step-search--open .countries-step-input {
+  border-color: var(--countries-focus);
+}
+
+.countries-step-menu {
+  background: var(--countries-menu-bg);
+  border: 1px solid var(--countries-menu-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 18%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  left: 0;
+  max-height: 16rem;
+  overflow: auto;
+  padding: 0.45rem;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.4rem);
+  z-index: 5;
+}
+
+.countries-step-option {
+  align-items: center;
+  border-radius: 0.4rem;
+  color: var(--countries-input-text);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.875rem;
+  gap: 0.55rem;
+  padding: 0.5rem 0.55rem;
+}
+
+.countries-step-option:hover {
+  background: var(--countries-option-hover);
+}
+
+.countries-step-option input {
+  accent-color: var(--countries-focus);
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.countries-step-empty {
+  color: var(--countries-empty);
+  font-size: 0.875rem;
+  margin: 0;
+  padding: 0.65rem 0.55rem;
+}
+
+.countries-step-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.countries-step-chip {
+  align-items: center;
+  background: var(--countries-chip-bg);
+  border-radius: 999px;
+  color: var(--countries-chip-text);
+  display: inline-flex;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  gap: 0.35rem;
+  padding: 0.35rem 0.35rem 0.35rem 0.7rem;
+}
+
+.countries-step-chip-remove {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 1rem;
+  height: 1.35rem;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  width: 1.35rem;
+}
+
+.countries-step-chip-remove:hover {
+  background: rgb(0 0 0 / 8%);
+}

@@ -723,6 +723,10 @@
   "app.campaignCreator.guidelines.ageRange": "Min:{{min}} Max:{{max}}",
   "app.campaignCreator.guidelines.ageMin": "Minimum age",
   "app.campaignCreator.guidelines.ageMax": "Maximum age",
-  "app.campaignCreator.guidelines.country": "Country",
-  "app.campaignCreator.guidelines.countryPlaceholder": "Countries"
+  "app.campaignCreator.countries.ariaLabel": "Country selection",
+  "app.campaignCreator.countries.title": "Select countries for campaign",
+  "app.campaignCreator.countries.mapAriaLabel": "World map of selected countries",
+  "app.campaignCreator.countries.searchPlaceholder": "Search for a country...",
+  "app.campaignCreator.countries.empty": "No countries found",
+  "app.campaignCreator.countries.remove": "Remove {{country}}"
 }

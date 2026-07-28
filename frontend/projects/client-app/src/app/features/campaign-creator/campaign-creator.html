@@ -20,6 +20,13 @@
     />
   }
 
+  @if (currentStep() === 3) {
+    <app-campaign-creator-countries
+      [selectedCountries]="selectedCountries()"
+      (selectedCountriesChange)="onCountriesChange($event)"
+    />
+  }
+
   <div class="campaign-creator-nav">
     <button
       type="button"

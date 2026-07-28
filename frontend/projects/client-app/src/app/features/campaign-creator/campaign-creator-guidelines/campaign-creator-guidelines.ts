@@ -1,16 +1,6 @@
-import {
-  Component,
-  computed,
-  ElementRef,
-  HostListener,
-  input,
-  output,
-  signal,
-  viewChild,
-} from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
 
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
-import { REGISTER_COUNTRIES } from '../../register/register-options';
 import {
   addDaysToDateInput,
   CAMPAIGN_GUIDELINES_AGE_MAX,
@@ -32,17 +22,12 @@ export class CampaignCreatorGuidelines {
   readonly value = input.required<CampaignGuidelinesForm>();
   readonly valueChange = output<CampaignGuidelinesForm>();
 
-  private readonly countriesSelectRef =
-    viewChild.required<ElementRef<HTMLElement>>('countriesSelect');
-
-  protected readonly countries = REGISTER_COUNTRIES;
   protected readonly ageFloor = CAMPAIGN_GUIDELINES_AGE_MIN;
   protected readonly ageCeil = CAMPAIGN_GUIDELINES_AGE_MAX;
   protected readonly minBudget = CAMPAIGN_GUIDELINES_MIN_BUDGET;
   protected readonly minDays = CAMPAIGN_GUIDELINES_MIN_DAYS;
   protected readonly maxDays = CAMPAIGN_GUIDELINES_MAX_DAYS;
   protected readonly ageTicks = [0, 20, 40, 60, 80, 100];
-  protected readonly countriesOpen = signal(false);
 
   protected readonly durationDays = computed(() => {
     const current = this.value();
@@ -57,14 +42,6 @@ export class CampaignCreatorGuidelines {
     addDaysToDateInput(this.value().startDate, this.maxDays),
   );
 
-  protected readonly countriesSummary = computed(() => {
-    const selected = this.value().countries;
-    if (selected.length === 0) {
-      return null;
-    }
-    return selected.join(', ');
-  });
-
   protected readonly ageRangeFill = computed(() => {
     const { ageMin, ageMax } = this.value();
     const span = this.ageCeil - this.ageFloor;
@@ -72,20 +49,6 @@ export class CampaignCreatorGuidelines {
     const end = ((ageMax - this.ageFloor) / span) * 100;
     return { start, end };
   });
-
-  @HostListener('document:click', ['$event'])
-  protected onDocumentClick(event: MouseEvent): void {
-    if (!this.countriesOpen()) {
-      return;
-    }
-
-    const target = event.target as Node | null;
-    if (!target || this.countriesSelectRef().nativeElement.contains(target)) {
-      return;
-    }
-
-    this.countriesOpen.set(false);
-  }
 
   protected toggleGender(key: 'male' | 'female'): void {
     this.patch({ [key]: !this.value()[key] });
@@ -125,23 +88,6 @@ export class CampaignCreatorGuidelines {
     const next = Number((event.target as HTMLInputElement).value);
     const ageMin = this.value().ageMin;
     this.patch({ ageMax: Math.max(next, ageMin) });
-  }
-
-  protected toggleCountriesOpen(): void {
-    this.countriesOpen.update((open) => !open);
-  }
-
-  protected isCountrySelected(country: string): boolean {
-    return this.value().countries.includes(country);
-  }
-
-  protected toggleCountry(country: string): void {
-    const selected = this.value().countries;
-    const countries = selected.includes(country)
-      ? selected.filter((item) => item !== country)
-      : [...selected, country];
-
-    this.patch({ countries });
   }
 
   private patch(partial: Partial<CampaignGuidelinesForm>): void {

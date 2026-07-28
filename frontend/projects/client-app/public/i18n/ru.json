@@ -723,6 +723,10 @@
   "app.campaignCreator.guidelines.ageRange": "Мин:{{min}} Макс:{{max}}",
   "app.campaignCreator.guidelines.ageMin": "Минимальный возраст",
   "app.campaignCreator.guidelines.ageMax": "Максимальный возраст",
-  "app.campaignCreator.guidelines.country": "Страна",
-  "app.campaignCreator.guidelines.countryPlaceholder": "Countries"
+  "app.campaignCreator.countries.ariaLabel": "Выбор стран",
+  "app.campaignCreator.countries.title": "Выберите страны для кампании",
+  "app.campaignCreator.countries.mapAriaLabel": "Карта мира выбранных стран",
+  "app.campaignCreator.countries.searchPlaceholder": "Поиск страны...",
+  "app.campaignCreator.countries.empty": "Страны не найдены",
+  "app.campaignCreator.countries.remove": "Удалить {{country}}"
 }

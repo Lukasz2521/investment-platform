@@ -6,7 +6,6 @@ export type CampaignGuidelinesForm = {
   budget: string;
   ageMin: number;
   ageMax: number;
-  countries: string[];
 };
 
 export const CAMPAIGN_GUIDELINES_MIN_BUDGET = 200;
@@ -40,7 +39,6 @@ export function createDefaultCampaignGuidelinesForm(): CampaignGuidelinesForm {
     budget: '482',
     ageMin: 0,
     ageMax: 100,
-    countries: [],
   };
 }
 
@@ -83,10 +81,6 @@ export function isCampaignGuidelinesValid(form: CampaignGuidelinesForm): boolean
   }
 
   if (form.ageMin > form.ageMax) {
-    return false;
-  }
-
-  if (form.countries.length === 0) {
     return false;
   }
 

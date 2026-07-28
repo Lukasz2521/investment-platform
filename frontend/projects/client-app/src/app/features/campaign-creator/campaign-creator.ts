@@ -1,6 +1,7 @@
 import { Component, computed, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import { CampaignCreatorCountries } from './campaign-creator-countries/campaign-creator-countries';
 import { CampaignCreatorGuidelines } from './campaign-creator-guidelines/campaign-creator-guidelines';
 import { CampaignCreatorSelect } from './campaign-creator-select/campaign-creator-select';
 import {
@@ -24,6 +25,7 @@ const LAST_STEP: CampaignCreatorStepId = 5;
     CampaignCreatorStepper,
     CampaignCreatorSelect,
     CampaignCreatorGuidelines,
+    CampaignCreatorCountries,
   ],
   templateUrl: './campaign-creator.html',
   styleUrl: './campaign-creator.scss',
@@ -34,6 +36,7 @@ export class CampaignCreator {
   protected readonly guidelines = signal<CampaignGuidelinesForm>(
     createDefaultCampaignGuidelinesForm(),
   );
+  protected readonly selectedCountries = signal<string[]>([]);
 
   protected readonly canGoBack = computed(() => this.currentStep() > FIRST_STEP);
 
@@ -52,6 +55,10 @@ export class CampaignCreator {
       return isCampaignGuidelinesValid(this.guidelines());
     }
 
+    if (step === 3) {
+      return this.selectedCountries().length > 0;
+    }
+
     return true;
   });
 
@@ -61,6 +68,10 @@ export class CampaignCreator {
 
   protected onGuidelinesChange(form: CampaignGuidelinesForm): void {
     this.guidelines.set(form);
+  }
+
+  protected onCountriesChange(countries: string[]): void {
+    this.selectedCountries.set(countries);
   }
 
   protected goBack(): void {

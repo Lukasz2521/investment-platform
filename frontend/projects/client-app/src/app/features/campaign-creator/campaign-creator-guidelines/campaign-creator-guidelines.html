@@ -139,48 +139,6 @@
             }
           </div>
         </div>
-
-        <div class="guidelines-field">
-          <span class="guidelines-label">{{ 'app.campaignCreator.guidelines.country' | translate }}</span>
-
-          <div
-            #countriesSelect
-            class="guidelines-multiselect"
-            [class.guidelines-multiselect--open]="countriesOpen()"
-          >
-            <button
-              type="button"
-              class="guidelines-input guidelines-multiselect-trigger"
-              [attr.aria-expanded]="countriesOpen()"
-              (click)="toggleCountriesOpen()"
-            >
-              <span
-                class="guidelines-multiselect-value"
-                [class.guidelines-multiselect-value--placeholder]="!countriesSummary()"
-              >
-                {{
-                  countriesSummary() ??
-                    ('app.campaignCreator.guidelines.countryPlaceholder' | translate)
-                }}
-              </span>
-            </button>
-
-            @if (countriesOpen()) {
-              <div class="guidelines-multiselect-menu" role="listbox" aria-multiselectable="true">
-                @for (country of countries; track country) {
-                  <label class="guidelines-multiselect-option">
-                    <input
-                      type="checkbox"
-                      [checked]="isCountrySelected(country)"
-                      (change)="toggleCountry(country)"
-                    />
-                    <span>{{ country }}</span>
-                  </label>
-                }
-              </div>
-            }
-          </div>
-        </div>
       </div>
     </div>
   </div>
