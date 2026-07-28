@@ -1,6 +1,15 @@
 :host {
   --campaign-creator-header: #e5e5e5;
   --campaign-creator-subtitle: #a8a8a8;
+  --campaign-nav-back-bg: #3f3f46;
+  --campaign-nav-back-text: #e4e4e7;
+  --campaign-nav-back-hover: #52525b;
+  --campaign-nav-next-bg: #7c3aed;
+  --campaign-nav-next-text: #ffffff;
+  --campaign-nav-next-hover: #6d28d9;
+  --campaign-nav-next-shadow: 0 4px 12px rgb(124 58 237 / 35%);
+  --campaign-nav-disabled-bg: #27272a;
+  --campaign-nav-disabled-text: #71717a;
 
   display: block;
 }
@@ -8,19 +17,33 @@
 :host-context(.app-shell--light) {
   --campaign-creator-header: #444444;
   --campaign-creator-subtitle: #6b7280;
+  --campaign-nav-back-bg: #d1d5db;
+  --campaign-nav-back-text: #4b5563;
+  --campaign-nav-back-hover: #c4c9d1;
+  --campaign-nav-next-bg: #7c3aed;
+  --campaign-nav-next-text: #ffffff;
+  --campaign-nav-next-hover: #6d28d9;
+  --campaign-nav-next-shadow: 0 4px 12px rgb(124 58 237 / 28%);
+  --campaign-nav-disabled-bg: #e5e7eb;
+  --campaign-nav-disabled-text: #9ca3af;
 }
 
 .campaign-creator {
+  align-items: center;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  max-width: 48rem;
+  gap: 2rem;
+  margin-inline: auto;
+  max-width: 72rem;
+  width: 100%;
 }
 
 .campaign-creator-header {
+  align-items: center;
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  text-align: center;
 }
 
 .campaign-creator-title {
@@ -37,4 +60,53 @@
   font-size: 0.975rem;
   line-height: 1.5;
   margin: 0;
+}
+
+.campaign-creator-nav {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  padding-bottom: 0.5rem;
+}
+
+.campaign-creator-nav-btn {
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1;
+  min-width: 5.5rem;
+  padding: 0.7rem 1.35rem;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+
+.campaign-creator-nav-btn--back {
+  background: var(--campaign-nav-back-bg);
+  color: var(--campaign-nav-back-text);
+}
+
+.campaign-creator-nav-btn--back:hover:not(:disabled) {
+  background: var(--campaign-nav-back-hover);
+}
+
+.campaign-creator-nav-btn--next {
+  background: var(--campaign-nav-next-bg);
+  box-shadow: var(--campaign-nav-next-shadow);
+  color: var(--campaign-nav-next-text);
+}
+
+.campaign-creator-nav-btn--next:hover:not(:disabled) {
+  background: var(--campaign-nav-next-hover);
+}
+
+.campaign-creator-nav-btn:disabled {
+  background: var(--campaign-nav-disabled-bg);
+  box-shadow: none;
+  color: var(--campaign-nav-disabled-text);
+  cursor: default;
 }

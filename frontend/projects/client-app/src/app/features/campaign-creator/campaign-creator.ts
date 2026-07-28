@@ -1,11 +1,59 @@
-import { Component } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import { CampaignCreatorSelect } from './campaign-creator-select/campaign-creator-select';
+import {
+  CampaignCreatorStepId,
+  CampaignCreatorStepper,
+} from './campaign-creator-stepper/campaign-creator-stepper';
+import { CampaignOption } from './campaign-options';
+
+const FIRST_STEP: CampaignCreatorStepId = 1;
+const LAST_STEP: CampaignCreatorStepId = 5;
 
 @Component({
   selector: 'app-campaign-creator',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, CampaignCreatorStepper, CampaignCreatorSelect],
   templateUrl: './campaign-creator.html',
   styleUrl: './campaign-creator.scss',
 })
-export class CampaignCreator {}
+export class CampaignCreator {
+  protected readonly currentStep = signal<CampaignCreatorStepId>(1);
+  protected readonly selectedCampaign = signal<CampaignOption | null>(null);
+
+  protected readonly canGoBack = computed(() => this.currentStep() > FIRST_STEP);
+
+  protected readonly canGoNext = computed(() => {
+    const step = this.currentStep();
+
+    if (step >= LAST_STEP) {
+      return false;
+    }
+
+    if (step === 1) {
+      return this.selectedCampaign() !== null;
+    }
+
+    return true;
+  });
+
+  protected onCampaignSelected(campaign: CampaignOption): void {
+    this.selectedCampaign.set(campaign);
+  }
+
+  protected goBack(): void {
+    if (!this.canGoBack()) {
+      return;
+    }
+
+    this.currentStep.update((step) => (step - 1) as CampaignCreatorStepId);
+  }
+
+  protected goNext(): void {
+    if (!this.canGoNext()) {
+      return;
+    }
+
+    this.currentStep.update((step) => (step + 1) as CampaignCreatorStepId);
+  }
+}

@@ -3,4 +3,32 @@
     <h1 class="campaign-creator-title">{{ 'app.campaignCreator.title' | translate }}</h1>
     <p class="campaign-creator-subtitle">{{ 'app.campaignCreator.subtitle' | translate }}</p>
   </header>
+
+  <app-campaign-creator-stepper [currentStep]="currentStep()" />
+
+  @if (currentStep() === 1) {
+    <app-campaign-creator-select
+      [selectedCampaignId]="selectedCampaign()?.id ?? null"
+      (campaignSelected)="onCampaignSelected($event)"
+    />
+  }
+
+  <div class="campaign-creator-nav">
+    <button
+      type="button"
+      class="campaign-creator-nav-btn campaign-creator-nav-btn--back"
+      [disabled]="!canGoBack()"
+      (click)="goBack()"
+    >
+      {{ 'app.campaignCreator.nav.back' | translate }}
+    </button>
+    <button
+      type="button"
+      class="campaign-creator-nav-btn campaign-creator-nav-btn--next"
+      [disabled]="!canGoNext()"
+      (click)="goNext()"
+    >
+      {{ 'app.campaignCreator.nav.next' | translate }}
+    </button>
+  </div>
 </section>

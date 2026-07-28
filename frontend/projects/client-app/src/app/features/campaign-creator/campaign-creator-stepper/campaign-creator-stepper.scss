@@ -1,0 +1,113 @@
+:host {
+  --stepper-line: rgb(255 255 255 / 16%);
+  --stepper-node-bg: #3a3a48;
+  --stepper-node-icon: #c8c8d4;
+  --stepper-node-active-bg: #1e3a8a;
+  --stepper-node-active-icon: #ffffff;
+  --stepper-label: #8b8b9a;
+  --stepper-label-active: #e8e8ef;
+
+  display: block;
+  width: 100%;
+}
+
+:host-context(.app-shell--light) {
+  --stepper-line: #d8d8e2;
+  --stepper-node-bg: #e8e8f0;
+  --stepper-node-icon: #ffffff;
+  --stepper-node-active-bg: #1e3a8a;
+  --stepper-node-active-icon: #ffffff;
+  --stepper-label: #9ca3af;
+  --stepper-label-active: #4b5563;
+}
+
+.campaign-creator-stepper {
+  width: 100%;
+}
+
+.campaign-creator-stepper-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  width: 100%;
+}
+
+.campaign-creator-stepper-list::before {
+  background: var(--stepper-line);
+  content: '';
+  height: 1px;
+  left: 10%;
+  position: absolute;
+  right: 10%;
+  top: 1.25rem;
+  z-index: 0;
+}
+
+.campaign-creator-step {
+  align-items: center;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.65rem;
+  min-width: 0;
+  position: relative;
+  text-align: center;
+  z-index: 1;
+}
+
+.campaign-creator-step-node {
+  align-items: center;
+  background: var(--stepper-node-bg);
+  border-radius: 50%;
+  color: var(--stepper-node-icon);
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 2.5rem;
+  justify-content: center;
+  width: 2.5rem;
+}
+
+.campaign-creator-step[data-state='active'] .campaign-creator-step-node,
+.campaign-creator-step[data-state='completed'] .campaign-creator-step-node {
+  background: var(--stepper-node-active-bg);
+  color: var(--stepper-node-active-icon);
+}
+
+.campaign-creator-step-label {
+  color: var(--stepper-label);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.35;
+  max-width: 7.5rem;
+}
+
+.campaign-creator-step[data-state='active'] .campaign-creator-step-label {
+  color: var(--stepper-label-active);
+}
+
+@media (max-width: 720px) {
+  .campaign-creator-stepper-list {
+    gap: 0.25rem;
+  }
+
+  .campaign-creator-stepper-list::before {
+    top: 1rem;
+  }
+
+  .campaign-creator-step-node {
+    height: 2rem;
+    width: 2rem;
+  }
+
+  .campaign-creator-step-node svg {
+    height: 14px;
+    width: 14px;
+  }
+
+  .campaign-creator-step-label {
+    font-size: 0.6875rem;
+    max-width: 4.75rem;
+  }
+}
