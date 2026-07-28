@@ -65,6 +65,18 @@ export const routes: Routes = [
     ],
   },
   {
+    path: APP_ROUTE_PATHS.campaignCreator,
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/campaign-creator/campaign-creator').then((m) => m.CampaignCreator),
+      },
+    ],
+  },
+  {
     path: APP_ROUTE_PATHS.changePassword,
     canActivate: [authGuard],
     loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),

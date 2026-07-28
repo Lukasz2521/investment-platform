@@ -676,5 +676,8 @@
   "app.deposit.bankDetail.fields.transferTitle": "Transfer title",
   "app.deposit.bankDetail.fields.bankAddress": "Bank address",
   "app.deposit.bankDetail.fields.companyAddress": "Company address",
-  "app.deposit.bankDetail.fields.description": "Description"
+  "app.deposit.bankDetail.fields.description": "Description",
+  "app.nav.campaignCreator": "Campaign creator",
+  "app.campaignCreator.title": "Welcome to the Campaign Creator.",
+  "app.campaignCreator.subtitle": "Choose a campaign you're interested in and make modifications"
 }

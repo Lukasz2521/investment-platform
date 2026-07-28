@@ -1,0 +1,40 @@
+:host {
+  --campaign-creator-header: #e5e5e5;
+  --campaign-creator-subtitle: #a8a8a8;
+
+  display: block;
+}
+
+:host-context(.app-shell--light) {
+  --campaign-creator-header: #444444;
+  --campaign-creator-subtitle: #6b7280;
+}
+
+.campaign-creator {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 48rem;
+}
+
+.campaign-creator-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.campaign-creator-title {
+  color: var(--campaign-creator-header);
+  font-size: 1.35rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.campaign-creator-subtitle {
+  color: var(--campaign-creator-subtitle);
+  font-size: 0.975rem;
+  line-height: 1.5;
+  margin: 0;
+}

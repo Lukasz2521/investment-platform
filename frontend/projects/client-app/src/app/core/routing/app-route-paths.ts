@@ -9,5 +9,6 @@ export const APP_ROUTE_PATHS = {
   profile: 'profil',
   deposit: 'depozyt',
   transactions: 'transakcje',
+  campaignCreator: 'kreator-kampanii',
   changePassword: 'zmiana-hasla',
 } as const;

@@ -676,5 +676,8 @@
   "app.deposit.bankDetail.fields.transferTitle": "Назначение платежа",
   "app.deposit.bankDetail.fields.bankAddress": "Адрес банка",
   "app.deposit.bankDetail.fields.companyAddress": "Адрес компании",
-  "app.deposit.bankDetail.fields.description": "Описание"
+  "app.deposit.bankDetail.fields.description": "Описание",
+  "app.nav.campaignCreator": "Создатель кампаний",
+  "app.campaignCreator.title": "Добро пожаловать в Создатель кампаний.",
+  "app.campaignCreator.subtitle": "Выберите интересующую вас кампанию и внесите изменения"
 }

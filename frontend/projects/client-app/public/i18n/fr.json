@@ -676,5 +676,8 @@
   "app.deposit.bankDetail.fields.transferTitle": "Libellé du virement",
   "app.deposit.bankDetail.fields.bankAddress": "Adresse de la banque",
   "app.deposit.bankDetail.fields.companyAddress": "Adresse de l'entreprise",
-  "app.deposit.bankDetail.fields.description": "Description"
+  "app.deposit.bankDetail.fields.description": "Description",
+  "app.nav.campaignCreator": "Créateur de campagne",
+  "app.campaignCreator.title": "Bienvenue dans le Créateur de campagne.",
+  "app.campaignCreator.subtitle": "Choisissez une campagne qui vous intéresse et apportez des modifications"
 }

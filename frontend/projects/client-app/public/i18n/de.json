@@ -676,5 +676,8 @@
   "app.deposit.bankDetail.fields.transferTitle": "Überweisungstitel",
   "app.deposit.bankDetail.fields.bankAddress": "Bankadresse",
   "app.deposit.bankDetail.fields.companyAddress": "Firmenadresse",
-  "app.deposit.bankDetail.fields.description": "Beschreibung"
+  "app.deposit.bankDetail.fields.description": "Beschreibung",
+  "app.nav.campaignCreator": "Kampagnenersteller",
+  "app.campaignCreator.title": "Willkommen im Kampagnenersteller.",
+  "app.campaignCreator.subtitle": "Wählen Sie eine Kampagne aus und nehmen Sie Änderungen vor"
 }
