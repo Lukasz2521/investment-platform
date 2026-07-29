@@ -30,7 +30,7 @@ export const CAMPAIGN_COUNTRY_NAME_BY_ISO: Record<string, string> = {
   cf: 'Central African Republic',
   cg: 'Congo',
   ch: 'Switzerland',
-  ci: 'Cote d\'Ivoire',
+  ci: "Cote d'Ivoire",
   cl: 'Chile',
   cm: 'Cameroon',
   cn: 'China',
@@ -182,14 +182,55 @@ export const CAMPAIGN_COUNTRY_NAME_BY_ISO: Record<string, string> = {
   zw: 'Zimbabwe',
 };
 
-export const CAMPAIGN_COUNTRY_ISO_BY_NAME: Record<string, string> = Object.fromEntries(
-  Object.entries(CAMPAIGN_COUNTRY_NAME_BY_ISO).map(([iso, name]) => [name, iso]),
-);
+export const CAMPAIGN_COUNTRY_CODES = Object.keys(CAMPAIGN_COUNTRY_NAME_BY_ISO);
 
-export const CAMPAIGN_COUNTRIES = Object.values(CAMPAIGN_COUNTRY_NAME_BY_ISO).sort((a, b) =>
-  a.localeCompare(b),
-);
+/** Blocked countries present as shapes on the world map. */
+export const BLOCKED_CAMPAIGN_MAP_CODES = [
+  'by',
+  'cn',
+  'cu',
+  'ir',
+  'kp',
+  'ru',
+  'sy',
+] as const;
 
-export function isSelectableCampaignCountry(name: string): boolean {
-  return name in CAMPAIGN_COUNTRY_ISO_BY_NAME;
+/**
+ * Blocked regions without dedicated map shapes on the current SVG
+ * (still shown in the select as disabled).
+ */
+export const BLOCKED_CAMPAIGN_REGION_CODES = [
+  'crimea',
+  'donetsk',
+  'luhansk',
+  'ps',
+] as const;
+
+const BLOCKED_CAMPAIGN_CODES = new Set<string>([
+  ...BLOCKED_CAMPAIGN_MAP_CODES,
+  ...BLOCKED_CAMPAIGN_REGION_CODES,
+]);
+
+export const BLOCKED_REGION_NAME_BY_CODE: Record<string, string> = {
+  crimea: 'Crimea',
+  donetsk: 'Donetsk',
+  luhansk: 'Luhansk',
+  ps: 'Palestine',
+};
+
+export const CAMPAIGN_COUNTRY_LIST_CODES = [
+  ...CAMPAIGN_COUNTRY_CODES,
+  ...BLOCKED_CAMPAIGN_REGION_CODES,
+];
+
+export function campaignCountryLabelKey(code: string): string {
+  return `app.countries.${code}`;
+}
+
+export function isBlockedCampaignCountry(code: string): boolean {
+  return BLOCKED_CAMPAIGN_CODES.has(code);
+}
+
+export function isSelectableCampaignCountry(code: string): boolean {
+  return code in CAMPAIGN_COUNTRY_NAME_BY_ISO && !isBlockedCampaignCountry(code);
 }

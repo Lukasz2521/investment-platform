@@ -14,6 +14,10 @@
     [innerHTML]="mapHtml()"
   ></div>
 
+  <p class="countries-step-map-note">
+    {{ 'app.campaignCreator.countries.excludedMarkets' | translate }}
+  </p>
+
   <div #countrySearch class="countries-step-search" [class.countries-step-search--open]="menuOpen()">
     <input
       class="countries-step-input"
@@ -27,14 +31,23 @@
 
     @if (menuOpen()) {
       <div class="countries-step-menu" role="listbox" aria-multiselectable="true">
-        @for (country of filteredCountries(); track country) {
-          <label class="countries-step-option">
+        @for (iso of filteredCountries(); track iso) {
+          <label
+            class="countries-step-option"
+            [class.countries-step-option--blocked]="isBlocked(iso)"
+            [attr.title]="
+              isBlocked(iso)
+                ? ('app.campaignCreator.countries.unavailable' | translate)
+                : null
+            "
+          >
             <input
               type="checkbox"
-              [checked]="isSelected(country)"
-              (change)="onCountryCheckbox(country, $event)"
+              [checked]="isSelected(iso)"
+              [disabled]="isBlocked(iso)"
+              (change)="onCountryCheckbox(iso, $event)"
             />
-            <span>{{ country }}</span>
+            <span>{{ countryLabelKey(iso) | translate }}</span>
           </label>
         } @empty {
           <p class="countries-step-empty">
@@ -47,16 +60,17 @@
 
   @if (selectedCountries().length > 0) {
     <ul class="countries-step-chips">
-      @for (country of selectedCountries(); track country) {
+      @for (iso of selectedCountries(); track iso) {
         <li class="countries-step-chip">
-          <span>{{ country }}</span>
+          <span>{{ countryLabelKey(iso) | translate }}</span>
           <button
             type="button"
             class="countries-step-chip-remove"
             [attr.aria-label]="
-              'app.campaignCreator.countries.remove' | translate: { country }
+              'app.campaignCreator.countries.remove'
+                | translate: { country: countryLabel(iso) }
             "
-            (click)="removeCountry(country)"
+            (click)="removeCountry(iso)"
           >
             ×
           </button>

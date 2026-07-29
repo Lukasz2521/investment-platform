@@ -11,10 +11,13 @@ app-campaign-creator-countries {
   --countries-chip-bg: rgb(124 58 237 / 18%);
   --countries-chip-text: #e9d5ff;
   --countries-empty: #9ca3af;
+  --countries-map-note: #9ca3af;
   --countries-map-land: #9eb6d4;
   --countries-map-selected: #5b21b6;
   --countries-map-stroke: #ffffff;
   --countries-map-hover: #7c3aed;
+  --countries-map-blocked: #111111;
+  --countries-option-blocked: #6b7280;
 
   display: block;
   width: 100%;
@@ -32,10 +35,13 @@ app-campaign-creator-countries {
   --countries-chip-bg: #ede9fe;
   --countries-chip-text: #5b21b6;
   --countries-empty: #6b7280;
+  --countries-map-note: #6b7280;
   --countries-map-land: #c5d4e8;
   --countries-map-selected: #5b21b6;
   --countries-map-stroke: #ffffff;
   --countries-map-hover: #7c3aed;
+  --countries-map-blocked: #111111;
+  --countries-option-blocked: #9ca3af;
 }
 
 .countries-step {
@@ -62,6 +68,15 @@ app-campaign-creator-countries {
   width: 100%;
 }
 
+.countries-step-map-note {
+  color: var(--countries-map-note);
+  font-size: 0.6875rem;
+  letter-spacing: 0.01em;
+  line-height: 1.45;
+  margin: -0.55rem 0 0;
+  text-align: center;
+}
+
 .countries-step-map svg {
   display: block;
   height: auto;
@@ -79,13 +94,26 @@ app-campaign-creator-countries {
     stroke-width 0.2s ease;
 }
 
-.countries-step-map :is(path, g)[id]:not([id='world-map']) {
+.countries-step-map :is(path, g)[id]:not([id='world-map']):not(.is-blocked) {
   cursor: pointer;
 }
 
-.countries-step-map :is(path, g)[id]:not([id='world-map']):hover > path,
-.countries-step-map path[id]:not([id='world-map']):hover {
+.countries-step-map :is(path, g).is-blocked,
+.countries-step-map :is(path, g)[data-blocked='true'] {
+  cursor: not-allowed;
+}
+
+.countries-step-map :is(path, g)[id]:not([id='world-map']):not(.is-blocked):hover > path,
+.countries-step-map path[id]:not([id='world-map']):not(.is-blocked):hover {
   fill: var(--countries-map-hover);
+}
+
+.countries-step-map path.is-blocked,
+.countries-step-map [data-blocked='true'] path,
+.countries-step-map path[data-blocked='true'] {
+  fill: var(--countries-map-blocked) !important;
+  stroke: var(--countries-map-blocked);
+  stroke-width: 0.35;
 }
 
 .countries-step-map path.is-selected,
@@ -165,6 +193,16 @@ app-campaign-creator-countries {
 
 .countries-step-option:hover {
   background: var(--countries-option-hover);
+}
+
+.countries-step-option--blocked {
+  color: var(--countries-option-blocked);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
+.countries-step-option--blocked:hover {
+  background: transparent;
 }
 
 .countries-step-option input {

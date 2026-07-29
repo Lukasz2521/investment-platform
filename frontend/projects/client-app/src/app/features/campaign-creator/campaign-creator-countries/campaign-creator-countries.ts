@@ -16,10 +16,15 @@ import {
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
+import { TranslationService } from '../../../core/i18n/services/translation.service';
 import {
-  CAMPAIGN_COUNTRIES,
-  CAMPAIGN_COUNTRY_ISO_BY_NAME,
+  BLOCKED_CAMPAIGN_MAP_CODES,
+  BLOCKED_REGION_NAME_BY_CODE,
+  CAMPAIGN_COUNTRY_LIST_CODES,
   CAMPAIGN_COUNTRY_NAME_BY_ISO,
+  campaignCountryLabelKey,
+  isBlockedCampaignCountry,
+  isSelectableCampaignCountry,
 } from '../campaign-country-codes';
 
 @Component({
@@ -32,6 +37,7 @@ import {
 export class CampaignCreatorCountries {
   private readonly http = inject(HttpClient);
   private readonly sanitizer = inject(DomSanitizer);
+  private readonly translation = inject(TranslationService);
 
   readonly selectedCountries = input.required<string[]>();
   readonly selectedCountriesChange = output<string[]>();
@@ -39,19 +45,34 @@ export class CampaignCreatorCountries {
   private readonly searchRef = viewChild.required<ElementRef<HTMLElement>>('countrySearch');
   private readonly mapHost = viewChild<ElementRef<HTMLElement>>('mapHost');
 
-  protected readonly countries = CAMPAIGN_COUNTRIES;
+  protected readonly countryLabelKey = campaignCountryLabelKey;
   protected readonly query = signal('');
   protected readonly menuOpen = signal(false);
   protected readonly mapHtml = signal<SafeHtml | null>(null);
   protected readonly mapReady = signal(false);
 
   protected readonly filteredCountries = computed(() => {
+    this.translation.activeLanguage();
+    this.translation.translations();
+
     const q = this.query().trim().toLowerCase();
+    const countries = [...CAMPAIGN_COUNTRY_LIST_CODES].sort((a, b) =>
+      this.countryLabel(a).localeCompare(this.countryLabel(b), this.translation.activeLanguage()),
+    );
+
     if (!q) {
-      return this.countries;
+      return countries;
     }
 
-    return this.countries.filter((country) => country.toLowerCase().includes(q));
+    return countries.filter((code) => {
+      const label = this.countryLabel(code).toLowerCase();
+      const english = (
+        CAMPAIGN_COUNTRY_NAME_BY_ISO[code] ??
+        BLOCKED_REGION_NAME_BY_CODE[code] ??
+        ''
+      ).toLowerCase();
+      return label.includes(q) || english.includes(q) || code.includes(q);
+    });
   });
 
   constructor() {
@@ -71,6 +92,7 @@ export class CampaignCreatorCountries {
 
             requestAnimationFrame(() => {
               this.mapReady.set(true);
+              this.applyBlockedCountries();
               this.syncMapSelection();
             });
           },
@@ -83,7 +105,10 @@ export class CampaignCreatorCountries {
         return;
       }
 
-      requestAnimationFrame(() => this.syncMapSelection());
+      requestAnimationFrame(() => {
+        this.applyBlockedCountries();
+        this.syncMapSelection();
+      });
     });
   }
 
@@ -110,51 +135,65 @@ export class CampaignCreatorCountries {
     this.menuOpen.set(true);
   }
 
-  protected isSelected(country: string): boolean {
-    return this.selectedCountries().includes(country);
+  protected countryLabel(code: string): string {
+    return this.translation.translate(campaignCountryLabelKey(code));
   }
 
-  protected onCountryCheckbox(country: string, event: Event): void {
-    const checked = (event.target as HTMLInputElement).checked;
-    const selected = this.selectedCountries();
+  protected isBlocked(code: string): boolean {
+    return isBlockedCampaignCountry(code);
+  }
 
-    if (checked && !selected.includes(country)) {
-      this.selectedCountriesChange.emit([...selected, country]);
+  protected isSelected(code: string): boolean {
+    return this.selectedCountries().includes(code);
+  }
+
+  protected onCountryCheckbox(code: string, event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (isBlockedCampaignCountry(code)) {
+      input.checked = false;
       return;
     }
 
-    if (!checked && selected.includes(country)) {
-      this.selectedCountriesChange.emit(selected.filter((item) => item !== country));
+    const checked = input.checked;
+    const selected = this.selectedCountries();
+
+    if (checked && !selected.includes(code)) {
+      this.selectedCountriesChange.emit([...selected, code]);
+      return;
+    }
+
+    if (!checked && selected.includes(code)) {
+      this.selectedCountriesChange.emit(selected.filter((item) => item !== code));
     }
   }
 
-  protected toggleCountry(country: string): void {
+  protected toggleCountry(code: string): void {
+    if (isBlockedCampaignCountry(code)) {
+      return;
+    }
+
     const selected = this.selectedCountries();
-    const next = selected.includes(country)
-      ? selected.filter((item) => item !== country)
-      : [...selected, country];
+    const next = selected.includes(code)
+      ? selected.filter((item) => item !== code)
+      : [...selected, code];
 
     this.selectedCountriesChange.emit(next);
   }
 
-  protected removeCountry(country: string): void {
+  protected removeCountry(code: string): void {
     this.selectedCountriesChange.emit(
-      this.selectedCountries().filter((item) => item !== country),
+      this.selectedCountries().filter((item) => item !== code),
     );
   }
 
   protected onMapClick(event: MouseEvent): void {
     const code = this.findCountryCode(event.target as Element | null);
-    if (!code) {
+    if (!code || !isSelectableCampaignCountry(code)) {
       return;
     }
 
-    const name = CAMPAIGN_COUNTRY_NAME_BY_ISO[code];
-    if (!name) {
-      return;
-    }
-
-    this.toggleCountry(name);
+    this.toggleCountry(code);
   }
 
   private findCountryCode(start: Element | null): string | null {
@@ -170,6 +209,23 @@ export class CampaignCreatorCountries {
     }
 
     return null;
+  }
+
+  private applyBlockedCountries(): void {
+    const host = this.mapHost()?.nativeElement;
+    const svg = host?.querySelector('svg');
+    if (!svg) {
+      return;
+    }
+
+    for (const iso of BLOCKED_CAMPAIGN_MAP_CODES) {
+      const el = svg.getElementById(iso);
+      if (!el) {
+        continue;
+      }
+
+      this.markBlocked(el);
+    }
   }
 
   private syncMapSelection(): void {
@@ -190,9 +246,8 @@ export class CampaignCreatorCountries {
       }
     });
 
-    for (const name of this.selectedCountries()) {
-      const iso = CAMPAIGN_COUNTRY_ISO_BY_NAME[name];
-      if (!iso) {
+    for (const iso of this.selectedCountries()) {
+      if (isBlockedCampaignCountry(iso)) {
         continue;
       }
 
@@ -203,6 +258,17 @@ export class CampaignCreatorCountries {
 
       this.markSelected(el);
     }
+  }
+
+  private markBlocked(el: Element): void {
+    el.classList.add('is-blocked');
+    el.setAttribute('data-blocked', 'true');
+    el.setAttribute('aria-disabled', 'true');
+
+    el.querySelectorAll('path').forEach((path) => {
+      path.classList.add('is-blocked');
+      path.setAttribute('data-blocked', 'true');
+    });
   }
 
   private markSelected(el: Element): void {
