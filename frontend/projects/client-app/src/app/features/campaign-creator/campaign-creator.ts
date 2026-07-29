@@ -8,6 +8,7 @@ import {
   CampaignCreatorStepId,
   CampaignCreatorStepper,
 } from './campaign-creator-stepper/campaign-creator-stepper';
+import { CampaignCreatorSummary } from './campaign-creator-summary/campaign-creator-summary';
 import {
   CampaignGuidelinesForm,
   createDefaultCampaignGuidelinesForm,
@@ -26,6 +27,7 @@ const LAST_STEP: CampaignCreatorStepId = 5;
     CampaignCreatorSelect,
     CampaignCreatorGuidelines,
     CampaignCreatorCountries,
+    CampaignCreatorSummary,
   ],
   templateUrl: './campaign-creator.html',
   styleUrl: './campaign-creator.scss',
@@ -57,6 +59,10 @@ export class CampaignCreator {
 
     if (step === 3) {
       return this.selectedCountries().length > 0;
+    }
+
+    if (step === 4) {
+      return this.selectedCampaign() !== null && this.selectedCountries().length > 0;
     }
 
     return true;

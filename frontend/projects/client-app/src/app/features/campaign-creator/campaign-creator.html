@@ -27,6 +27,14 @@
     />
   }
 
+  @if (currentStep() === 4) {
+    <app-campaign-creator-summary
+      [campaign]="selectedCampaign()"
+      [guidelines]="guidelines()"
+      [selectedCountries]="selectedCountries()"
+    />
+  }
+
   <div class="campaign-creator-nav">
     <button
       type="button"

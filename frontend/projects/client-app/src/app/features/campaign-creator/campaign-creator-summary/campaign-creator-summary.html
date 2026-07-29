@@ -1,0 +1,98 @@
+<section
+  class="summary-step"
+  [attr.aria-label]="'app.campaignCreator.summary.ariaLabel' | translate"
+>
+  <h2 class="summary-step-title">
+    <svg
+      class="summary-step-title-icon"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path
+        fill="currentColor"
+        d="M8 3h8a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h1V5a2 2 0 0 1 2-2Zm0 3h8V5H8v1Zm-3 2v11h14V8H5Zm3 3h8v2H8v-2Zm0 4h5v2H8v-2Z"
+      />
+    </svg>
+    <span>{{ 'app.campaignCreator.summary.title' | translate }}</span>
+  </h2>
+
+  @if (summary(); as data) {
+    <div class="summary-step-table-wrap">
+      <div class="summary-step-table-head">
+        <span>{{ 'app.campaignCreator.summary.parameter' | translate }}</span>
+        <span>{{ 'app.campaignCreator.summary.value' | translate }}</span>
+        <button
+          type="button"
+          class="summary-step-copy"
+          [attr.aria-label]="'app.campaignCreator.summary.copy' | translate"
+          [attr.title]="
+            (copied()
+              ? 'app.campaignCreator.summary.copied'
+              : 'app.campaignCreator.summary.copy'
+            ) | translate
+          "
+          (click)="copySummary()"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path
+              fill="currentColor"
+              d="M9 3h9a2 2 0 0 1 2 2v11h-2V5H9V3Zm-4 4h9a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Zm0 2v11h9V9H5Z"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <dl class="summary-step-table">
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.campaignName' | translate }}</dt>
+          <dd>{{ data.campaignName }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.duration' | translate }}</dt>
+          <dd>{{ durationLabel(data) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.budget' | translate }}</dt>
+          <dd>{{ formatMoney(data.budget, data.currency) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.ageGroup' | translate }}</dt>
+          <dd>{{ ageLabel(data) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.gender' | translate }}</dt>
+          <dd>{{ genderLabel(data) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.countries' | translate }}</dt>
+          <dd>{{ countriesLabel(data) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.cpm' | translate }}</dt>
+          <dd>{{ formatMoney(data.cpm, data.currency) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.epc' | translate }}</dt>
+          <dd>{{ formatMoney(data.epc, data.currency) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.impressions' | translate }}</dt>
+          <dd>{{ formatInteger(data.estimatedImpressions) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.grossProfit' | translate }}</dt>
+          <dd>{{ formatMoney(data.estimatedGrossProfit, data.currency) }}</dd>
+        </div>
+        <div class="summary-step-row">
+          <dt>{{ 'app.campaignCreator.summary.params.risk' | translate }}</dt>
+          <dd>{{ riskLabel(data) }}</dd>
+        </div>
+      </dl>
+    </div>
+  } @else {
+    <p class="summary-step-empty">
+      {{ 'app.campaignCreator.summary.empty' | translate }}
+    </p>
+  }
+</section>
