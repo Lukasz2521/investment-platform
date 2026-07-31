@@ -10,5 +10,6 @@ export const APP_ROUTE_PATHS = {
   deposit: 'depozyt',
   transactions: 'transakcje',
   campaignCreator: 'kreator-kampanii',
+  markets: 'rynki',
   changePassword: 'zmiana-hasla',
 } as const;

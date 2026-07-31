@@ -1,0 +1,114 @@
+:host {
+  --consents-title: #e5e5e5;
+  --consents-intro: #a1a1aa;
+  --consents-label: #f4f4f5;
+  --consents-bullet: #a1a1aa;
+  --consents-icon: #ef4444;
+  --consents-checkbox: #7c3aed;
+
+  display: block;
+  width: 100%;
+}
+
+:host-context(.app-shell--light) {
+  --consents-title: #111827;
+  --consents-intro: #4b5563;
+  --consents-label: #111827;
+  --consents-bullet: #4b5563;
+  --consents-icon: #dc2626;
+  --consents-checkbox: #7c3aed;
+}
+
+.consents-step {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-inline: auto;
+  max-width: 44rem;
+  width: 100%;
+}
+
+.consents-step-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.consents-step-title {
+  align-items: center;
+  color: var(--consents-title);
+  display: flex;
+  font-size: 1.15rem;
+  font-weight: 700;
+  gap: 0.55rem;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  margin: 0;
+}
+
+.consents-step-title-icon {
+  color: var(--consents-icon);
+  flex-shrink: 0;
+  height: 1.4rem;
+  width: 1.4rem;
+}
+
+.consents-step-intro {
+  color: var(--consents-intro);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.consents-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+}
+
+.consents-step-item {
+  align-items: flex-start;
+  cursor: pointer;
+  display: flex;
+  gap: 0.75rem;
+}
+
+.consents-step-checkbox {
+  accent-color: var(--consents-checkbox);
+  cursor: pointer;
+  flex-shrink: 0;
+  height: 1.05rem;
+  margin-top: 0.15rem;
+  width: 1.05rem;
+}
+
+.consents-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.consents-step-label {
+  color: var(--consents-label);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.consents-step-bullets {
+  color: var(--consents-bullet);
+  display: flex;
+  flex-direction: column;
+  font-size: 0.875rem;
+  font-weight: 400;
+  gap: 0.2rem;
+  line-height: 1.45;
+  list-style: disc;
+  margin: 0;
+  padding-left: 1.15rem;
+}
+
+.consents-step-bullets li::marker {
+  color: var(--consents-bullet);
+}

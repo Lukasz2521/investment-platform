@@ -1,6 +1,12 @@
 import { Component, computed, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import {
+  CampaignConsentsForm,
+  createDefaultCampaignConsentsForm,
+  isCampaignConsentsValid,
+} from './campaign-consents';
+import { CampaignCreatorConsents } from './campaign-creator-consents/campaign-creator-consents';
 import { CampaignCreatorCountries } from './campaign-creator-countries/campaign-creator-countries';
 import { CampaignCreatorGuidelines } from './campaign-creator-guidelines/campaign-creator-guidelines';
 import { CampaignCreatorSelect } from './campaign-creator-select/campaign-creator-select';
@@ -14,6 +20,7 @@ import {
   createDefaultCampaignGuidelinesForm,
   isCampaignGuidelinesValid,
 } from './campaign-guidelines';
+import { CampaignLaunchDialog } from './campaign-launch-dialog/campaign-launch-dialog';
 import { CampaignOption } from './campaign-options';
 
 const FIRST_STEP: CampaignCreatorStepId = 1;
@@ -28,6 +35,8 @@ const LAST_STEP: CampaignCreatorStepId = 5;
     CampaignCreatorGuidelines,
     CampaignCreatorCountries,
     CampaignCreatorSummary,
+    CampaignCreatorConsents,
+    CampaignLaunchDialog,
   ],
   templateUrl: './campaign-creator.html',
   styleUrl: './campaign-creator.scss',
@@ -39,15 +48,16 @@ export class CampaignCreator {
     createDefaultCampaignGuidelinesForm(),
   );
   protected readonly selectedCountries = signal<string[]>([]);
+  protected readonly consents = signal<CampaignConsentsForm>(createDefaultCampaignConsentsForm());
+  protected readonly launchDialogOpen = signal(false);
+  protected readonly submitted = signal(false);
 
   protected readonly canGoBack = computed(() => this.currentStep() > FIRST_STEP);
 
+  protected readonly isLastStep = computed(() => this.currentStep() === LAST_STEP);
+
   protected readonly canGoNext = computed(() => {
     const step = this.currentStep();
-
-    if (step >= LAST_STEP) {
-      return false;
-    }
 
     if (step === 1) {
       return this.selectedCampaign() !== null;
@@ -65,7 +75,11 @@ export class CampaignCreator {
       return this.selectedCampaign() !== null && this.selectedCountries().length > 0;
     }
 
-    return true;
+    if (step === 5) {
+      return isCampaignConsentsValid(this.consents()) && !this.submitted();
+    }
+
+    return false;
   });
 
   protected onCampaignSelected(campaign: CampaignOption): void {
@@ -80,11 +94,17 @@ export class CampaignCreator {
     this.selectedCountries.set(countries);
   }
 
+  protected onConsentsChange(form: CampaignConsentsForm): void {
+    this.consents.set(form);
+  }
+
   protected goBack(): void {
     if (!this.canGoBack()) {
       return;
     }
 
+    this.submitted.set(false);
+    this.launchDialogOpen.set(false);
     this.currentStep.update((step) => (step - 1) as CampaignCreatorStepId);
   }
 
@@ -93,6 +113,20 @@ export class CampaignCreator {
       return;
     }
 
+    if (this.isLastStep()) {
+      this.launchDialogOpen.set(true);
+      return;
+    }
+
     this.currentStep.update((step) => (step + 1) as CampaignCreatorStepId);
+  }
+
+  protected closeLaunchDialog(): void {
+    this.launchDialogOpen.set(false);
+  }
+
+  protected confirmLaunch(): void {
+    this.launchDialogOpen.set(false);
+    this.submitted.set(true);
   }
 }

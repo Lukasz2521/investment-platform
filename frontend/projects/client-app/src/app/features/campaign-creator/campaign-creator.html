@@ -35,6 +35,13 @@
     />
   }
 
+  @if (currentStep() === 5) {
+    <app-campaign-creator-consents
+      [value]="consents()"
+      (valueChange)="onConsentsChange($event)"
+    />
+  }
+
   <div class="campaign-creator-nav">
     <button
       type="button"
@@ -50,7 +57,17 @@
       [disabled]="!canGoNext()"
       (click)="goNext()"
     >
-      {{ 'app.campaignCreator.nav.next' | translate }}
+      {{
+        (isLastStep() ? 'app.campaignCreator.nav.launch' : 'app.campaignCreator.nav.next')
+          | translate
+      }}
     </button>
   </div>
+
+  @if (launchDialogOpen()) {
+    <app-campaign-launch-dialog
+      (closed)="closeLaunchDialog()"
+      (confirmed)="confirmLaunch()"
+    />
+  }
 </section>

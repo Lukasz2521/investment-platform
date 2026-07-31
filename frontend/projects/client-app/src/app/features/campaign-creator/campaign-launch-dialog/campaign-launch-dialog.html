@@ -1,0 +1,34 @@
+<div
+  class="launch-dialog-backdrop"
+  role="presentation"
+  (click)="onBackdropClick($event)"
+>
+  <div
+    class="launch-dialog"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'launch-dialog-title'"
+    [attr.aria-describedby]="'launch-dialog-message'"
+    (click)="$event.stopPropagation()"
+  >
+    <h2 id="launch-dialog-title" class="launch-dialog-title">
+      {{ 'app.campaignCreator.launchDialog.title' | translate }}
+    </h2>
+    <p id="launch-dialog-message" class="launch-dialog-message">
+      {{ 'app.campaignCreator.launchDialog.message' | translate }}
+    </p>
+
+    <div class="launch-dialog-actions">
+      <button type="button" class="launch-dialog-btn launch-dialog-btn--cancel" (click)="onCancel()">
+        {{ 'app.campaignCreator.launchDialog.cancel' | translate }}
+      </button>
+      <button
+        type="button"
+        class="launch-dialog-btn launch-dialog-btn--confirm"
+        (click)="onConfirm()"
+      >
+        {{ 'app.campaignCreator.launchDialog.confirm' | translate }}
+      </button>
+    </div>
+  </div>
+</div>
