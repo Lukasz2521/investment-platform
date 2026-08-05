@@ -1,0 +1,149 @@
+@if (campaign(); as data) {
+  <div class="campaign-card-media">
+    <img [src]="data.imageUrl" [alt]="data.title" loading="lazy" decoding="async" />
+
+    @if (data.aiAssistant) {
+      <span class="campaign-card-badge campaign-card-badge--ai">
+        {{ 'app.campaignCreator.select.aiAssistantOn' | translate }}
+      </span>
+    }
+
+    <span class="campaign-card-badge campaign-card-badge--plan">
+      {{
+        'app.campaignCreator.select.membershipPlan'
+          | translate: { plan: membershipPlanLabelKey(data.membershipPlan) | translate }
+      }}
+    </span>
+  </div>
+
+  <div class="campaign-card-body">
+    <div
+      class="campaign-card-panel campaign-card-panel--summary"
+      [class.campaign-card-panel--active]="variant() === 'markets' || !infoOpen()"
+    >
+      <h3 class="campaign-card-title">{{ data.title }}</h3>
+
+      <div class="campaign-card-footer">
+        <div class="campaign-card-meta">
+          <p class="campaign-card-days">
+            {{ 'app.campaignCreator.select.days' | translate: { count: '' + data.days } }}
+          </p>
+          <p class="campaign-card-profit">
+            <span class="campaign-card-profit-value">{{ formatPercent(data.profitMonthly) }}%</span>
+            <span class="campaign-card-profit-label">
+              @if (variant() === 'markets') {
+                {{ 'app.markets.card.profit' | translate }}
+              } @else {
+                {{ 'app.campaignCreator.select.profitMonthly' | translate }}
+              }
+            </span>
+          </p>
+        </div>
+
+        <div class="campaign-card-actions">
+          <p class="campaign-card-budget">
+            <span class="campaign-card-budget-value">{{ formatBudget(data) }}</span>
+            <span class="campaign-card-budget-label">
+              {{ 'app.campaignCreator.select.minBudget' | translate }}
+            </span>
+          </p>
+          <div class="campaign-card-buttons">
+            @if (variant() === 'markets') {
+              <button
+                type="button"
+                class="campaign-card-btn campaign-card-btn--details"
+                (click)="onSelect()"
+              >
+                {{ 'app.markets.card.viewDetails' | translate }}
+              </button>
+            } @else {
+              <button type="button" class="campaign-card-btn" (click)="onSelect()">
+                {{ 'app.campaignCreator.select.select' | translate }}
+              </button>
+              <button type="button" class="campaign-card-btn" (click)="openInfo()">
+                {{ 'app.campaignCreator.select.info' | translate }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (variant() !== 'markets') {
+      <div
+        class="campaign-card-panel campaign-card-panel--details"
+        [class.campaign-card-panel--active]="infoOpen()"
+      >
+        <p class="campaign-card-disclaimer">
+          {{ 'app.campaignCreator.select.infoDisclaimer' | translate }}
+        </p>
+
+        <div class="campaign-card-info">
+          <div class="campaign-card-metrics">
+            <span class="campaign-card-metric campaign-card-metric--epc">
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M11.5 2A7.5 7.5 0 0 0 4 9.5v6a7.5 7.5 0 0 0 15 0v-6A7.5 7.5 0 0 0 11.5 2zm0 2A5.5 5.5 0 0 1 17 9.5V10H6V9.5A5.5 5.5 0 0 1 11.5 4zM6 12h11v3.5a5.5 5.5 0 0 1-11 0V12z"
+                />
+              </svg>
+              {{
+                'app.campaignCreator.select.metricEpc'
+                  | translate: { value: formatMetricMoney(data.epc, data.currency) }
+              }}
+            </span>
+            <span class="campaign-card-metric campaign-card-metric--cpm">
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                />
+              </svg>
+              {{
+                'app.campaignCreator.select.metricCpm'
+                  | translate: { value: formatMetricMoney(data.cpm, data.currency) }
+              }}
+            </span>
+            <span class="campaign-card-metric campaign-card-metric--ctr">
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M13.39 12.09 7.05 5.75l-.71.71 5.15 5.15L4 19.07V20h.93l7.46-7.49 5.15 5.15.71-.71-6.34-6.34.48-.52zM17.5 3c-.83 0-1.5.67-1.5 1.5s.67 1.5 1.5 1.5 1.5-.67 1.5-1.5S18.33 3 17.5 3z"
+                />
+              </svg>
+              {{
+                'app.campaignCreator.select.metricCtr'
+                  | translate: { value: formatPercent(data.ctr) + '%' }
+              }}
+            </span>
+            <span class="campaign-card-metric campaign-card-metric--profit">
+              <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M16 6 18.29 8.29 13.41 13.17 9.41 9.17 2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"
+                />
+              </svg>
+              {{
+                'app.campaignCreator.select.metricProfit'
+                  | translate: { value: formatPercent(data.profitMonthly) + '%' }
+              }}
+            </span>
+          </div>
+
+          <div class="campaign-card-buttons">
+            <button type="button" class="campaign-card-btn" (click)="onSelect()">
+              {{ 'app.campaignCreator.select.select' | translate }}
+            </button>
+            <button
+              type="button"
+              class="campaign-card-btn campaign-card-btn--close"
+              (click)="closeInfo()"
+            >
+              {{ 'app.campaignCreator.select.close' | translate }}
+            </button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+}

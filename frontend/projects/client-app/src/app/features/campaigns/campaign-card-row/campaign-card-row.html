@@ -1,0 +1,15 @@
+<div class="campaign-card-row-viewport">
+  <div #scroll class="campaign-card-row-track" (scroll)="onScroll()">
+    <ng-content />
+  </div>
+
+  @if (canScroll()) {
+    <div class="campaign-card-row-scrollbar" role="presentation" (click)="onTrackClick($event)">
+      <span
+        class="campaign-card-row-scrollbar-thumb"
+        [style.width.%]="thumbWidth()"
+        [style.left.%]="thumbOffset()"
+      ></span>
+    </div>
+  }
+</div>

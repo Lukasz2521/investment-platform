@@ -6,8 +6,119 @@
         d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.61-13.41c0-.45-.36-.81-.81-.81s-.81.36-.81.81v.54c-.75.13-1.42.5-1.87 1.07-.2.25-.15.61.11.8l.52.38c.23.17.56.14.76-.07.26-.28.62-.44 1-.44h1.09c.45 0 .82.37.82.82 0 .36-.23.68-.57.8l-1.97.67c-.85.29-1.43 1.1-1.43 2.01v.17c0 .45.36.81.81.81h.02c.45 0 .81-.36.81-.81v-.54c.75-.13 1.42-.5 1.87-1.07.2-.25.15-.61-.11-.8l-.52-.38c-.23-.17-.56-.14-.76.07-.26.28-.62.44-1 .44H10.7c-.45 0-.82-.37-.82-.82 0-.36.23-.68.57-.8l1.97-.67c.85-.29 1.43-1.1 1.43-2.01v-.17c0-.45-.36-.81-.81-.81h-.43z"
       />
     </svg>
-    <h1 class="markets-title">{{ 'app.markets.title' | translate }}</h1>
+    <div class="markets-header-copy">
+      <h1 class="markets-title">{{ 'app.markets.title' | translate }}</h1>
+      <p class="markets-subtitle">{{ 'app.markets.subtitle' | translate }}</p>
+    </div>
   </header>
 
-  <p class="markets-subtitle">{{ 'app.markets.subtitle' | translate }}</p>
+  <section
+    class="markets-filter"
+    [attr.aria-label]="'app.markets.filter.ariaLabel' | translate"
+  >
+    <h2 class="markets-filter-title">{{ 'app.markets.filter.title' | translate }}</h2>
+
+    <div class="markets-filter-row">
+      <label class="markets-filter-field markets-filter-field--plan">
+        <span class="visually-hidden">{{ 'app.markets.filter.accountType' | translate }}</span>
+        <select
+          class="markets-filter-control"
+          [value]="draftMembershipPlan()"
+          (change)="onMembershipPlanChange($event)"
+        >
+          <option value="">{{ 'app.markets.filter.accountType' | translate }}</option>
+          @for (plan of membershipPlans; track plan) {
+            <option [value]="plan">{{ membershipPlanLabelKey(plan) | translate }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="markets-filter-field markets-filter-field--title">
+        <span class="visually-hidden">{{ 'app.markets.filter.searchTitle' | translate }}</span>
+        <input
+          class="markets-filter-control"
+          type="search"
+          autocomplete="off"
+          [placeholder]="'app.markets.filter.searchTitle' | translate"
+          [value]="draftTitleQuery()"
+          (input)="onTitleQueryInput($event)"
+        />
+      </label>
+
+      <div class="markets-filter-actions">
+        <button type="button" class="markets-filter-search" (click)="applyFilters()">
+          {{ 'app.markets.filter.search' | translate }}
+        </button>
+        <button type="button" class="markets-filter-clear" (click)="clearFilters()">
+          {{ 'app.markets.filter.clear' | translate }}
+        </button>
+      </div>
+    </div>
+
+    <div class="markets-filter-budget">
+      <div class="markets-filter-budget-labels">
+        <span>
+          {{ 'app.markets.filter.min' | translate: { value: formatBudget(draftBudgetMin()) } }}
+        </span>
+        <span>
+          {{ 'app.markets.filter.max' | translate: { value: formatBudget(draftBudgetMax()) } }}
+        </span>
+      </div>
+
+      <div
+        class="markets-filter-slider"
+        [style.--budget-start.%]="budgetRangeFill().start"
+        [style.--budget-end.%]="budgetRangeFill().end"
+      >
+        <input
+          class="markets-filter-range markets-filter-range--min"
+          type="range"
+          [min]="budgetFloor"
+          [max]="budgetCeil"
+          step="100"
+          [value]="draftBudgetMin()"
+          (input)="onBudgetMinInput($event)"
+          [attr.aria-label]="'app.markets.filter.budgetMin' | translate"
+        />
+        <input
+          class="markets-filter-range markets-filter-range--max"
+          type="range"
+          [min]="budgetFloor"
+          [max]="budgetCeil"
+          step="100"
+          [value]="draftBudgetMax()"
+          (input)="onBudgetMaxInput($event)"
+          [attr.aria-label]="'app.markets.filter.budgetMax' | translate"
+        />
+      </div>
+
+      <div class="markets-filter-budget-ticks" aria-hidden="true">
+        @for (tick of budgetTicks; track tick) {
+          <span>{{ formatBudget(tick) }}</span>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="markets-categories">
+    @for (category of categories(); track category.id) {
+      <section class="markets-category" [attr.aria-labelledby]="'markets-category-' + category.id">
+        <h2 class="markets-category-title" [id]="'markets-category-' + category.id">
+          {{ category.labelKey | translate }}
+        </h2>
+
+        <app-campaign-card-row [visibleCount]="3">
+          @for (campaign of category.campaigns; track campaign.id) {
+            <app-campaign-card
+              variant="markets"
+              [campaign]="campaign"
+              (select)="openCampaign($event)"
+            />
+          }
+        </app-campaign-card-row>
+      </section>
+    } @empty {
+      <p class="markets-empty">{{ 'app.markets.empty' | translate }}</p>
+    }
+  </div>
 </section>
