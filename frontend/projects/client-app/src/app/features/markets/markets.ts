@@ -147,7 +147,7 @@ export class Markets {
     }).format(value)}€`;
   }
 
-  protected openCampaign(_campaign: CampaignOption): void {
-    void this.router.navigate(['/', APP_ROUTE_PATHS.campaignCreator]);
+  protected openCampaign(campaign: CampaignOption): void {
+    void this.router.navigate(['/', APP_ROUTE_PATHS.markets, campaign.id]);
   }
 }

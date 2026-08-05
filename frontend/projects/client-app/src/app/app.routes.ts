@@ -85,6 +85,13 @@ export const routes: Routes = [
         path: '',
         loadComponent: () => import('./features/markets/markets').then((m) => m.Markets),
       },
+      {
+        path: ':id',
+        loadComponent: () =>
+          import('./features/markets/market-campaign-detail/market-campaign-detail').then(
+            (m) => m.MarketCampaignDetail,
+          ),
+      },
     ],
   },
   {

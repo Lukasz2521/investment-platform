@@ -1,0 +1,137 @@
+:host {
+  --metric-chart-bg: #141414;
+  --metric-chart-border: rgb(255 255 255 / 10%);
+  --metric-chart-shadow: none;
+  --metric-chart-title: #d4d4d8;
+  --metric-chart-title-underline: #52525b;
+  --metric-chart-hero: #f4f4f5;
+  --metric-chart-axis: #a1a1aa;
+  --metric-chart-grid: rgb(255 255 255 / 10%);
+  --metric-chart-current: #3b82f6;
+  --metric-chart-previous: #93c5fd;
+  display: block;
+  height: 100%;
+}
+
+:host-context(.app-shell--light) {
+  --metric-chart-bg: #ffffff;
+  --metric-chart-border: #e5e7eb;
+  --metric-chart-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+  --metric-chart-title: #4b5563;
+  --metric-chart-title-underline: #d1d5db;
+  --metric-chart-hero: #111827;
+  --metric-chart-axis: #6b7280;
+  --metric-chart-grid: #e5e7eb;
+  --metric-chart-current: #2563eb;
+  --metric-chart-previous: #93c5fd;
+}
+
+.metric-chart {
+  background: var(--metric-chart-bg);
+  border: 1px solid var(--metric-chart-border);
+  border-radius: 0.9rem;
+  box-shadow: var(--metric-chart-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  height: 100%;
+  min-height: 28rem;
+  padding: 1.15rem 1.2rem 1.05rem;
+}
+
+.metric-chart-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.metric-chart-title {
+  border-bottom: 1px dotted var(--metric-chart-title-underline);
+  color: var(--metric-chart-title);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+  padding-bottom: 0.35rem;
+  width: fit-content;
+}
+
+.metric-chart-hero {
+  color: var(--metric-chart-hero);
+  font-size: 1.65rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.metric-chart-plot {
+  flex: 1;
+  min-height: 13rem;
+}
+
+.metric-chart-svg {
+  display: block;
+  height: 100%;
+  min-height: 12.5rem;
+  overflow: visible;
+  width: 100%;
+}
+
+.metric-chart-y-label,
+.metric-chart-x-label {
+  fill: var(--metric-chart-axis);
+  font-size: 11px;
+}
+
+.metric-chart-grid {
+  stroke: var(--metric-chart-grid);
+  stroke-width: 1;
+}
+
+.metric-chart-line {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.25;
+}
+
+.metric-chart-line--current {
+  stroke: var(--metric-chart-current);
+}
+
+.metric-chart-line--previous {
+  stroke: var(--metric-chart-previous);
+  stroke-dasharray: 5 5;
+}
+
+.metric-chart-legend {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.15rem;
+  justify-content: center;
+  padding-top: 0.15rem;
+}
+
+.metric-chart-legend-item {
+  align-items: center;
+  color: var(--metric-chart-axis);
+  display: inline-flex;
+  font-size: 0.8125rem;
+  gap: 0.45rem;
+}
+
+.metric-chart-dot {
+  border-radius: 999px;
+  display: inline-block;
+  height: 0.65rem;
+  width: 0.65rem;
+}
+
+.metric-chart-dot--current {
+  background: var(--metric-chart-current);
+}
+
+.metric-chart-dot--previous {
+  background: var(--metric-chart-previous);
+}

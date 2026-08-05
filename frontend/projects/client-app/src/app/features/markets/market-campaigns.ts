@@ -9,6 +9,8 @@ export type MarketCategory = {
 
 export type MarketCampaign = CampaignOption & {
   categoryId: MarketCategoryId;
+  companyDescriptionKey: string;
+  countryCodes: string[];
 };
 
 export const MARKET_CATEGORIES: MarketCategory[] = [
@@ -33,6 +35,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 1.71,
     membershipPlan: 'strategy' satisfies CampaignMembershipPlan,
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.nba-2025-26.description',
+    countryCodes: ['us', 'ca', 'gb', 'de'],
     categoryId: 'sports',
   },
   {
@@ -48,6 +52,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 1.95,
     membershipPlan: 'strategy',
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.mlb-2026.description',
+    countryCodes: ['us', 'mx', 'ca', 'jp'],
     categoryId: 'sports',
   },
   {
@@ -63,6 +69,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 1.84,
     membershipPlan: 'strategy',
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.atp-tour.description',
+    countryCodes: ['fr', 'es', 'it', 'gb', 'us'],
     categoryId: 'sports',
   },
   {
@@ -78,6 +86,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 1.62,
     membershipPlan: 'alpha',
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.f1-2026.description',
+    countryCodes: ['it', 'mc', 'gb', 'us', 'jp', 'ae'],
     categoryId: 'sports',
   },
   {
@@ -93,6 +103,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 1.78,
     membershipPlan: 'strategy',
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.uefa-nations.description',
+    countryCodes: ['de', 'fr', 'es', 'pl', 'nl', 'pt'],
     categoryId: 'sports',
   },
   {
@@ -108,6 +120,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 1.55,
     membershipPlan: 'alpha',
     aiAssistant: false,
+    companyDescriptionKey: 'app.markets.campaigns.olympics-spotlight.description',
+    countryCodes: ['fr', 'us', 'jp', 'au', 'br'],
     categoryId: 'sports',
   },
   {
@@ -123,6 +137,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 2.05,
     membershipPlan: 'accelerator',
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.winter-cup.description',
+    countryCodes: ['no', 'se', 'fi', 'ch', 'at'],
     categoryId: 'sports',
   },
 
@@ -140,6 +156,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 2.1,
     membershipPlan: 'accelerator',
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.esports-masters.description',
+    countryCodes: ['kr', 'us', 'pl', 'de', 'br'],
     categoryId: 'gaming',
   },
   {
@@ -155,6 +173,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 1.92,
     membershipPlan: 'strategy',
     aiAssistant: true,
+    companyDescriptionKey: 'app.markets.campaigns.hogwarts-arena.description',
+    countryCodes: ['gb', 'us', 'de', 'fr'],
     categoryId: 'gaming',
   },
   {
@@ -170,6 +190,8 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
     ctr: 2.25,
     membershipPlan: 'accelerator',
     aiAssistant: false,
+    companyDescriptionKey: 'app.markets.campaigns.callisto-protocol.description',
+    countryCodes: ['us', 'gb', 'de', 'jp'],
     categoryId: 'gaming',
   },
 
@@ -191,4 +213,15 @@ export function getMarketCategorySections(
       campaigns: campaigns.filter((campaign) => campaign.categoryId === category.id),
     }))
     .filter((section) => section.campaigns.length > 0);
+}
+
+export function getMarketCampaign(id: string): MarketCampaign | undefined {
+  return MARKET_CAMPAIGNS.find((campaign) => campaign.id === id);
+}
+
+export function getMarketCategoryLabelKey(categoryId: MarketCategoryId): string {
+  return (
+    MARKET_CATEGORIES.find((category) => category.id === categoryId)?.labelKey ??
+    'app.markets.categories.sports'
+  );
 }

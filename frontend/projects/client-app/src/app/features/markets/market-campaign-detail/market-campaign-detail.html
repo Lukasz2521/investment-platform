@@ -1,0 +1,204 @@
+@if (campaign(); as data) {
+  <article class="market-detail" [attr.aria-label]="'app.markets.detail.ariaLabel' | translate">
+    <a class="market-detail-back" [routerLink]="['/', routes.markets]">
+      ← {{ 'app.markets.detail.back' | translate }}
+    </a>
+
+    <div class="market-detail-tiles" role="list">
+      <article class="market-detail-tile market-detail-tile--epc" role="listitem">
+        <p class="market-detail-tile-label">{{ 'app.markets.detail.params.epc' | translate }}</p>
+        <p class="market-detail-tile-value">{{ formatMoney(data.epc, data.currency) }}</p>
+      </article>
+
+      <article class="market-detail-tile market-detail-tile--cpm" role="listitem">
+        <p class="market-detail-tile-label">{{ 'app.markets.detail.params.cpm' | translate }}</p>
+        <p class="market-detail-tile-value">{{ formatMoney(data.cpm, data.currency) }}</p>
+      </article>
+
+      <article class="market-detail-tile market-detail-tile--ctr" role="listitem">
+        <p class="market-detail-tile-label">{{ 'app.markets.detail.params.ctr' | translate }}</p>
+        <p class="market-detail-tile-value">{{ formatPercent(data.ctr) }}</p>
+      </article>
+
+      <article class="market-detail-tile market-detail-tile--profit" role="listitem">
+        <p class="market-detail-tile-label">{{ 'app.markets.detail.params.profit' | translate }}</p>
+        <p class="market-detail-tile-value">{{ formatPercent(data.profitMonthly) }}</p>
+      </article>
+    </div>
+
+    <div class="market-detail-panels">
+      <section class="market-detail-panel market-detail-panel--campaign">
+        <div class="market-detail-media">
+          <img
+            class="market-detail-media-image"
+            [src]="data.imageUrl"
+            [alt]="data.title"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+
+        <div class="market-detail-panel-body">
+          <h1 class="market-detail-panel-title">{{ data.title }}</h1>
+          <p class="market-detail-panel-category">
+            {{ categoryLabelKey(data.categoryId) | translate }}
+          </p>
+          <p class="market-detail-panel-description">
+            {{ data.companyDescriptionKey | translate }}
+          </p>
+
+          <div class="market-detail-flags" [attr.aria-label]="'app.markets.detail.countries' | translate">
+            @for (country of data.countryCodes; track country) {
+              <img
+                class="market-detail-flag"
+                [src]="countryFlagUrl(country)"
+                [alt]="country"
+                width="28"
+                height="21"
+                loading="lazy"
+                decoding="async"
+              />
+            }
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="market-detail-panel market-detail-panel--config"
+        [attr.aria-label]="'app.markets.detail.config.ariaLabel' | translate"
+      >
+        <header class="market-detail-config-header">
+          <h2 class="market-detail-config-title">
+            {{ 'app.markets.detail.config.title' | translate }}
+          </h2>
+          <p class="market-detail-config-subtitle">
+            {{ 'app.markets.detail.config.subtitle' | translate }}
+          </p>
+        </header>
+
+        <div class="market-detail-config-grid">
+          <div class="market-detail-config-fields">
+            <label class="market-detail-field">
+              <span class="market-detail-field-label">
+                {{ 'app.markets.detail.config.startDate' | translate }}
+              </span>
+              <input
+                class="market-detail-input"
+                type="date"
+                [value]="startDate()"
+                (input)="onStartDateInput($event)"
+                (click)="openDatePicker($event)"
+              />
+            </label>
+
+            <label class="market-detail-field">
+              <span class="market-detail-field-label">
+                {{ 'app.markets.detail.config.endDate' | translate }}
+              </span>
+              <input
+                class="market-detail-input"
+                type="date"
+                [value]="endDate()"
+                (input)="onEndDateInput($event)"
+                (click)="openDatePicker($event)"
+              />
+            </label>
+
+            @if (durationDays(); as days) {
+              <span class="market-detail-duration">
+                {{ 'app.campaignCreator.select.days' | translate: { count: '' + days } }}
+              </span>
+            }
+
+            <label class="market-detail-field">
+              <span class="market-detail-field-label">
+                {{
+                  'app.markets.detail.config.budgetLabel'
+                    | translate: { min: formatBudget(data.minBudget, data.currency) }
+                }}
+              </span>
+              <span class="market-detail-budget">
+                <span class="market-detail-budget-float">
+                  {{ 'app.markets.detail.config.amount' | translate }}
+                </span>
+                <input
+                  class="market-detail-input market-detail-input--budget"
+                  type="number"
+                  min="0"
+                  step="1"
+                  [value]="budget()"
+                  (input)="onBudgetInput($event)"
+                />
+              </span>
+            </label>
+          </div>
+
+          <dl class="market-detail-summary">
+            <div class="market-detail-summary-row">
+              <dt>{{ 'app.markets.detail.config.totalBudget' | translate }}</dt>
+              <dd>{{ formatBudget(budgetAmount(), data.currency) }}</dd>
+            </div>
+            <div class="market-detail-summary-row">
+              <dt>{{ 'app.markets.detail.config.impressions' | translate }}</dt>
+              <dd>{{ formatInteger(estimatedImpressions()) }}</dd>
+            </div>
+            <div class="market-detail-summary-row">
+              <dt>{{ 'app.markets.detail.config.grossRevenue' | translate }}</dt>
+              <dd>
+                {{ formatMoney(estimatedGrossRevenue(), data.currency) }}
+                <span class="market-detail-summary-growth">
+                  (+{{ formatPercent(estimatedProfitPercent()) }})
+                </span>
+              </dd>
+            </div>
+            <div class="market-detail-summary-row">
+              <dt>{{ 'app.markets.detail.config.grossProfit' | translate }}</dt>
+              <dd class="market-detail-summary-profit">
+                {{ formatMoney(estimatedGrossProfit(), data.currency) }}
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+        <a class="market-detail-start" [routerLink]="['/', routes.campaignCreator]">
+          {{ 'app.markets.detail.startCampaign' | translate }}
+        </a>
+      </section>
+
+      @if (cpmChart(); as cpm) {
+        <app-market-metric-chart
+          class="market-detail-panel market-detail-panel--chart"
+          [title]="'app.markets.detail.charts.cpmTitle' | translate"
+          [heroValue]="cpm.heroValue"
+          [yLabels]="cpm.yLabels"
+          [yMax]="cpm.yMax"
+          [currentValues]="cpm.currentValues"
+          [previousValues]="cpm.previousValues"
+          [currentLegend]="cpm.currentLegend"
+          [previousLegend]="cpm.previousLegend"
+        />
+      }
+
+      @if (epcChart(); as epc) {
+        <app-market-metric-chart
+          class="market-detail-panel market-detail-panel--chart"
+          [title]="'app.markets.detail.charts.epcTitle' | translate"
+          [heroValue]="epc.heroValue"
+          [yLabels]="epc.yLabels"
+          [yMax]="epc.yMax"
+          [currentValues]="epc.currentValues"
+          [previousValues]="epc.previousValues"
+          [currentLegend]="epc.currentLegend"
+          [previousLegend]="epc.previousLegend"
+        />
+      }
+    </div>
+  </article>
+} @else {
+  <section class="market-detail-missing">
+    <p>{{ 'app.markets.detail.notFound' | translate }}</p>
+    <a class="market-detail-back" [routerLink]="['/', routes.markets]">
+      ← {{ 'app.markets.detail.back' | translate }}
+    </a>
+  </section>
+}
