@@ -160,9 +160,9 @@
           </dl>
         </div>
 
-        <a class="market-detail-start" [routerLink]="['/', routes.campaignCreator]">
+        <button type="button" class="market-detail-start" (click)="openLaunchDialog()">
           {{ 'app.markets.detail.startCampaign' | translate }}
-        </a>
+        </button>
       </section>
 
       @if (cpmChart(); as cpm) {
@@ -193,6 +193,13 @@
         />
       }
     </div>
+
+    @if (launchDialogOpen()) {
+      <app-campaign-launch-dialog
+        (closed)="closeLaunchDialog()"
+        (confirmed)="confirmLaunch()"
+      />
+    }
   </article>
 } @else {
   <section class="market-detail-missing">

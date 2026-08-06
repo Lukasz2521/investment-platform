@@ -10,6 +10,7 @@ import {
   addDaysToDateInput,
   campaignGuidelinesDurationDays,
 } from '../../campaign-creator/campaign-guidelines';
+import { CampaignLaunchDialog } from '../../campaign-creator/campaign-launch-dialog/campaign-launch-dialog';
 import {
   getMarketCampaign,
   getMarketCategoryLabelKey,
@@ -84,7 +85,7 @@ type MetricChartView = {
 
 @Component({
   selector: 'app-market-campaign-detail',
-  imports: [RouterLink, TranslatePipe, MarketMetricChart],
+  imports: [RouterLink, TranslatePipe, MarketMetricChart, CampaignLaunchDialog],
   templateUrl: './market-campaign-detail.html',
   styleUrl: './market-campaign-detail.scss',
 })
@@ -93,6 +94,7 @@ export class MarketCampaignDetail {
   private readonly translationService = inject(TranslationService);
 
   protected readonly routes = APP_ROUTE_PATHS;
+  protected readonly launchDialogOpen = signal(false);
 
   private readonly campaignId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id'))),
@@ -194,6 +196,18 @@ export class MarketCampaignDetail {
   protected openDatePicker(event: Event): void {
     const input = event.currentTarget as HTMLInputElement;
     input.showPicker?.();
+  }
+
+  protected openLaunchDialog(): void {
+    this.launchDialogOpen.set(true);
+  }
+
+  protected closeLaunchDialog(): void {
+    this.launchDialogOpen.set(false);
+  }
+
+  protected confirmLaunch(): void {
+    this.launchDialogOpen.set(false);
   }
 
   protected countryFlagUrl(iso: string): string {

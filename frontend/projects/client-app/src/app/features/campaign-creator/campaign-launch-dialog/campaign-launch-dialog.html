@@ -19,15 +19,15 @@
     </p>
 
     <div class="launch-dialog-actions">
-      <button type="button" class="launch-dialog-btn launch-dialog-btn--cancel" (click)="onCancel()">
-        {{ 'app.campaignCreator.launchDialog.cancel' | translate }}
-      </button>
       <button
         type="button"
         class="launch-dialog-btn launch-dialog-btn--confirm"
         (click)="onConfirm()"
       >
         {{ 'app.campaignCreator.launchDialog.confirm' | translate }}
+      </button>
+      <button type="button" class="launch-dialog-btn launch-dialog-btn--cancel" (click)="onCancel()">
+        {{ 'app.campaignCreator.launchDialog.cancel' | translate }}
       </button>
     </div>
   </div>

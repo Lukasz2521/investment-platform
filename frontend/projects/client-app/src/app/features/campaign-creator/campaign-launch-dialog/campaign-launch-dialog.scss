@@ -3,9 +3,10 @@
   --launch-dialog-text: #f4f4f5;
   --launch-dialog-muted: #a1a1aa;
   --launch-dialog-backdrop: rgb(0 0 0 / 55%);
-  --launch-dialog-cancel-bg: #3f3f46;
-  --launch-dialog-cancel-text: #e4e4e7;
-  --launch-dialog-cancel-hover: #52525b;
+  --launch-dialog-cancel-bg: transparent;
+  --launch-dialog-cancel-border: #a78bfa;
+  --launch-dialog-cancel-text: #c4b5fd;
+  --launch-dialog-cancel-hover-bg: rgb(167 139 250 / 12%);
   --launch-dialog-confirm-bg: #7c3aed;
   --launch-dialog-confirm-text: #ffffff;
   --launch-dialog-confirm-hover: #6d28d9;
@@ -15,11 +16,12 @@
 :host-context(.app-shell--light) {
   --launch-dialog-bg: #ffffff;
   --launch-dialog-text: #111827;
-  --launch-dialog-muted: #6b7280;
+  --launch-dialog-muted: #4b5563;
   --launch-dialog-backdrop: rgb(15 23 42 / 45%);
-  --launch-dialog-cancel-bg: #e5e7eb;
-  --launch-dialog-cancel-text: #4b5563;
-  --launch-dialog-cancel-hover: #d1d5db;
+  --launch-dialog-cancel-bg: #ffffff;
+  --launch-dialog-cancel-border: #7c3aed;
+  --launch-dialog-cancel-text: #7c3aed;
+  --launch-dialog-cancel-hover-bg: #f5f3ff;
   --launch-dialog-confirm-bg: #7c3aed;
   --launch-dialog-confirm-text: #ffffff;
   --launch-dialog-confirm-hover: #6d28d9;
@@ -46,13 +48,13 @@
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  max-width: 26rem;
+  max-width: 32rem;
   padding: 1.5rem 1.5rem 1.35rem;
   width: 100%;
 }
 
 .launch-dialog-title {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.3;
@@ -62,7 +64,7 @@
 .launch-dialog-message {
   color: var(--launch-dialog-muted);
   font-size: 0.9375rem;
-  line-height: 1.5;
+  line-height: 1.55;
   margin: 0;
 }
 
@@ -74,7 +76,7 @@
 }
 
 .launch-dialog-btn {
-  border: none;
+  border: 1px solid transparent;
   border-radius: 0.5rem;
   cursor: pointer;
   font: inherit;
@@ -86,11 +88,12 @@
 
 .launch-dialog-btn--cancel {
   background: var(--launch-dialog-cancel-bg);
+  border-color: var(--launch-dialog-cancel-border);
   color: var(--launch-dialog-cancel-text);
 }
 
 .launch-dialog-btn--cancel:hover {
-  background: var(--launch-dialog-cancel-hover);
+  background: var(--launch-dialog-cancel-hover-bg);
 }
 
 .launch-dialog-btn--confirm {

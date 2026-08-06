@@ -399,9 +399,12 @@
 .market-detail-start {
   align-items: center;
   background: var(--detail-start-bg);
+  border: none;
   border-radius: 0.55rem;
   color: var(--detail-start-text);
+  cursor: pointer;
   display: inline-flex;
+  font: inherit;
   font-size: 1rem;
   font-weight: 700;
   justify-content: center;
@@ -409,6 +412,7 @@
   padding: 0.95rem 1rem;
   text-decoration: none;
   transition: background 0.15s ease;
+  width: 100%;
 }
 
 .market-detail-start:hover {
