@@ -1,0 +1,179 @@
+@if (campaign(); as data) {
+  <article class="my-detail" [attr.aria-label]="'app.myCampaigns.detail.ariaLabel' | translate">
+    <a class="my-detail-back" [routerLink]="['/', routes.myCampaigns]">
+      ← {{ 'app.myCampaigns.detail.back' | translate }}
+    </a>
+
+    <div class="my-detail-tiles" role="list">
+      <article class="my-detail-tile my-detail-tile--epc" role="listitem">
+        <p class="my-detail-tile-label">{{ 'app.markets.detail.params.epc' | translate }}</p>
+        <p class="my-detail-tile-value">{{ formatMoney(data.epc, data.currency) }}</p>
+      </article>
+
+      <article class="my-detail-tile my-detail-tile--cpm" role="listitem">
+        <p class="my-detail-tile-label">{{ 'app.markets.detail.params.cpm' | translate }}</p>
+        <p class="my-detail-tile-value">{{ formatMoney(data.cpm, data.currency) }}</p>
+      </article>
+
+      <article class="my-detail-tile my-detail-tile--ctr" role="listitem">
+        <p class="my-detail-tile-label">{{ 'app.markets.detail.params.ctr' | translate }}</p>
+        <p class="my-detail-tile-value">{{ formatPercent(data.ctr) }}</p>
+      </article>
+
+      <article class="my-detail-tile my-detail-tile--profit" role="listitem">
+        <p class="my-detail-tile-label">{{ 'app.markets.detail.params.profit' | translate }}</p>
+        <p class="my-detail-tile-value">{{ formatPercent(data.profitMonthly) }}</p>
+      </article>
+    </div>
+
+    <div class="my-detail-panels">
+      <section class="my-detail-panel my-detail-panel--campaign">
+        <div class="my-detail-media">
+          <img
+            class="my-detail-media-image"
+            [src]="data.imageUrl"
+            [alt]="data.title"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
+
+        <div class="my-detail-panel-body">
+          <div class="my-detail-panel-heading">
+            <h1 class="my-detail-panel-title">{{ data.title }}</h1>
+            <span
+              class="my-detail-status"
+              [class.my-detail-status--active]="data.status === 'active'"
+              [class.my-detail-status--cancelled]="data.status === 'cancelled'"
+              [class.my-detail-status--completed]="data.status === 'completed'"
+            >
+              {{ statusLabelKey(data.status) | translate }}
+            </span>
+          </div>
+          <p class="my-detail-panel-category">
+            {{ categoryLabelKey(data.categoryId) | translate }}
+          </p>
+          <p class="my-detail-panel-description">
+            {{ data.companyDescriptionKey | translate }}
+          </p>
+
+          <div class="my-detail-flags" [attr.aria-label]="'app.markets.detail.countries' | translate">
+            @for (country of data.countryCodes; track country) {
+              <img
+                class="my-detail-flag"
+                [src]="countryFlagUrl(country)"
+                [alt]="country"
+                width="28"
+                height="21"
+                loading="lazy"
+                decoding="async"
+              />
+            }
+          </div>
+        </div>
+      </section>
+
+      @if (overview(); as summary) {
+        <section
+          class="my-detail-panel my-detail-panel--config"
+          [attr.aria-label]="'app.markets.detail.config.ariaLabel' | translate"
+        >
+          <header class="my-detail-config-header">
+            <h2 class="my-detail-config-title">
+              {{ 'app.markets.detail.config.title' | translate }}
+            </h2>
+            <p class="my-detail-config-subtitle">
+              {{ 'app.markets.detail.config.subtitle' | translate }}
+            </p>
+          </header>
+
+          <div class="my-detail-config-grid">
+            <dl class="my-detail-summary">
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.startDate' | translate }}</dt>
+                <dd>{{ formatDate(summary.startDate) }}</dd>
+              </div>
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.endDate' | translate }}</dt>
+                <dd>{{ formatDate(summary.endDate) }}</dd>
+              </div>
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.params.duration' | translate }}</dt>
+                <dd>
+                  <span class="my-detail-duration">
+                    {{ 'app.campaignCreator.select.days' | translate: { count: '' + summary.days } }}
+                  </span>
+                </dd>
+              </div>
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.amount' | translate }}</dt>
+                <dd>{{ formatBudget(summary.budget, data.currency) }}</dd>
+              </div>
+            </dl>
+
+            <dl class="my-detail-summary">
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.totalBudget' | translate }}</dt>
+                <dd>{{ formatBudget(summary.budget, data.currency) }}</dd>
+              </div>
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.impressions' | translate }}</dt>
+                <dd>{{ formatInteger(summary.impressions) }}</dd>
+              </div>
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.grossRevenue' | translate }}</dt>
+                <dd>
+                  {{ formatMoney(summary.grossRevenue, data.currency) }}
+                  <span class="my-detail-summary-growth">
+                    (+{{ formatPercent(summary.profitPercent) }})
+                  </span>
+                </dd>
+              </div>
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.grossProfit' | translate }}</dt>
+                <dd class="my-detail-summary-profit">
+                  {{ formatMoney(summary.grossProfit, data.currency) }}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+      }
+
+      @if (cpmChart(); as cpm) {
+        <app-market-metric-chart
+          class="my-detail-panel my-detail-panel--chart"
+          [title]="'app.markets.detail.charts.cpmTitle' | translate"
+          [heroValue]="cpm.heroValue"
+          [yLabels]="cpm.yLabels"
+          [yMax]="cpm.yMax"
+          [currentValues]="cpm.currentValues"
+          [previousValues]="cpm.previousValues"
+          [currentLegend]="cpm.currentLegend"
+          [previousLegend]="cpm.previousLegend"
+        />
+      }
+
+      @if (epcChart(); as epc) {
+        <app-market-metric-chart
+          class="my-detail-panel my-detail-panel--chart"
+          [title]="'app.markets.detail.charts.epcTitle' | translate"
+          [heroValue]="epc.heroValue"
+          [yLabels]="epc.yLabels"
+          [yMax]="epc.yMax"
+          [currentValues]="epc.currentValues"
+          [previousValues]="epc.previousValues"
+          [currentLegend]="epc.currentLegend"
+          [previousLegend]="epc.previousLegend"
+        />
+      }
+    </div>
+  </article>
+} @else {
+  <section class="my-detail-missing">
+    <p>{{ 'app.myCampaigns.detail.notFound' | translate }}</p>
+    <a class="my-detail-back" [routerLink]="['/', routes.myCampaigns]">
+      ← {{ 'app.myCampaigns.detail.back' | translate }}
+    </a>
+  </section>
+}

@@ -1014,5 +1014,17 @@
   "app.markets.campaigns.hogwarts-arena.description": "Fantasy-Gaming-Momente für Entertainment-Marken mit immersivem Storytelling.",
   "app.markets.campaigns.callisto-protocol.description": "AAA-Horror/Action-Inventar für Gamer in intensiven Launch-Fenstern.",
   "app.markets.detail.charts.cpmTitle": "CPM im Zeitverlauf",
-  "app.markets.detail.charts.epcTitle": "EPC im Zeitverlauf"
+  "app.markets.detail.charts.epcTitle": "EPC im Zeitverlauf",
+  "app.nav.myCampaigns": "Meine Kampagnen",
+  "app.myCampaigns.ariaLabel": "Meine Kampagnen",
+  "app.myCampaigns.title": "Meine Kampagnen",
+  "app.myCampaigns.subtitle": "Übersicht Ihrer aktiven, abgebrochenen und abgeschlossenen Kampagnen.",
+  "app.myCampaigns.empty": "Keine Kampagnen in diesem Tab.",
+  "app.myCampaigns.tabs.ariaLabel": "Kampagnenstatus-Tabs",
+  "app.myCampaigns.tabs.active": "Aktiv",
+  "app.myCampaigns.tabs.cancelled": "Abgebrochen",
+  "app.myCampaigns.tabs.completed": "Abgeschlossen",
+  "app.myCampaigns.detail.ariaLabel": "Details meiner Kampagne",
+  "app.myCampaigns.detail.back": "Zurück zu meinen Kampagnen",
+  "app.myCampaigns.detail.notFound": "Kampagne nicht gefunden."
 }

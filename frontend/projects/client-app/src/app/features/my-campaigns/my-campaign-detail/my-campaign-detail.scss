@@ -1,0 +1,402 @@
+:host {
+  --detail-title: #e5e5e5;
+  --detail-muted: #a1a1aa;
+  --detail-label: #a1a1aa;
+  --detail-value: #f4f4f5;
+  --detail-border: rgb(255 255 255 / 12%);
+  --detail-back: #c4b5fd;
+  --detail-back-hover: #ddd6fe;
+  --detail-tile-bg: #141414;
+  --detail-tile-border: rgb(255 255 255 / 10%);
+  --detail-tile-label: #c4c4d0;
+  --detail-tile-value: #ffffff;
+  --detail-panel-bg: #141414;
+  --detail-panel-border: rgb(255 255 255 / 10%);
+  --detail-panel-shadow: none;
+  --detail-duration-bg: #22c55e;
+  --detail-duration-text: #ffffff;
+  --detail-growth: #22c55e;
+  --detail-status-active-bg: rgb(34 197 94 / 18%);
+  --detail-status-active-text: #4ade80;
+  --detail-status-cancelled-bg: rgb(239 68 68 / 18%);
+  --detail-status-cancelled-text: #f87171;
+  --detail-status-completed-bg: rgb(148 163 184 / 18%);
+  --detail-status-completed-text: #cbd5e1;
+
+  display: block;
+  width: 100%;
+}
+
+:host-context(.app-shell--light) {
+  --detail-title: #111827;
+  --detail-muted: #6b7280;
+  --detail-label: #4b5563;
+  --detail-value: #111827;
+  --detail-border: #e5e7eb;
+  --detail-back: #6d28d9;
+  --detail-back-hover: #5b21b6;
+  --detail-tile-bg: #ffffff;
+  --detail-tile-border: #e5e7eb;
+  --detail-tile-label: #6b7280;
+  --detail-tile-value: #111827;
+  --detail-panel-bg: #ffffff;
+  --detail-panel-border: #e5e7eb;
+  --detail-panel-shadow: 0 1px 3px rgb(0 0 0 / 6%);
+  --detail-duration-bg: #22c55e;
+  --detail-duration-text: #ffffff;
+  --detail-growth: #16a34a;
+  --detail-status-active-bg: #dcfce7;
+  --detail-status-active-text: #15803d;
+  --detail-status-cancelled-bg: #fee2e2;
+  --detail-status-cancelled-text: #b91c1c;
+  --detail-status-completed-bg: #e5e7eb;
+  --detail-status-completed-text: #374151;
+}
+
+.my-detail,
+.my-detail-missing {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  margin-inline: auto;
+  max-width: 72rem;
+  width: 100%;
+}
+
+.my-detail-back {
+  color: var(--detail-back);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  width: fit-content;
+}
+
+.my-detail-back:hover {
+  color: var(--detail-back-hover);
+}
+
+.my-detail-tiles {
+  display: grid;
+  gap: 0.85rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.my-detail-tile {
+  background: var(--detail-tile-bg);
+  border: 1px solid var(--detail-tile-border);
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.95rem 1rem 1.05rem;
+  position: relative;
+}
+
+.my-detail-tile::before {
+  content: '';
+  height: 0.28rem;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.my-detail-tile--epc::before {
+  background: #a78bfa;
+}
+
+.my-detail-tile--cpm::before {
+  background: #34d399;
+}
+
+.my-detail-tile--ctr::before {
+  background: #fb923c;
+}
+
+.my-detail-tile--profit::before {
+  background: #818cf8;
+}
+
+.my-detail-tile-label {
+  color: var(--detail-tile-label);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.my-detail-tile-value {
+  color: var(--detail-tile-value);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin: 0;
+}
+
+.my-detail-panels {
+  display: grid;
+  gap: 1.15rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.my-detail-panel {
+  background: var(--detail-panel-bg);
+  border: 1px solid var(--detail-panel-border);
+  border-radius: 0.9rem;
+  box-shadow: var(--detail-panel-shadow);
+  min-height: 28rem;
+  overflow: hidden;
+}
+
+.my-detail-panel--chart {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  min-height: 0;
+  overflow: visible;
+}
+
+.my-detail-panel--campaign {
+  display: flex;
+  flex-direction: column;
+}
+
+.my-detail-media {
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+}
+
+.my-detail-media-image {
+  animation: my-detail-kenburns 18s ease-in-out infinite alternate;
+  aspect-ratio: 16 / 10;
+  display: block;
+  object-fit: cover;
+  transform-origin: center center;
+  width: 100%;
+  will-change: transform;
+}
+
+.my-detail-media::after {
+  background: linear-gradient(to top, rgb(0 0 0 / 35%), transparent 45%);
+  content: '';
+  inset: 0;
+  pointer-events: none;
+  position: absolute;
+}
+
+@keyframes my-detail-kenburns {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .my-detail-media-image {
+    animation: none;
+  }
+}
+
+.my-detail-panel-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.15rem 1.25rem 1.35rem;
+}
+
+.my-detail-panel-heading {
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  justify-content: space-between;
+}
+
+.my-detail-panel-title {
+  color: var(--detail-title);
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.my-detail-status {
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.4rem 0.7rem;
+  white-space: nowrap;
+}
+
+.my-detail-status--active {
+  background: var(--detail-status-active-bg);
+  color: var(--detail-status-active-text);
+}
+
+.my-detail-status--cancelled {
+  background: var(--detail-status-cancelled-bg);
+  color: var(--detail-status-cancelled-text);
+}
+
+.my-detail-status--completed {
+  background: var(--detail-status-completed-bg);
+  color: var(--detail-status-completed-text);
+}
+
+.my-detail-panel-category {
+  color: var(--detail-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.my-detail-panel-description {
+  color: var(--detail-label);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.my-detail-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.my-detail-flag {
+  border: 1px solid var(--detail-border);
+  border-radius: 0.2rem;
+  display: block;
+  height: 1.3rem;
+  object-fit: cover;
+  width: 1.75rem;
+}
+
+.my-detail-panel--config {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 1.25rem 1.35rem 1.35rem;
+}
+
+.my-detail-config-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.my-detail-config-title {
+  color: var(--detail-title);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.my-detail-config-subtitle {
+  color: var(--detail-muted);
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.my-detail-config-grid {
+  display: grid;
+  flex: 1;
+  gap: 1.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.my-detail-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 0;
+  padding-top: 0.15rem;
+}
+
+.my-detail-summary-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.my-detail-summary-row dt {
+  color: var(--detail-label);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.my-detail-summary-row dd {
+  color: var(--detail-value);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.my-detail-summary-growth,
+.my-detail-summary-profit {
+  color: var(--detail-growth);
+}
+
+.my-detail-summary-growth {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-left: 0.35rem;
+}
+
+.my-detail-duration {
+  background: var(--detail-duration-bg);
+  border-radius: 0.4rem;
+  color: var(--detail-duration-text);
+  display: inline-block;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.45rem 0.7rem;
+}
+
+.my-detail-missing p {
+  color: var(--detail-muted);
+  font-size: 0.975rem;
+  margin: 0;
+}
+
+@media (max-width: 980px) {
+  .my-detail-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .my-detail-tiles {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .my-detail-config-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .my-detail-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .my-detail-panel-title {
+    font-size: 1.2rem;
+  }
+}

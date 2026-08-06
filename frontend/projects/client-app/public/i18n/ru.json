@@ -1014,5 +1014,17 @@
   "app.markets.campaigns.hogwarts-arena.description": "Фэнтези-гейминг для развлекательных брендов с иммерсивным сторителлингом.",
   "app.markets.campaigns.callisto-protocol.description": "AAA horror/action инвентарь для геймеров в интенсивных релизных окнах.",
   "app.markets.detail.charts.cpmTitle": "CPM во времени",
-  "app.markets.detail.charts.epcTitle": "EPC во времени"
+  "app.markets.detail.charts.epcTitle": "EPC во времени",
+  "app.nav.myCampaigns": "Мои кампании",
+  "app.myCampaigns.ariaLabel": "Мои кампании",
+  "app.myCampaigns.title": "Мои кампании",
+  "app.myCampaigns.subtitle": "Просматривайте активные, отменённые и завершённые кампании.",
+  "app.myCampaigns.empty": "В этой вкладке нет кампаний.",
+  "app.myCampaigns.tabs.ariaLabel": "Вкладки статуса кампаний",
+  "app.myCampaigns.tabs.active": "Активные",
+  "app.myCampaigns.tabs.cancelled": "Отменённые",
+  "app.myCampaigns.tabs.completed": "Завершённые",
+  "app.myCampaigns.detail.ariaLabel": "Детали моей кампании",
+  "app.myCampaigns.detail.back": "Назад к моим кампаниям",
+  "app.myCampaigns.detail.notFound": "Кампания не найдена."
 }

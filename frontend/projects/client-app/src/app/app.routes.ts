@@ -95,6 +95,25 @@ export const routes: Routes = [
     ],
   },
   {
+    path: APP_ROUTE_PATHS.myCampaigns,
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/my-campaigns/my-campaigns').then((m) => m.MyCampaigns),
+      },
+      {
+        path: ':id',
+        loadComponent: () =>
+          import('./features/my-campaigns/my-campaign-detail/my-campaign-detail').then(
+            (m) => m.MyCampaignDetail,
+          ),
+      },
+    ],
+  },
+  {
     path: APP_ROUTE_PATHS.changePassword,
     canActivate: [authGuard],
     loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),

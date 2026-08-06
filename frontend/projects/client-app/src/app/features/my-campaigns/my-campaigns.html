@@ -1,0 +1,45 @@
+<section class="my-campaigns" [attr.aria-label]="'app.myCampaigns.ariaLabel' | translate">
+  <header class="my-campaigns-header">
+    <svg class="my-campaigns-header-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"
+      />
+    </svg>
+    <div class="my-campaigns-header-copy">
+      <h1 class="my-campaigns-title">{{ 'app.myCampaigns.title' | translate }}</h1>
+      <p class="my-campaigns-subtitle">{{ 'app.myCampaigns.subtitle' | translate }}</p>
+    </div>
+  </header>
+
+  <div class="my-campaigns-tabs" role="tablist" [attr.aria-label]="'app.myCampaigns.tabs.ariaLabel' | translate">
+    @for (tab of tabs; track tab.id) {
+      <button
+        type="button"
+        class="my-campaigns-tab"
+        role="tab"
+        [class.my-campaigns-tab--active]="activeTab() === tab.id"
+        [attr.aria-selected]="activeTab() === tab.id"
+        (click)="setTab(tab.id)"
+      >
+        {{ tab.labelKey | translate }}
+      </button>
+    }
+  </div>
+
+  <div class="my-campaigns-panel" role="tabpanel">
+    @if (visibleCampaigns().length === 0) {
+      <p class="my-campaigns-empty">{{ 'app.myCampaigns.empty' | translate }}</p>
+    } @else {
+      <div class="my-campaigns-grid">
+        @for (campaign of visibleCampaigns(); track campaign.id) {
+          <app-campaign-card
+            variant="markets"
+            [campaign]="campaign"
+            (select)="openCampaign($event)"
+          />
+        }
+      </div>
+    }
+  </div>
+</section>

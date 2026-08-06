@@ -16,7 +16,15 @@ import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 import { ThemeService } from '../../core/theme/theme.service';
 
-type NavIcon = 'home' | 'user' | 'bank' | 'receipt' | 'pencil' | 'globeDollar' | 'unlock';
+type NavIcon =
+  | 'home'
+  | 'user'
+  | 'bank'
+  | 'receipt'
+  | 'pencil'
+  | 'globeDollar'
+  | 'folder'
+  | 'unlock';
 
 @Component({
   selector: 'app-app-shell',
@@ -46,6 +54,7 @@ export class AppShell implements OnDestroy {
       icon: 'pencil',
     },
     { labelKey: 'app.nav.markets', route: APP_ROUTE_PATHS.markets, icon: 'globeDollar' },
+    { labelKey: 'app.nav.myCampaigns', route: APP_ROUTE_PATHS.myCampaigns, icon: 'folder' },
     { labelKey: 'app.nav.profile', route: APP_ROUTE_PATHS.profile, icon: 'user' },
     { labelKey: 'app.nav.changePassword', route: APP_ROUTE_PATHS.changePassword, icon: 'unlock' },
   ];
