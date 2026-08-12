@@ -3,6 +3,7 @@ export type UserPublic = {
   email: string;
   is_active: boolean;
   is_superuser?: boolean;
+  is_verified?: boolean;
   full_name?: string | null;
   username: string;
   name: string;

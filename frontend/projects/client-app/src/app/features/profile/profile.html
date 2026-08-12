@@ -1,63 +1,276 @@
-<section class="profile">
-  <header class="profile-header">
-    <svg class="profile-header-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-      <path
-        fill="currentColor"
-        d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .7.5 1.2 1.2 1.2h16.8c.7 0 1.2-.5 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"
-      />
-    </svg>
-    <h1 class="profile-title">{{ 'app.profile.title' | translate }}</h1>
-  </header>
-
+<section class="profile" [attr.aria-label]="'app.profile.ariaLabel' | translate">
   @if (loading()) {
     <p class="profile-state">{{ 'app.profile.loading' | translate }}</p>
   } @else if (error()) {
     <p class="profile-state profile-state--error" role="alert">{{ 'app.profile.error' | translate }}</p>
   } @else if (user(); as currentUser) {
-    <div class="profile-card">
-      <dl class="profile-fields">
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.username' | translate }}</dt>
-          <dd>{{ currentUser.username || '—' }}</dd>
+    <article class="profile-hero">
+      <div class="profile-hero-copy">
+        <h1 class="profile-hero-title">{{ 'app.profile.title' | translate }}</h1>
+
+        <dl class="profile-hero-fields">
+          <div class="profile-hero-field">
+            <dt>{{ 'app.profile.fields.username' | translate }}</dt>
+            <dd>{{ currentUser.username || '—' }}</dd>
+          </div>
+          <div class="profile-hero-field">
+            <dt>{{ 'app.profile.fields.email' | translate }}</dt>
+            <dd>{{ currentUser.email }}</dd>
+          </div>
+          <div class="profile-hero-field">
+            <dt>{{ 'app.profile.fields.accountId' | translate }}</dt>
+            <dd class="profile-hero-field-id">{{ currentUser.id }}</dd>
+          </div>
+          <div class="profile-hero-field">
+            <dt>{{ 'app.profile.fields.memberSince' | translate }}</dt>
+            <dd>{{ memberSince() }}</dd>
+          </div>
+          <div class="profile-hero-field">
+            <dt>{{ 'app.profile.fields.verification' | translate }}</dt>
+            <dd>
+              <span
+                class="profile-verification"
+                [class.profile-verification--verified]="isVerified()"
+                [class.profile-verification--unverified]="!isVerified()"
+              >
+                {{
+                  (isVerified()
+                    ? 'app.profile.verification.verified'
+                    : 'app.profile.verification.unverified'
+                  ) | translate
+                }}
+              </span>
+            </dd>
+          </div>
+        </dl>
+
+        <div class="profile-hero-actions">
+          <button
+            type="button"
+            class="profile-close-btn"
+            [disabled]="isVerified() || closing()"
+            [attr.title]="
+              isVerified() ? ('app.profile.closeAccount.disabledHint' | translate) : null
+            "
+            (click)="openCloseConfirm()"
+          >
+            {{ 'app.profile.closeAccount.action' | translate }}
+          </button>
         </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.name' | translate }}</dt>
-          <dd>{{ currentUser.name || '—' }}</dd>
+      </div>
+
+      <div class="profile-hero-visual" aria-hidden="true">
+        <div class="profile-avatar">
+          <span class="profile-avatar-label">{{ avatarLabel() }}</span>
         </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.lastName' | translate }}</dt>
-          <dd>{{ currentUser.last_name || '—' }}</dd>
+      </div>
+    </article>
+
+    <section
+      class="profile-documents"
+      [attr.aria-label]="'app.profile.documents.ariaLabel' | translate"
+    >
+      <header class="profile-documents-header">
+        <h2 class="profile-documents-title">{{ 'app.profile.documents.title' | translate }}</h2>
+        <p class="profile-documents-subtitle">{{ 'app.profile.documents.subtitle' | translate }}</p>
+      </header>
+
+      <div class="profile-documents-table">
+        <div class="profile-documents-head" aria-hidden="true">
+          <span>{{ 'app.profile.documents.columnDocument' | translate }}</span>
+          <span>{{ 'app.profile.documents.columnAction' | translate }}</span>
         </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.email' | translate }}</dt>
-          <dd>{{ currentUser.email }}</dd>
+
+        <ul class="profile-documents-list">
+          @for (doc of documentDefinitions; track doc.id) {
+            <li
+              class="profile-documents-row"
+              [class.profile-documents-row--disabled]="doc.disabled"
+            >
+              <div class="profile-documents-copy">
+                <p class="profile-documents-name">{{ doc.titleKey | translate }}</p>
+                @if (doc.noteKey) {
+                  <p class="profile-documents-note">{{ doc.noteKey | translate }}</p>
+                }
+              </div>
+
+              <button
+                type="button"
+                class="profile-documents-action"
+                [class.profile-documents-action--uploaded]="
+                  documentState(doc.id).status === 'uploaded'
+                "
+                [class.profile-documents-action--invalid]="
+                  documentState(doc.id).status === 'invalid'
+                "
+                [disabled]="doc.disabled"
+                [attr.aria-label]="
+                  ('app.profile.documents.uploadAction' | translate) +
+                  ' — ' +
+                  (doc.titleKey | translate)
+                "
+                (click)="openUploadDialog(doc)"
+              >
+                <svg
+                  class="profile-documents-action-icon"
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"
+                  />
+                </svg>
+                <span class="profile-documents-action-label">
+                  {{ 'app.profile.documents.uploadAction' | translate }}
+                </span>
+                <span
+                  class="profile-documents-status"
+                  [class.profile-documents-status--uploaded]="
+                    documentState(doc.id).status === 'uploaded'
+                  "
+                  [class.profile-documents-status--missing]="
+                    documentState(doc.id).status === 'missing'
+                  "
+                  [class.profile-documents-status--invalid]="
+                    documentState(doc.id).status === 'invalid'
+                  "
+                  [class.profile-documents-status--disabled]="doc.disabled"
+                  [attr.title]="
+                    doc.disabled
+                      ? ('app.profile.documents.status.disabled' | translate)
+                      : documentState(doc.id).status === 'uploaded'
+                        ? ('app.profile.documents.status.uploaded' | translate)
+                        : documentState(doc.id).status === 'invalid'
+                          ? ('app.profile.documents.status.invalid' | translate)
+                          : ('app.profile.documents.status.missing' | translate)
+                  "
+                  aria-hidden="true"
+                ></span>
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+  }
+
+  @if (uploadDoc(); as upload) {
+    <div class="profile-dialog-backdrop" role="presentation" (click)="closeUploadDialog()">
+      <div
+        class="profile-dialog profile-dialog--upload"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'profile-upload-title'"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 id="profile-upload-title" class="profile-dialog-title">
+          {{ 'app.profile.documents.uploadTitle' | translate }}
+        </h2>
+        <p class="profile-dialog-message">{{ upload.titleKey | translate }}</p>
+        @if (upload.noteKey) {
+          <p class="profile-dialog-message">{{ upload.noteKey | translate }}</p>
+        }
+
+        @if (uploadDocState(); as state) {
+          @if (state.fileName) {
+            <p class="profile-upload-file">
+              {{ 'app.profile.documents.selectedFile' | translate: { name: state.fileName } }}
+            </p>
+          }
+          @if (state.previewUrl) {
+            <img class="profile-upload-preview" [src]="state.previewUrl" alt="" />
+          }
+        }
+
+        @if (uploadError()) {
+          <p class="profile-dialog-error" role="alert">
+            {{ 'app.profile.documents.uploadError' | translate }}
+          </p>
+        }
+
+        <label class="profile-upload-picker">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path
+              fill="currentColor"
+              d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z"
+            />
+          </svg>
+          <span>{{ 'app.profile.documents.chooseFile' | translate }}</span>
+          <input
+            class="visually-hidden"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,application/pdf"
+            (change)="onUploadFileSelected($event)"
+          />
+        </label>
+
+        <div class="profile-dialog-actions">
+          @if (uploadDocState()?.status === 'uploaded' || uploadDocState()?.status === 'invalid') {
+            <button
+              type="button"
+              class="profile-dialog-btn profile-dialog-btn--danger"
+              (click)="clearUploadedDocument()"
+            >
+              {{ 'app.profile.documents.removeFile' | translate }}
+            </button>
+          }
+          <button
+            type="button"
+            class="profile-dialog-btn profile-dialog-btn--cancel"
+            (click)="closeUploadDialog()"
+          >
+            {{ 'app.profile.documents.close' | translate }}
+          </button>
         </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.phone' | translate }}</dt>
-          <dd>{{ currentUser.phone || '—' }}</dd>
+      </div>
+    </div>
+  }
+
+  @if (closeConfirmOpen()) {
+    <div class="profile-dialog-backdrop" role="presentation" (click)="closeCloseConfirm()">
+      <div
+        class="profile-dialog"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-labelledby]="'profile-close-title'"
+        [attr.aria-describedby]="'profile-close-message'"
+        (click)="$event.stopPropagation()"
+      >
+        <h2 id="profile-close-title" class="profile-dialog-title">
+          {{ 'app.profile.closeAccount.confirmTitle' | translate }}
+        </h2>
+        <p id="profile-close-message" class="profile-dialog-message">
+          {{ 'app.profile.closeAccount.confirmMessage' | translate }}
+        </p>
+
+        @if (closeError()) {
+          <p class="profile-dialog-error" role="alert">
+            {{ 'app.profile.closeAccount.error' | translate }}
+          </p>
+        }
+
+        <div class="profile-dialog-actions">
+          <button
+            type="button"
+            class="profile-dialog-btn profile-dialog-btn--danger"
+            [disabled]="closing()"
+            (click)="confirmCloseAccount()"
+          >
+            {{ 'app.profile.closeAccount.confirm' | translate }}
+          </button>
+          <button
+            type="button"
+            class="profile-dialog-btn profile-dialog-btn--cancel"
+            [disabled]="closing()"
+            (click)="closeCloseConfirm()"
+          >
+            {{ 'app.profile.closeAccount.cancel' | translate }}
+          </button>
         </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.country' | translate }}</dt>
-          <dd>{{ currentUser.country || '—' }}</dd>
-        </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.city' | translate }}</dt>
-          <dd>{{ currentUser.city || '—' }}</dd>
-        </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.address' | translate }}</dt>
-          <dd>
-            {{ currentUser.address_line_one || '—' }}
-            @if (currentUser.address_line_two) {
-              <span>, {{ currentUser.address_line_two }}</span>
-            }
-          </dd>
-        </div>
-        <div class="profile-field">
-          <dt>{{ 'app.profile.fields.timezone' | translate }}</dt>
-          <dd>{{ currentUser.timezone || '—' }}</dd>
-        </div>
-      </dl>
+      </div>
     </div>
   }
 </section>

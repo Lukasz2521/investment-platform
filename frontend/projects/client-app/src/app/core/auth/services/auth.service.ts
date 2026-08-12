@@ -30,6 +30,10 @@ export class AuthService {
     return this.http.get<UserPublic>(`${environment.apiUrl}/users/me`);
   }
 
+  deleteMe(): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${environment.apiUrl}/users/me`);
+  }
+
   updatePassword(currentPassword: string, newPassword: string): Observable<{ message: string }> {
     return this.http.patch<{ message: string }>(`${environment.apiUrl}/users/me/password`, {
       current_password: currentPassword,
