@@ -1,0 +1,95 @@
+<section class="account-types" [attr.aria-label]="'app.accountTypes.ariaLabel' | translate">
+  <button
+    type="button"
+    class="account-types-nav account-types-nav--prev"
+    [disabled]="!canGoPrev()"
+    [attr.aria-label]="'app.accountTypes.prev' | translate"
+    (click)="goPrev()"
+  >
+    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+      />
+    </svg>
+  </button>
+
+  <button
+    type="button"
+    class="account-types-nav account-types-nav--next"
+    [disabled]="!canGoNext()"
+    [attr.aria-label]="'app.accountTypes.next' | translate"
+    (click)="goNext()"
+  >
+    <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"
+      />
+    </svg>
+  </button>
+
+  <div class="account-types-viewport">
+    <div
+      class="account-types-track"
+      [style.transform]="'translateX(-' + activeIndex() * 100 + '%)'"
+    >
+      @for (plan of plans; track plan.id) {
+        <article class="account-types-slide" [attr.aria-hidden]="activePlan().id !== plan.id">
+          <div class="account-types-slide-inner">
+            <div class="account-types-copy">
+              <p class="account-types-badge">{{ plan.nameKey | translate }}</p>
+
+              <ul class="account-types-benefits">
+                @for (benefitKey of plan.benefitKeys; track benefitKey) {
+                  <li>{{ benefitKey | translate }}</li>
+                }
+              </ul>
+            </div>
+
+            <div class="account-types-visual">
+              <div class="account-types-photo-frame">
+                <img
+                  class="account-types-photo"
+                  [src]="plan.imageUrl"
+                  [alt]="plan.nameKey | translate"
+                  loading="lazy"
+                  decoding="async"
+                />
+              </div>
+
+              <div class="account-types-cards">
+                <div class="account-types-card">
+                  <p class="account-types-card-label">
+                    {{ 'app.accountTypes.from' | translate }}
+                  </p>
+                  <p class="account-types-card-value">{{ plan.priceLabel }}</p>
+                </div>
+                <div class="account-types-card">
+                  <p class="account-types-card-label">
+                    {{ 'app.accountTypes.profitUpTo' | translate }}
+                  </p>
+                  <p class="account-types-card-value">{{ plan.profitLabel }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  </div>
+
+  <div class="account-types-dots" role="tablist" [attr.aria-label]="'app.accountTypes.dots' | translate">
+    @for (plan of plans; track plan.id; let index = $index) {
+      <button
+        type="button"
+        class="account-types-dot"
+        role="tab"
+        [class.account-types-dot--active]="activeIndex() === index"
+        [attr.aria-selected]="activeIndex() === index"
+        [attr.aria-label]="plan.nameKey | translate"
+        (click)="goTo(index)"
+      ></button>
+    }
+  </div>
+</section>

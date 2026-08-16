@@ -24,6 +24,7 @@ type NavIcon =
   | 'pencil'
   | 'globeDollar'
   | 'folder'
+  | 'layers'
   | 'unlock';
 
 @Component({
@@ -55,6 +56,7 @@ export class AppShell implements OnDestroy {
     },
     { labelKey: 'app.nav.markets', route: APP_ROUTE_PATHS.markets, icon: 'globeDollar' },
     { labelKey: 'app.nav.myCampaigns', route: APP_ROUTE_PATHS.myCampaigns, icon: 'folder' },
+    { labelKey: 'app.nav.accountTypes', route: APP_ROUTE_PATHS.accountTypes, icon: 'layers' },
     { labelKey: 'app.nav.profile', route: APP_ROUTE_PATHS.profile, icon: 'user' },
     { labelKey: 'app.nav.changePassword', route: APP_ROUTE_PATHS.changePassword, icon: 'unlock' },
   ];

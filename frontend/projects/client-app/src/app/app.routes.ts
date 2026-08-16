@@ -114,6 +114,18 @@ export const routes: Routes = [
     ],
   },
   {
+    path: APP_ROUTE_PATHS.accountTypes,
+    canActivate: [authGuard],
+    loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/account-types/account-types').then((m) => m.AccountTypes),
+      },
+    ],
+  },
+  {
     path: APP_ROUTE_PATHS.changePassword,
     canActivate: [authGuard],
     loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),

@@ -12,5 +12,6 @@ export const APP_ROUTE_PATHS = {
   campaignCreator: 'kreator-kampanii',
   markets: 'rynki',
   myCampaigns: 'moje-kampanie',
+  accountTypes: 'rodzaje-kont',
   changePassword: 'zmiana-hasla',
 } as const;
