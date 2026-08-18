@@ -26,7 +26,7 @@ const HISTORY_PAGE_SIZE = 20;
   selector: 'app-dashboard',
   imports: [TranslatePipe, DatePipe],
   templateUrl: './dashboard.html',
-  styleUrl: './dashboard.scss',
+  styleUrls: ['./dashboard.scss', './dashboard-history.scss'],
 })
 export class Dashboard implements OnInit {
   private readonly destroyRef = inject(DestroyRef);

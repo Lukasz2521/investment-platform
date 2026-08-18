@@ -85,7 +85,7 @@ function emptyDocumentState(): ProfileDocumentState {
   selector: 'app-profile',
   imports: [TranslatePipe],
   templateUrl: './profile.html',
-  styleUrl: './profile.scss',
+  styleUrls: ['./profile.scss', './profile-documents.scss'],
 })
 export class Profile implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
