@@ -1,0 +1,25 @@
+<section
+  class="smart-marketing"
+  [attr.aria-label]="'marketing.smartMarketing.title' | translate"
+>
+  <header class="smart-marketing-header">
+    <h2 class="smart-marketing-title">{{ 'marketing.smartMarketing.title' | translate }}</h2>
+  </header>
+
+  <ul class="smart-marketing-grid">
+    @for (item of items; track item.id) {
+      <li class="smart-marketing-item">
+        <div class="smart-marketing-media">
+          <img
+            class="smart-marketing-image"
+            [src]="item.imageSrc"
+            [alt]="item.imageAltKey | translate"
+            loading="lazy"
+          />
+        </div>
+        <h3 class="smart-marketing-item-title">{{ item.titleKey | translate }}</h3>
+        <p class="smart-marketing-item-body">{{ item.bodyKey | translate }}</p>
+      </li>
+    }
+  </ul>
+</section>
