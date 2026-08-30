@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import { CONTACT_OFFICES } from './contact-offices';
 import { ContactForm, EMPTY_CONTACT_FORM } from './contact-options';
 
 @Component({
@@ -11,6 +12,7 @@ import { ContactForm, EMPTY_CONTACT_FORM } from './contact-options';
 })
 export class Contact {
   protected readonly form = signal<ContactForm>({ ...EMPTY_CONTACT_FORM });
+  protected readonly offices = CONTACT_OFFICES;
 
   protected updateField<K extends keyof ContactForm>(key: K, event: Event): void {
     const value = (event.target as HTMLInputElement).value;

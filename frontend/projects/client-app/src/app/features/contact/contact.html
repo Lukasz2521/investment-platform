@@ -61,4 +61,33 @@
       </div>
     </form>
   </div>
+
+  <section class="contact-offices" aria-labelledby="contact-offices-title">
+    <h2 id="contact-offices-title" class="contact-offices-title">
+      {{ 'marketing.contact.offices.title' | translate }}
+    </h2>
+
+    <ul class="contact-offices-grid">
+      @for (office of offices; track office.id) {
+        <li class="contact-office">
+          <div class="contact-office-media">
+            <img
+              class="contact-office-image"
+              [src]="office.imageSrc"
+              [alt]="office.imageAltKey | translate"
+              loading="lazy"
+            />
+          </div>
+          <h3 class="contact-office-city">{{ office.cityKey | translate }}</h3>
+          @if (office.addressLines.length) {
+            <address class="contact-office-address">
+              @for (line of office.addressLines; track line) {
+                <span>{{ line }}</span>
+              }
+            </address>
+          }
+        </li>
+      }
+    </ul>
+  </section>
 </section>
