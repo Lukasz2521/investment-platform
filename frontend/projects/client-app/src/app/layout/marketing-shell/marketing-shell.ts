@@ -17,6 +17,7 @@ export class MarketingShell {
   protected readonly navItems = [
     { labelKey: 'marketing.nav.company', route: APP_ROUTE_PATHS.company },
     { labelKey: 'marketing.nav.partnerships', route: APP_ROUTE_PATHS.partnerships },
+    { labelKey: 'marketing.nav.news', route: APP_ROUTE_PATHS.news },
     { labelKey: 'marketing.nav.contact', route: APP_ROUTE_PATHS.contact },
   ];
 }

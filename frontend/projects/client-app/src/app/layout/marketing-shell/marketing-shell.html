@@ -31,7 +31,7 @@
         <a href="#">{{ 'marketing.footer.editions' | translate }}</a>
         <a href="#">{{ 'marketing.footer.careers' | translate }}</a>
         <a href="#">{{ 'marketing.footer.investors' | translate }}</a>
-        <a href="#">{{ 'marketing.footer.newsroom' | translate }}</a>
+        <a [routerLink]="['/', routes.news]">{{ 'marketing.footer.newsroom' | translate }}</a>
         <a href="#">{{ 'marketing.footer.sustainability' | translate }}</a>
       </div>
       <div class="marketing-footer-column">

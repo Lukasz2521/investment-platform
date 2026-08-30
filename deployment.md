@@ -12,7 +12,7 @@ But you have to configure a couple things first. 🤓
 
 * Have a remote server ready and available.
 * Configure the DNS records of your domain to point to the IP of the server you just created.
-* Configure a wildcard subdomain for your domain, so that you can have multiple subdomains for different services, e.g. `*.fastapi-project.example.com`. This will be useful for accessing different components, like `dashboard.fastapi-project.example.com`, `api.fastapi-project.example.com`, `traefik.fastapi-project.example.com`, `adminer.fastapi-project.example.com`, etc. And also for `staging`, like `dashboard.staging.fastapi-project.example.com`, `adminer.staging.fastapi-project.example.com`, etc.
+* Configure a wildcard subdomain for your domain, so that you can have multiple subdomains for different services, e.g. `*.fastapi-project.example.com`. This will be useful for accessing different components, like `dashboard.fastapi-project.example.com` (client app), `admin.fastapi-project.example.com` (admin app), `api.fastapi-project.example.com`, `traefik.fastapi-project.example.com`, `adminer.fastapi-project.example.com`, etc. And also for `staging`, like `dashboard.staging.fastapi-project.example.com`, `admin.staging.fastapi-project.example.com`, etc.
 * Install and configure [Docker](https://docs.docker.com/engine/install/) on the remote server (Docker Engine, not Docker Desktop).
 
 ## Public Traefik
@@ -167,12 +167,14 @@ Set the `FIRST_SUPER_USER_PASSWORD` to something different than `changethis`:
 export FIRST_SUPERUSER_PASSWORD="changethis"
 ```
 
-Set the `BACKEND_CORS_ORIGINS` to include your domain:
+Set the `BACKEND_CORS_ORIGINS` to include your frontend domains:
 
 ```bash
-export BACKEND_CORS_ORIGINS="https://dashboard.${DOMAIN?Variable not set},https://api.${DOMAIN?Variable not set}"
+export BACKEND_CORS_ORIGINS="https://dashboard.${DOMAIN},https://admin.${DOMAIN}"
+export FRONTEND_HOST="https://dashboard.${DOMAIN}"
 ```
 
+The Angular apps call the API through an nginx reverse proxy on the same origin (`/api/v1`), so CORS is mainly needed if you also hit `https://api.${DOMAIN}` directly from the browser.
 You can set several other environment variables:
 
 * `PROJECT_NAME`: The name of the project, used in the API for the docs and emails.
@@ -207,6 +209,31 @@ docker compose -f compose.yml up -d
 ```
 
 For production you wouldn't want to have the overrides in `compose.override.yml`, that's why we explicitly specify `compose.yml` as the file to use.
+
+### Deploy by IP (no DNS yet)
+
+If the server is reachable only by IP, skip public Traefik and use port mapping:
+
+```bash
+docker compose -f compose.yml -f compose.ip.yml up -d --build
+```
+
+Then open:
+
+* Client: `http://SERVER_IP:8080`
+* Admin: `http://SERVER_IP:8081`
+* API docs: `http://SERVER_IP:8000/docs`
+
+Set `FRONTEND_HOST=http://SERVER_IP:8080` and matching `BACKEND_CORS_ORIGINS`. There is no HTTPS until DNS points at the server.
+
+### Angular frontends
+
+The stack builds two static Angular apps from `frontend/Dockerfile`:
+
+* `client` → `https://dashboard.${DOMAIN}` (user-facing app)
+* `admin` → `https://admin.${DOMAIN}` (admin panel)
+
+Both nginx containers proxy `/api/` to the `backend` service, matching `environment.apiUrl = '/api/v1'`.
 
 ## Continuous Deployment (CD)
 
@@ -325,7 +352,9 @@ Traefik UI: `https://traefik.fastapi-project.example.com`
 
 ### Production
 
-Frontend: `https://dashboard.fastapi-project.example.com`
+Client app: `https://dashboard.fastapi-project.example.com`
+
+Admin app: `https://admin.fastapi-project.example.com`
 
 Backend API docs: `https://api.fastapi-project.example.com/docs`
 
@@ -335,7 +364,9 @@ Adminer: `https://adminer.fastapi-project.example.com`
 
 ### Staging
 
-Frontend: `https://dashboard.staging.fastapi-project.example.com`
+Client app: `https://dashboard.staging.fastapi-project.example.com`
+
+Admin app: `https://admin.staging.fastapi-project.example.com`
 
 Backend API docs: `https://api.staging.fastapi-project.example.com/docs`
 

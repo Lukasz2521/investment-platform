@@ -5,3 +5,9 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Local / server secrets — never commit
+.env
+.env.*
+!.env.example
+!.env.staging.example

@@ -1,0 +1,11 @@
+# Ignore local deps and build artifacts (copied/built inside the image).
+node_modules
+dist
+.angular
+coverage
+blob-report
+test-results
+playwright-report
+*.md
+.env*
+.DS_Store

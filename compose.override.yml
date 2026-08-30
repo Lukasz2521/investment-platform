@@ -2,7 +2,8 @@ services:
 
   # Local services are available on their ports, but also available on:
   # http://api.localhost.tiangolo.com: backend
-  # http://dashboard.localhost.tiangolo.com: frontend
+  # http://dashboard.localhost.tiangolo.com: client-app
+  # http://admin.localhost.tiangolo.com: admin-app
   # etc. To enable it, update .env, set:
   # DOMAIN=localhost.tiangolo.com
   proxy:
@@ -93,41 +94,25 @@ services:
       - "1080:1080"
       - "1025:1025"
 
-  frontend:
+  client:
     restart: "no"
     ports:
       - "5173:80"
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
       args:
-        - VITE_API_URL=http://localhost:8000
-        - NODE_ENV=development
+        - APP_NAME=client-app
 
-  playwright:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile.playwright
-      args:
-        - VITE_API_URL=http://backend:8000
-        - NODE_ENV=production
-    ipc: host
-    depends_on:
-      - backend
-      - mailcatcher
-    env_file:
-      - .env
-    environment:
-      - VITE_API_URL=http://backend:8000
-      - MAILCATCHER_HOST=http://mailcatcher:1080
-      # For the reports when run locally
-      - PLAYWRIGHT_HTML_HOST=0.0.0.0
-      - CI=${CI}
-    volumes:
-      - ./frontend/blob-report:/app/frontend/blob-report
-      - ./frontend/test-results:/app/frontend/test-results
+  admin:
+    restart: "no"
     ports:
-      - 9323:9323
+      - "4200:80"
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - APP_NAME=admin-app
 
 networks:
   traefik-public:

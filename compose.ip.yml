@@ -1,0 +1,51 @@
+# Access the stack by server IP (no DNS / no public Traefik / no HTTPS).
+#
+# Usage on the VPS:
+#   docker compose -f compose.yml -f compose.ip.yml up -d --build
+#
+# URLs (replace SERVER_IP):
+#   Client:  http://SERVER_IP:8080
+#   Admin:   http://SERVER_IP:8081
+#   API:     http://SERVER_IP:8000
+#   API docs:http://SERVER_IP:8000/docs
+#   Adminer: http://SERVER_IP:8082
+#
+# In .env set e.g.:
+#   FRONTEND_HOST=http://SERVER_IP:8080
+#   BACKEND_CORS_ORIGINS="http://SERVER_IP:8080,http://SERVER_IP:8081"
+#   POSTGRES_SERVER=db
+#   ENVIRONMENT=staging
+
+services:
+  db:
+    # Prefer keeping DB closed to the internet; uncomment only if you need remote psql.
+    # ports:
+    #   - "5432:5432"
+
+  adminer:
+    ports:
+      - "8082:8080"
+    labels:
+      - traefik.enable=false
+
+  backend:
+    ports:
+      - "8000:8000"
+    labels:
+      - traefik.enable=false
+
+  client:
+    ports:
+      - "8080:80"
+    labels:
+      - traefik.enable=false
+
+  admin:
+    ports:
+      - "8081:80"
+    labels:
+      - traefik.enable=false
+
+networks:
+  traefik-public:
+    external: false

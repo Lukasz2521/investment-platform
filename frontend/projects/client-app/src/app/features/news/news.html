@@ -1,0 +1,21 @@
+<section class="news-page">
+  <div class="news-hero">
+    <div class="news-hero-inner">
+      <p class="news-eyebrow">{{ 'marketing.news.eyebrow' | translate }}</p>
+      <h1 class="news-title">{{ 'marketing.news.title' | translate }}</h1>
+      <p class="news-intro">{{ 'marketing.news.intro' | translate }}</p>
+    </div>
+  </div>
+
+  <div class="news-inner">
+    <ul class="news-list">
+      @for (item of items; track item.id) {
+        <li class="news-item">
+          <time class="news-item-date">{{ item.dateKey | translate }}</time>
+          <h2 class="news-item-title">{{ item.titleKey | translate }}</h2>
+          <p class="news-item-excerpt">{{ item.excerptKey | translate }}</p>
+        </li>
+      }
+    </ul>
+  </div>
+</section>

@@ -155,6 +155,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/contact/contact').then((m) => m.Contact),
       },
       {
+        path: APP_ROUTE_PATHS.news,
+        loadComponent: () => import('./features/news/news').then((m) => m.News),
+      },
+      {
         path: APP_ROUTE_PATHS.partnerships,
         loadComponent: () =>
           import('./features/partnerships/partnerships').then((m) => m.Partnerships),
