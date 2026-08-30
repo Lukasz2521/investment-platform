@@ -6,6 +6,8 @@ export const APP_ROUTE_PATHS = {
   partnerships: 'wspolprace',
   login: 'login',
   register: 'register',
+  forgotPassword: 'forgot-password',
+  resetPassword: 'reset-password',
   dashboard: 'dashboard',
   profile: 'profil',
   deposit: 'depozyt',

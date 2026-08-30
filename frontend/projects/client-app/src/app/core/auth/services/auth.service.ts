@@ -41,6 +41,20 @@ export class AuthService {
     });
   }
 
+  requestPasswordRecovery(email: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(
+      `${environment.apiUrl}/password-recovery/${encodeURIComponent(email)}`,
+      {},
+    );
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${environment.apiUrl}/reset-password/`, {
+      token,
+      new_password: newPassword,
+    });
+  }
+
   getToken(): string | null {
     if (typeof localStorage === 'undefined') {
       return null;
