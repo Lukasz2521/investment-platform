@@ -28,14 +28,10 @@ export class LanguageSelector {
     );
   }
 
-  protected onLanguageChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-
-    if (!value) {
-      return;
-    }
-
-    void this.translationService.setLanguage(value as LanguageCode);
+  protected get activeLabel(): string {
+    return (
+      this.languages.find((language) => language.code === this.activeLanguage())?.label ?? ''
+    );
   }
 
   protected toggleMenu(): void {

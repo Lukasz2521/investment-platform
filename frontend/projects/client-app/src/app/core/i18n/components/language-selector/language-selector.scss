@@ -11,31 +11,13 @@
   font-weight: 500;
 }
 
-.language-selector-control {
-  appearance: none;
-  background: #1a1a1a
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ffffff' d='M1.41 0 6 4.58 10.59 0 12 1.41l-6 6-6-6z'/%3E%3C/svg%3E")
-    no-repeat right 0.65rem center / 0.65rem;
-  border: 1px solid rgb(255 255 255 / 14%);
-  border-radius: 0.5rem;
-  color: #ffffff;
-  font: inherit;
-  min-width: 9rem;
-  padding: 0.5rem 2rem 0.5rem 0.75rem;
-}
-
-.language-selector-control:focus {
-  border-color: #36e0a0;
-  outline: none;
-}
-
-.language-selector-control option {
-  background: #1a1a1a;
-  color: #ffffff;
-}
-
-.language-selector--compact {
+.language-selector--compact,
+.language-selector--menu {
   gap: 0;
+}
+
+.language-selector--menu {
+  gap: 0.75rem;
 }
 
 .language-selector-trigger {
@@ -50,8 +32,20 @@
   padding: 0.35rem 0.4rem;
 }
 
+.language-selector-trigger--labeled {
+  background: #1a1a1a;
+  border: 1px solid rgb(255 255 255 / 14%);
+  gap: 0.45rem;
+  min-width: 9rem;
+  padding: 0.5rem 0.75rem;
+}
+
 .language-selector-trigger:hover {
   background: rgb(255 255 255 / 8%);
+}
+
+.language-selector-trigger--labeled:hover {
+  background: #222222;
 }
 
 .language-selector-trigger:focus-visible {
@@ -62,6 +56,13 @@
 .language-selector-flag {
   font-size: 1.15rem;
   line-height: 1;
+}
+
+.language-selector-current {
+  flex: 1;
+  font-size: 0.875rem;
+  line-height: 1.2;
+  text-align: left;
 }
 
 .language-selector-chevron {
@@ -123,6 +124,15 @@
 
   .language-selector-trigger:hover {
     background: rgb(0 0 0 / 6%);
+  }
+
+  .language-selector-trigger--labeled {
+    background: #ffffff;
+    border-color: #e5e7eb;
+  }
+
+  .language-selector-trigger--labeled:hover {
+    background: #f9fafb;
   }
 
   .language-selector-menu {
