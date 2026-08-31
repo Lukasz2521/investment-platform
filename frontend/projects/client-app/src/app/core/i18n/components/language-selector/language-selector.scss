@@ -20,6 +20,38 @@
   gap: 0.75rem;
 }
 
+:host(.language-selector-host--stacked) {
+  display: block;
+  width: 100%;
+}
+
+:host(.language-selector-host--stacked) .language-selector--menu {
+  align-items: center;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+:host(.language-selector-host--stacked) .language-selector-label {
+  text-align: center;
+  width: 100%;
+}
+
+:host(.language-selector-host--stacked) .language-selector-trigger--labeled {
+  justify-content: center;
+  min-width: 0;
+  width: 100%;
+}
+
+:host(.language-selector-host--stacked) .language-selector-current {
+  flex: 0 0 auto;
+}
+
+:host(.language-selector-host--stacked) .language-selector-menu {
+  left: 0;
+  right: auto;
+  width: 100%;
+}
+
 .language-selector-trigger {
   align-items: center;
   background: transparent;

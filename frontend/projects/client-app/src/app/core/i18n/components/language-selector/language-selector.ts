@@ -11,12 +11,13 @@ import { TranslationService } from '../../services/translation.service';
   styleUrl: './language-selector.scss',
   host: {
     '[class.language-selector-host--compact]': 'variant() === "compact"',
+    '[class.language-selector-host--stacked]': 'variant() === "stacked"',
   },
 })
 export class LanguageSelector {
   private readonly translationService = inject(TranslationService);
 
-  readonly variant = input<'default' | 'compact'>('default');
+  readonly variant = input<'default' | 'compact' | 'stacked'>('default');
 
   protected readonly languages = this.translationService.languages;
   protected readonly activeLanguage = this.translationService.activeLanguage;

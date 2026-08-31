@@ -7,6 +7,7 @@
   --shopify-gray-200: rgb(255 255 255 / 12%);
   --shopify-gray-500: #a8a8a8;
   --shopify-white: #ffffff;
+  --marketing-header-height: 4.05rem;
   display: block;
 }
 
@@ -14,6 +15,7 @@
   backdrop-filter: blur(12px);
   background: rgb(10 10 10 / 88%);
   border-bottom: 1px solid rgb(255 255 255 / 8%);
+  min-height: var(--marketing-header-height);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -26,6 +28,78 @@
   margin: 0 auto;
   max-width: 90rem;
   padding: 0.85rem 1.5rem;
+}
+
+.marketing-menu-btn {
+  align-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--shopify-white);
+  cursor: pointer;
+  display: none;
+  flex-shrink: 0;
+  height: 2.5rem;
+  justify-content: center;
+  margin-left: -0.35rem;
+  padding: 0;
+  width: 2.5rem;
+}
+
+.marketing-menu-btn:hover {
+  background: rgb(255 255 255 / 8%);
+}
+
+.marketing-menu-btn:focus-visible {
+  outline: 2px solid var(--shopify-green-bright);
+  outline-offset: 2px;
+}
+
+.marketing-menu-icon,
+.marketing-menu-icon::before,
+.marketing-menu-icon::after {
+  background: currentColor;
+  border-radius: 999px;
+  display: block;
+  height: 2px;
+  transition:
+    transform 0.2s ease,
+    top 0.2s ease,
+    background 0.2s ease;
+  width: 1.25rem;
+}
+
+.marketing-menu-icon {
+  position: relative;
+}
+
+.marketing-menu-icon::before,
+.marketing-menu-icon::after {
+  content: '';
+  left: 0;
+  position: absolute;
+}
+
+.marketing-menu-icon::before {
+  top: -6px;
+}
+
+.marketing-menu-icon::after {
+  top: 6px;
+}
+
+:host(.marketing-shell--menu-open) .marketing-menu-icon {
+  background: transparent;
+}
+
+:host(.marketing-shell--menu-open) .marketing-menu-icon::before {
+  top: 0;
+  transform: rotate(45deg);
+}
+
+:host(.marketing-shell--menu-open) .marketing-menu-icon::after {
+  top: 0;
+  transform: rotate(-45deg);
 }
 
 .marketing-logo {
@@ -66,6 +140,7 @@
   align-items: center;
   display: flex;
   gap: 0.75rem;
+  margin-left: auto;
 }
 
 .marketing-language {
@@ -163,15 +238,109 @@
   color: var(--shopify-white);
 }
 
+.marketing-menu-backdrop {
+  background: rgb(0 0 0 / 55%);
+  border: none;
+  inset: var(--marketing-header-height) 0 0;
+  position: fixed;
+  z-index: 90;
+}
+
+.marketing-drawer {
+  background: #111111;
+  border-right: 1px solid rgb(255 255 255 / 10%);
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  justify-content: flex-start;
+  left: 0;
+  overflow: auto;
+  padding: 1.5rem 1.25rem;
+  position: fixed;
+  top: var(--marketing-header-height);
+  transform: translateX(-100%);
+  transition: transform 0.22s ease;
+  pointer-events: none;
+  width: min(20rem, 86vw);
+  z-index: 95;
+}
+
+:host(.marketing-shell--menu-open) .marketing-drawer {
+  pointer-events: auto;
+  transform: translateX(0);
+}
+
+.marketing-drawer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.marketing-drawer-link {
+  border-radius: 0.65rem;
+  color: var(--shopify-white);
+  display: block;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.8rem 0.9rem;
+  text-align: center;
+  text-decoration: none;
+}
+
+.marketing-drawer-link:hover,
+.marketing-drawer-link--active {
+  background: rgb(255 255 255 / 8%);
+}
+
+.marketing-drawer-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.marketing-drawer-language {
+  margin: 0;
+  width: 100%;
+}
+
+.marketing-drawer-actions .marketing-drawer-link {
+  width: 100%;
+}
+
+.marketing-drawer-cta {
+  align-items: center;
+  background: var(--shopify-white);
+  border-radius: 999px;
+  color: var(--shopify-black);
+  display: flex;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  width: 100%;
+}
+
+.marketing-drawer-cta:hover {
+  background: #e8e8e8;
+}
+
 @media (max-width: 1024px) {
-  .marketing-nav {
+  .marketing-nav,
+  .marketing-header-actions {
     display: none;
+  }
+
+  .marketing-menu-btn {
+    display: inline-flex;
   }
 }
 
-@media (max-width: 768px) {
-  .marketing-header-actions .marketing-link,
-  .marketing-language {
+@media (min-width: 1025px) {
+  .marketing-menu-backdrop,
+  .marketing-drawer {
     display: none;
   }
 }

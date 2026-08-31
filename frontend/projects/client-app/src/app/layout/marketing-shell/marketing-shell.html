@@ -1,5 +1,16 @@
 <header class="marketing-header">
   <div class="marketing-header-inner">
+    <button
+      class="marketing-menu-btn"
+      type="button"
+      [attr.aria-label]="(sideMenuOpen() ? 'marketing.nav.closeMenu' : 'marketing.nav.openMenu') | translate"
+      [attr.aria-expanded]="sideMenuOpen()"
+      aria-controls="marketing-side-menu"
+      (click)="toggleSideMenu()"
+    >
+      <span class="marketing-menu-icon" aria-hidden="true"></span>
+    </button>
+
     <a class="marketing-logo" routerLink="/" [attr.aria-label]="'marketing.brand' | translate">
       <img class="marketing-logo-icon" src="/images/logo.svg" alt="" width="332" height="145" />
     </a>
@@ -17,6 +28,53 @@
     </div>
   </div>
 </header>
+
+@if (sideMenuOpen()) {
+  <button
+    class="marketing-menu-backdrop"
+    type="button"
+    tabindex="-1"
+    [attr.aria-label]="'marketing.nav.closeMenu' | translate"
+    (click)="closeSideMenu()"
+  ></button>
+}
+
+<aside
+  id="marketing-side-menu"
+  class="marketing-drawer"
+  [attr.aria-hidden]="!sideMenuOpen()"
+>
+  <nav class="marketing-drawer-nav" [attr.aria-label]="'marketing.nav.menu' | translate">
+    @for (item of navItems; track item.labelKey) {
+      <a
+        class="marketing-drawer-link"
+        [routerLink]="['/', item.route]"
+        routerLinkActive="marketing-drawer-link--active"
+        (click)="closeSideMenu()"
+      >
+        {{ item.labelKey | translate }}
+      </a>
+    }
+  </nav>
+
+  <div class="marketing-drawer-actions">
+    <app-language-selector class="marketing-drawer-language" variant="stacked" />
+    <a
+      class="marketing-drawer-link"
+      [routerLink]="['/', routes.login]"
+      (click)="closeSideMenu()"
+    >
+      {{ 'marketing.nav.login' | translate }}
+    </a>
+    <a
+      class="marketing-drawer-cta"
+      [routerLink]="['/', routes.register]"
+      (click)="closeSideMenu()"
+    >
+      {{ 'marketing.nav.startFree' | translate }}
+    </a>
+  </div>
+</aside>
 
 <main class="marketing-main">
   <router-outlet />
