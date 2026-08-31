@@ -51,6 +51,13 @@ class UserUpdate(UserBase):
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
+    name: str | None = Field(default=None, max_length=255)
+    last_name: str | None = Field(default=None, max_length=255)
+    country: str | None = Field(default=None, max_length=255)
+    city: str | None = Field(default=None, max_length=255)
+    address_line_one: str | None = Field(default=None, max_length=255)
+    address_line_two: str | None = Field(default=None, max_length=255)
+    timezone: str | None = Field(default=None, max_length=255)
 
 
 class UserLogin(SQLModel):

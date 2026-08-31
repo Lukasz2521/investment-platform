@@ -1,4 +1,4 @@
-import { Component, input, output, viewChild } from '@angular/core';
+import { Component, input, output, signal, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -6,6 +6,7 @@ import { InputText } from 'primeng/inputtext';
 import { Table, TableModule } from 'primeng/table';
 
 import { BankPublic } from '../../../core/banks/models/bank.model';
+import { bankLogoUrl } from '../../../core/banks/utils/bank-logo-url';
 
 @Component({
   selector: 'admin-app-banks-table',
@@ -21,6 +22,8 @@ export class BanksTable {
 
   readonly editBank = output<BankPublic>();
   readonly deleteBank = output<BankPublic>();
+
+  private readonly brokenLogoIds = signal(new Set<string>());
 
   protected onSearch(event: Event): void {
     const value = (event.target as HTMLInputElement).value;
@@ -39,6 +42,18 @@ export class BanksTable {
   protected onDeleteClick(bank: BankPublic, event: Event): void {
     event.stopPropagation();
     this.deleteBank.emit(bank);
+  }
+
+  protected logoUrl(bank: BankPublic): string | null {
+    return bankLogoUrl(bank.bank_logo);
+  }
+
+  protected showLogo(bank: BankPublic): boolean {
+    return Boolean(this.logoUrl(bank)) && !this.brokenLogoIds().has(bank.id);
+  }
+
+  protected onLogoError(bankId: string): void {
+    this.brokenLogoIds.update((ids) => new Set(ids).add(bankId));
   }
 
   protected getBankInitials(name: string): string {

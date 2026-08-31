@@ -1,10 +1,12 @@
 import sentry_sdk
 from fastapi import FastAPI
 from fastapi.routing import APIRoute
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
+from app.core.storage import ensure_upload_dirs
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -31,3 +33,10 @@ if settings.all_cors_origins:
     )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)
+
+uploads_dir = ensure_upload_dirs().parent
+app.mount(
+    f"{settings.API_V1_STR}/uploads",
+    StaticFiles(directory=uploads_dir),
+    name="uploads",
+)

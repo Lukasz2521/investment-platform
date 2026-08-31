@@ -1,19 +1,12 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
 
-import { AuthService } from '../../core/auth/services/auth.service';
 import { BankPublic } from '../../core/banks/models/bank.model';
 import { BanksService } from '../../core/banks/services/banks.service';
+import { bankLogoUrl } from '../../core/banks/utils/bank-logo-url';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
-import { UsersService } from '../../core/users/services/users.service';
 import { DEPOSIT_PAYMENT_METHODS, PaymentMethod } from './deposit-payment-methods';
-
-export type DepositBankRow = {
-  bank: BankPublic;
-  isEnabled: boolean;
-};
 
 @Component({
   selector: 'app-deposit',
@@ -22,15 +15,13 @@ export type DepositBankRow = {
   styleUrl: './deposit.scss',
 })
 export class Deposit implements OnInit {
-  private readonly authService = inject(AuthService);
   private readonly banksService = inject(BanksService);
-  private readonly usersService = inject(UsersService);
   private readonly router = inject(Router);
 
   protected readonly paymentMethods = DEPOSIT_PAYMENT_METHODS;
   protected readonly expandedMethodId = signal<PaymentMethod['id'] | null>(null);
 
-  protected readonly bankRows = signal<DepositBankRow[]>([]);
+  protected readonly banks = signal<BankPublic[]>([]);
   protected readonly banksLoading = signal(false);
   protected readonly banksError = signal(false);
   protected readonly bankSearch = signal('');
@@ -38,13 +29,13 @@ export class Deposit implements OnInit {
 
   protected readonly filteredBanks = computed(() => {
     const query = this.bankSearch().trim().toLowerCase();
-    const rows = this.bankRows();
+    const banks = this.banks();
 
     if (!query) {
-      return rows;
+      return banks;
     }
 
-    return rows.filter((row) => row.bank.name.toLowerCase().includes(query));
+    return banks.filter((bank) => bank.name.toLowerCase().includes(query));
   });
 
   ngOnInit(): void {
@@ -67,12 +58,8 @@ export class Deposit implements OnInit {
     this.bankSearch.set((event.target as HTMLInputElement).value);
   }
 
-  protected openBankDetail(row: DepositBankRow): void {
-    if (!row.isEnabled) {
-      return;
-    }
-
-    void this.router.navigate(['/', APP_ROUTE_PATHS.deposit, row.bank.id]);
+  protected openBankDetail(bank: BankPublic): void {
+    void this.router.navigate(['/', APP_ROUTE_PATHS.deposit, bank.id]);
   }
 
   protected onLogoError(bankId: string): void {
@@ -83,8 +70,12 @@ export class Deposit implements OnInit {
     });
   }
 
+  protected logoUrl(bank: BankPublic): string | null {
+    return bankLogoUrl(bank.bank_logo);
+  }
+
   protected showLogo(bank: BankPublic): boolean {
-    return Boolean(bank.bank_logo) && !this.brokenLogoIds().has(bank.id);
+    return Boolean(this.logoUrl(bank)) && !this.brokenLogoIds().has(bank.id);
   }
 
   protected getBankInitials(name: string): string {
@@ -100,34 +91,13 @@ export class Deposit implements OnInit {
     this.banksLoading.set(true);
     this.banksError.set(false);
 
-    this.authService.getMe().subscribe({
-      next: (me) => {
-        forkJoin({
-          banks: this.banksService.getAll(),
-          user: this.usersService.getById(me.id),
-        }).subscribe({
-          next: ({ banks, user }) => {
-            const enabledByBankId = new Map(
-              (user.account?.banks ?? []).map((link) => [link.bank.id, link.is_enabled]),
-            );
-
-            this.bankRows.set(
-              banks.data.map((bank) => ({
-                bank,
-                isEnabled: enabledByBankId.get(bank.id) ?? false,
-              })),
-            );
-            this.banksLoading.set(false);
-          },
-          error: () => {
-            this.bankRows.set([]);
-            this.banksLoading.set(false);
-            this.banksError.set(true);
-          },
-        });
+    this.banksService.getAll().subscribe({
+      next: (banks) => {
+        this.banks.set(banks.data);
+        this.banksLoading.set(false);
       },
       error: () => {
-        this.bankRows.set([]);
+        this.banks.set([]);
         this.banksLoading.set(false);
         this.banksError.set(true);
       },

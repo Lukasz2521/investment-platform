@@ -59,12 +59,14 @@
         </div>
       </div>
 
-      <div class="profile-hero-visual" aria-hidden="true">
-        <div class="profile-avatar">
+      <div class="profile-hero-visual">
+        <div class="profile-avatar" [attr.aria-label]="avatarLabel()">
           <span class="profile-avatar-label">{{ avatarLabel() }}</span>
         </div>
       </div>
     </article>
+
+    <app-profile-personal-data [user]="currentUser" (saved)="user.set($event)" />
 
     <section
       class="profile-documents"

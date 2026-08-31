@@ -7,7 +7,6 @@
   [closable]="false"
   [style]="{ width: '52rem', maxWidth: '95vw' }"
   styleClass="banks-add-dialog"
-  (onHide)="closeDialog()"
 >
   <form class="banks-add-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
     <div class="banks-add-dialog-columns">
@@ -60,7 +59,7 @@
             #imageInput
             class="banks-add-dialog-image-input"
             type="file"
-            accept="image/*"
+            accept="image/png,image/jpeg,image/webp,image/gif"
             (change)="onImageSelected($event)"
           />
 
@@ -83,6 +82,10 @@
               />
             }
           </div>
+
+          @if (imageError(); as error) {
+            <p class="banks-add-dialog-image-error" role="alert">{{ error }}</p>
+          }
         </div>
 
         <label class="banks-add-dialog-field">

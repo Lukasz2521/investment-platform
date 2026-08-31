@@ -4,6 +4,7 @@ import { AuthService } from '../../core/auth/services/auth.service';
 import { UserPublic } from '../../core/auth/models/user-public.model';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../core/i18n/services/translation.service';
+import { ProfilePersonalData } from './profile-personal-data/profile-personal-data';
 
 function localeForLanguage(language: string): string {
   switch (language) {
@@ -83,7 +84,7 @@ function emptyDocumentState(): ProfileDocumentState {
 
 @Component({
   selector: 'app-profile',
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, ProfilePersonalData],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss', './profile-documents.scss'],
 })
@@ -125,15 +126,12 @@ export class Profile implements OnInit, OnDestroy {
 
   protected readonly avatarLabel = computed(() => {
     const login = (this.user()?.username || this.user()?.email || '').trim();
-    if (!login) {
-      return '?';
-    }
+    const initials = Array.from(login)
+      .slice(0, 2)
+      .join('')
+      .toLocaleUpperCase();
 
-    if (login.length <= 8) {
-      return login;
-    }
-
-    return login.slice(0, 2).toUpperCase();
+    return initials || '?';
   });
 
   protected readonly memberSince = computed(() => {

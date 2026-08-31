@@ -8,6 +8,7 @@ import { APP_ROUTE_PATHS } from '../../routing/app-route-paths';
 import { TokenResponse } from '../models/token-response.model';
 import { UserPublic } from '../models/user-public.model';
 import { UserRegisterPayload } from '../models/user-register.model';
+import { UserUpdateMePayload } from '../models/user-update-me.model';
 import { isTokenExpired } from '../utils/auth.utils';
 
 @Injectable({ providedIn: 'root' })
@@ -28,6 +29,10 @@ export class AuthService {
 
   getMe(): Observable<UserPublic> {
     return this.http.get<UserPublic>(`${environment.apiUrl}/users/me`);
+  }
+
+  updateMe(payload: UserUpdateMePayload): Observable<UserPublic> {
+    return this.http.patch<UserPublic>(`${environment.apiUrl}/users/me`, payload);
   }
 
   deleteMe(): Observable<{ message: string }> {

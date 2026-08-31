@@ -1,11 +1,18 @@
-import { Component, computed, effect, inject, input, model, output, signal } from '@angular/core';
+import { Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
+import { Observable } from 'rxjs';
 
 import { BankPublic } from '../../../core/banks/models/bank.model';
 import { BanksService } from '../../../core/banks/services/banks.service';
+import { bankLogoUrl } from '../../../core/banks/utils/bank-logo-url';
+
+const ALLOWED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif']);
+const ALLOWED_IMAGE_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
+const MAX_IMAGE_BYTES = 2 * 1024 * 1024;
 
 @Component({
   selector: 'admin-app-banks-add-dialog',
@@ -25,6 +32,10 @@ export class BanksAddDialog {
   protected readonly submitting = signal(false);
   protected readonly imagePreviewUrl = signal<string | null>(null);
   protected readonly imageRemoved = signal(false);
+  protected readonly imageError = signal<string | null>(null);
+
+  private selectedImageFile: File | null = null;
+  private dialogSessionKey: string | null = null;
 
   protected readonly isEditMode = computed(() => this.bank() !== null);
   protected readonly dialogHeader = computed(() =>
@@ -43,7 +54,7 @@ export class BanksAddDialog {
       return null;
     }
 
-    return this.bank()?.bank_logo ?? null;
+    return bankLogoUrl(this.bank()?.bank_logo);
   });
 
   protected readonly form = this.formBuilder.nonNullable.group({
@@ -60,24 +71,41 @@ export class BanksAddDialog {
 
   constructor() {
     effect(() => {
-      if (!this.visible()) {
+      const isVisible = this.visible();
+      const sessionKey = isVisible ? (this.bank()?.id ?? 'new') : null;
+
+      if (!isVisible) {
+        this.dialogSessionKey = null;
         return;
       }
 
-      const bank = this.bank();
-      if (bank) {
-        this.patchFormFromBank(bank);
-      } else {
-        this.resetForm();
+      if (this.dialogSessionKey === sessionKey) {
+        return;
       }
+
+      this.dialogSessionKey = sessionKey;
+      untracked(() => {
+        const bank = this.bank();
+        if (bank) {
+          this.patchFormFromBank(bank);
+        } else {
+          this.resetForm();
+        }
+      });
     });
   }
 
   protected onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
+    input.value = '';
 
     if (!file) {
+      return;
+    }
+
+    if (!this.isAllowedImage(file) || file.size > MAX_IMAGE_BYTES) {
+      this.imageError.set('Use a PNG, JPEG, WEBP or GIF image up to 2 MB.');
       return;
     }
 
@@ -86,9 +114,10 @@ export class BanksAddDialog {
       URL.revokeObjectURL(previousPreviewUrl);
     }
 
+    this.imageError.set(null);
+    this.selectedImageFile = file;
     this.imagePreviewUrl.set(URL.createObjectURL(file));
     this.imageRemoved.set(false);
-    input.value = '';
   }
 
   protected removeImage(): void {
@@ -98,7 +127,9 @@ export class BanksAddDialog {
     }
 
     this.imagePreviewUrl.set(null);
+    this.selectedImageFile = null;
     this.imageRemoved.set(true);
+    this.imageError.set(null);
   }
 
   protected closeDialog(): void {
@@ -112,12 +143,9 @@ export class BanksAddDialog {
       return;
     }
 
+    const file = this.selectedImageFile;
+    const imageRemoved = this.imageRemoved();
     const value = this.form.getRawValue();
-    const bankLogo = this.imageRemoved()
-      ? ''
-      : this.imagePreviewUrl()
-        ? ''
-        : (this.bank()?.bank_logo ?? '');
     const payload = {
       name: value.name.trim(),
       bank_address: value.bank_address.trim(),
@@ -127,16 +155,16 @@ export class BanksAddDialog {
       swift: value.swift.trim(),
       company_address: value.company_address.trim(),
       transfer_title: value.transfer_title.trim(),
-      bank_description: value.bank_description.trim() || null,
-      bank_logo: bankLogo,
+      bank_description: value.bank_description.trim(),
     };
 
     const bank = this.bank();
     this.submitting.set(true);
+    this.imageError.set(null);
 
-    const request$ = bank
-      ? this.banksService.update(bank.id, payload)
-      : this.banksService.create(payload);
+    const request$: Observable<BankPublic> = bank
+      ? this.banksService.update(bank.id, payload, { logo: file, removeLogo: imageRemoved })
+      : this.banksService.create(payload, file);
 
     request$.subscribe({
       next: (savedBank) => {
@@ -144,8 +172,33 @@ export class BanksAddDialog {
         this.closeDialog();
         this.submitting.set(false);
       },
-      error: () => this.submitting.set(false),
+      error: (error: HttpErrorResponse) => {
+        this.imageError.set(this.apiErrorMessage(error, file));
+        this.submitting.set(false);
+      },
     });
+  }
+
+  private apiErrorMessage(error: HttpErrorResponse, file: File | null): string {
+    const detail = error.error?.detail;
+    if (typeof detail === 'string' && detail.trim()) {
+      return detail;
+    }
+
+    if (file) {
+      return 'Could not save the bank image. Please try again.';
+    }
+
+    return 'Could not save the bank. Please try again.';
+  }
+
+  private isAllowedImage(file: File): boolean {
+    if (ALLOWED_IMAGE_TYPES.has(file.type)) {
+      return true;
+    }
+
+    const name = file.name.toLowerCase();
+    return ALLOWED_IMAGE_EXTENSIONS.some((extension) => name.endsWith(extension));
   }
 
   private patchFormFromBank(bank: BankPublic): void {
@@ -160,17 +213,22 @@ export class BanksAddDialog {
       transfer_title: bank.transfer_title,
       bank_description: bank.bank_description ?? '',
     });
-    this.imagePreviewUrl.set(null);
-    this.imageRemoved.set(false);
+    this.clearImageState();
   }
 
   private resetForm(): void {
     this.form.reset();
+    this.clearImageState();
+  }
+
+  private clearImageState(): void {
     const previewUrl = this.imagePreviewUrl();
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
     this.imagePreviewUrl.set(null);
+    this.selectedImageFile = null;
     this.imageRemoved.set(false);
+    this.imageError.set(null);
   }
 }

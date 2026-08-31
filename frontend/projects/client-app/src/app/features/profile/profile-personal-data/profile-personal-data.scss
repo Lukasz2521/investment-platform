@@ -1,0 +1,226 @@
+:host {
+  --personal-title: var(--profile-title, #f4f4f5);
+  --personal-subtitle: var(--profile-label, #a1a1aa);
+  --personal-card-bg: var(--profile-card-bg, #141414);
+  --personal-card-border: var(--profile-card-border, rgb(255 255 255 / 10%));
+  --personal-card-shadow: var(--profile-card-shadow, none);
+  --personal-label: var(--profile-label, #a1a1aa);
+  --personal-input-bg: #1a1a1a;
+  --personal-input-border: #3f3f46;
+  --personal-input-text: #f4f4f5;
+  --personal-input-placeholder: #71717a;
+  --personal-input-readonly-bg: #27272a;
+  --personal-input-focus: #7c3aed;
+  --personal-required: #f87171;
+  --personal-save-bg: #2563eb;
+  --personal-save-hover: #1d4ed8;
+  --personal-save-text: #ffffff;
+  --personal-save-disabled: #3f3f46;
+  --personal-error-bg: rgb(239 68 68 / 14%);
+  --personal-error-border: rgb(248 113 113 / 35%);
+  --personal-error-text: #fca5a5;
+  --personal-success-bg: rgb(34 197 94 / 14%);
+  --personal-success-border: rgb(74 222 128 / 35%);
+  --personal-success-text: #86efac;
+  --personal-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23a1a1aa' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+
+  display: block;
+}
+
+:host-context(.app-shell--light) {
+  --personal-input-bg: #ffffff;
+  --personal-input-border: #d1d5db;
+  --personal-input-text: #111827;
+  --personal-input-placeholder: #9ca3af;
+  --personal-input-readonly-bg: #eef2f6;
+  --personal-input-focus: #2563eb;
+  --personal-required: #dc2626;
+  --personal-save-disabled: #93c5fd;
+  --personal-error-bg: #fef2f2;
+  --personal-error-border: #fecaca;
+  --personal-error-text: #b91c1c;
+  --personal-success-bg: #ecfdf5;
+  --personal-success-border: #a7f3d0;
+  --personal-success-text: #047857;
+  --personal-select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236b7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.personal-data {
+  background: var(--personal-card-bg);
+  border: 1px solid var(--personal-card-border);
+  border-radius: 1rem;
+  box-shadow: var(--personal-card-shadow);
+  padding: 1.5rem 1.5rem 1.35rem;
+}
+
+.personal-data-header {
+  margin-bottom: 1.35rem;
+}
+
+.personal-data-title {
+  color: var(--personal-title);
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.3rem;
+}
+
+.personal-data-subtitle {
+  color: var(--personal-subtitle);
+  font-size: 0.9rem;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.personal-data-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.personal-data-message {
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+}
+
+.personal-data-message--error {
+  background: var(--personal-error-bg);
+  border: 1px solid var(--personal-error-border);
+  color: var(--personal-error-text);
+}
+
+.personal-data-message--success {
+  background: var(--personal-success-bg);
+  border: 1px solid var(--personal-success-border);
+  color: var(--personal-success-text);
+}
+
+.personal-data-grid {
+  display: grid;
+  gap: 1.05rem 1.25rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.personal-data-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.personal-data-label {
+  color: var(--personal-label);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.personal-data-required {
+  color: var(--personal-required);
+  margin-left: 0.1rem;
+}
+
+.personal-data-input {
+  background: var(--personal-input-bg);
+  border: 1px solid var(--personal-input-border);
+  border-radius: 0.5rem;
+  color: var(--personal-input-text);
+  font: inherit;
+  line-height: 1.4;
+  outline: none;
+  padding: 0.7rem 0.85rem;
+  width: 100%;
+}
+
+.personal-data-input::placeholder {
+  color: var(--personal-input-placeholder);
+}
+
+.personal-data-input:focus {
+  border-color: var(--personal-input-focus);
+  box-shadow: 0 0 0 1px var(--personal-input-focus);
+}
+
+.personal-data-input--readonly {
+  background: var(--personal-input-readonly-bg);
+  cursor: default;
+}
+
+.personal-data-select {
+  appearance: none;
+  background-image: var(--personal-select-chevron);
+  background-position: right 0.85rem center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  padding-right: 2.25rem;
+}
+
+.personal-data-footer {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 0.35rem;
+}
+
+.personal-data-consent {
+  align-items: flex-start;
+  color: var(--personal-label);
+  cursor: pointer;
+  display: flex;
+  font-size: 0.875rem;
+  gap: 0.55rem;
+  line-height: 1.4;
+  max-width: 28rem;
+}
+
+.personal-data-consent-input {
+  accent-color: var(--personal-save-bg);
+  flex-shrink: 0;
+  height: 1rem;
+  margin-top: 0.15rem;
+  width: 1rem;
+}
+
+.personal-data-save {
+  background: var(--personal-save-bg);
+  border: none;
+  border-radius: 0.5rem;
+  color: var(--personal-save-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 0.75rem 1.25rem;
+  white-space: nowrap;
+}
+
+.personal-data-save:hover:not(:disabled) {
+  background: var(--personal-save-hover);
+}
+
+.personal-data-save:disabled {
+  background: var(--personal-save-disabled);
+  cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+  .personal-data-grid,
+  .personal-data-footer {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .personal-data-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .personal-data-consent {
+    max-width: none;
+  }
+
+  .personal-data-save {
+    width: 100%;
+  }
+}

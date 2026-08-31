@@ -70,8 +70,13 @@
   <ng-template #body let-bank>
     <tr>
       <td>
-        @if (bank.bank_logo) {
-          <img class="banks-table-logo" [src]="bank.bank_logo" [alt]="bank.name" />
+        @if (showLogo(bank)) {
+          <img
+            class="banks-table-logo"
+            [src]="logoUrl(bank)"
+            [alt]="bank.name"
+            (error)="onLogoError(bank.id)"
+          />
         } @else {
           <span class="banks-table-logo-fallback">{{ getBankInitials(bank.name) }}</span>
         }

@@ -19,7 +19,7 @@
     <header class="bank-detail-header">
       <span class="bank-detail-logo" aria-hidden="true">
         @if (showLogo(currentBank)) {
-          <img [src]="currentBank.bank_logo" [alt]="" (error)="onLogoError()" />
+          <img [src]="logoUrl(currentBank)" [alt]="" (error)="onLogoError()" />
         } @else {
           <span class="bank-detail-logo-fallback">{{ getBankInitials(currentBank.name) }}</span>
         }

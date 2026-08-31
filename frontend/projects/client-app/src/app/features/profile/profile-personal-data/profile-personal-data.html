@@ -1,0 +1,217 @@
+<section
+  class="personal-data"
+  [attr.aria-label]="'app.profile.personal.ariaLabel' | translate"
+>
+  <header class="personal-data-header">
+    <h2 class="personal-data-title">{{ 'app.profile.personal.title' | translate }}</h2>
+    <p class="personal-data-subtitle">{{ 'app.profile.personal.subtitle' | translate }}</p>
+  </header>
+
+  <form class="personal-data-form" (submit)="onSubmit($event)" novalidate>
+    @if (error()) {
+      <p class="personal-data-message personal-data-message--error" role="alert">{{ error() }}</p>
+    }
+    @if (success()) {
+      <p class="personal-data-message personal-data-message--success" role="status">
+        {{ 'app.profile.personal.success' | translate }}
+      </p>
+    }
+
+    <div class="personal-data-grid">
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-name">
+          {{ 'app.profile.fields.name' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-name"
+          class="personal-data-input"
+          type="text"
+          name="name"
+          autocomplete="given-name"
+          required
+          [value]="form().name"
+          (input)="updateField('name', $event)"
+        />
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-last-name">
+          {{ 'app.profile.fields.lastName' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-last-name"
+          class="personal-data-input"
+          type="text"
+          name="lastName"
+          autocomplete="family-name"
+          required
+          [value]="form().lastName"
+          (input)="updateField('lastName', $event)"
+        />
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-phone">
+          {{ 'app.profile.fields.phone' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-phone"
+          class="personal-data-input personal-data-input--readonly"
+          type="tel"
+          name="phone"
+          autocomplete="tel"
+          readonly
+          [value]="form().phone"
+        />
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-email">
+          {{ 'app.profile.fields.email' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-email"
+          class="personal-data-input personal-data-input--readonly"
+          type="email"
+          name="email"
+          autocomplete="email"
+          readonly
+          [value]="form().email"
+        />
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-address">
+          {{ 'app.profile.fields.address' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-address"
+          class="personal-data-input"
+          type="text"
+          name="address"
+          autocomplete="street-address"
+          required
+          [attr.placeholder]="'app.profile.personal.placeholders.address' | translate"
+          [value]="form().address"
+          (input)="updateField('address', $event)"
+        />
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-city">
+          {{ 'app.profile.fields.city' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-city"
+          class="personal-data-input"
+          type="text"
+          name="city"
+          autocomplete="address-level2"
+          required
+          [attr.placeholder]="'app.profile.personal.placeholders.city' | translate"
+          [value]="form().city"
+          (input)="updateField('city', $event)"
+        />
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-timezone">
+          {{ 'app.profile.fields.timezone' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <select
+          id="personal-timezone"
+          class="personal-data-input personal-data-select"
+          name="timezone"
+          required
+          [value]="form().timezone"
+          (change)="updateField('timezone', $event)"
+        >
+          <option value="" disabled hidden>{{ 'app.profile.personal.placeholders.timezone' | translate }}</option>
+          @for (zone of timezoneOptions(); track zone) {
+            <option [value]="zone">{{ zone }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-postal">
+          {{ 'app.profile.personal.fields.postalCode' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-postal"
+          class="personal-data-input"
+          type="text"
+          name="postalCode"
+          autocomplete="postal-code"
+          [attr.placeholder]="'app.profile.personal.placeholders.postalCode' | translate"
+          required
+          [value]="form().postalCode"
+          (input)="updateField('postalCode', $event)"
+        />
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-country">
+          {{ 'app.profile.fields.country' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <select
+          id="personal-country"
+          class="personal-data-input personal-data-select"
+          name="country"
+          autocomplete="country-name"
+          required
+          [value]="form().country"
+          (change)="updateField('country', $event)"
+        >
+          <option value="" disabled hidden>{{ 'app.profile.personal.placeholders.country' | translate }}</option>
+          @for (country of countryOptions(); track country) {
+            <option [value]="country">{{ country }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="personal-data-field">
+        <label class="personal-data-label" for="personal-currency">
+          {{ 'app.profile.personal.fields.currency' | translate }}
+          <span class="personal-data-required" aria-hidden="true">*</span>
+        </label>
+        <input
+          id="personal-currency"
+          class="personal-data-input personal-data-input--readonly"
+          type="text"
+          name="currency"
+          readonly
+          [value]="form().currency"
+        />
+      </div>
+    </div>
+
+    <div class="personal-data-footer">
+      <label class="personal-data-consent">
+        <input
+          class="personal-data-consent-input"
+          type="checkbox"
+          name="marketingConsent"
+          [checked]="form().marketingConsent"
+          (change)="updateField('marketingConsent', $event)"
+        />
+        <span>{{ 'app.profile.personal.marketingConsent' | translate }}</span>
+      </label>
+
+      <button class="personal-data-save" type="submit" [disabled]="saving()">
+        {{
+          (saving() ? 'app.profile.personal.saving' : 'app.profile.personal.save') | translate
+        }}
+      </button>
+    </div>
+  </form>
+</section>

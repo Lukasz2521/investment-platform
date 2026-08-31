@@ -1,13 +1,11 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 
-import { AuthService } from '../../../core/auth/services/auth.service';
 import { BankPublic } from '../../../core/banks/models/bank.model';
 import { BanksService } from '../../../core/banks/services/banks.service';
+import { bankLogoUrl } from '../../../core/banks/utils/bank-logo-url';
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../../core/routing/app-route-paths';
-import { UsersService } from '../../../core/users/services/users.service';
 
 @Component({
   selector: 'app-deposit-bank-detail',
@@ -18,9 +16,7 @@ import { UsersService } from '../../../core/users/services/users.service';
 export class DepositBankDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
   private readonly banksService = inject(BanksService);
-  private readonly usersService = inject(UsersService);
 
   protected readonly depositPath = `/${APP_ROUTE_PATHS.deposit}`;
   protected readonly bank = signal<BankPublic | null>(null);
@@ -38,8 +34,12 @@ export class DepositBankDetail implements OnInit {
     this.loadBank(bankId);
   }
 
+  protected logoUrl(bank: BankPublic): string | null {
+    return bankLogoUrl(bank.bank_logo);
+  }
+
   protected showLogo(bank: BankPublic): boolean {
-    return Boolean(bank.bank_logo) && !this.logoBroken();
+    return Boolean(this.logoUrl(bank)) && !this.logoBroken();
   }
 
   protected onLogoError(): void {
@@ -64,31 +64,10 @@ export class DepositBankDetail implements OnInit {
     this.loading.set(true);
     this.error.set(false);
 
-    this.authService.getMe().subscribe({
-      next: (me) => {
-        forkJoin({
-          bank: this.banksService.getById(bankId),
-          user: this.usersService.getById(me.id),
-        }).subscribe({
-          next: ({ bank, user }) => {
-            const isEnabled =
-              user.account?.banks?.some((link) => link.bank.id === bank.id && link.is_enabled) ??
-              false;
-
-            if (!isEnabled) {
-              void this.router.navigateByUrl(this.depositPath);
-              return;
-            }
-
-            this.bank.set(bank);
-            this.loading.set(false);
-          },
-          error: () => {
-            this.bank.set(null);
-            this.loading.set(false);
-            this.error.set(true);
-          },
-        });
+    this.banksService.getById(bankId).subscribe({
+      next: (bank) => {
+        this.bank.set(bank);
+        this.loading.set(false);
       },
       error: () => {
         this.bank.set(null);

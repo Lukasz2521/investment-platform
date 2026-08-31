@@ -18,8 +18,8 @@
 </p-card>
 
 <admin-app-banks-add-dialog
-  [(visible)]="formDialogVisible"
   [bank]="bankToEdit()"
+  [(visible)]="formDialogVisible"
   (bankSaved)="onBankSaved()"
 />
 

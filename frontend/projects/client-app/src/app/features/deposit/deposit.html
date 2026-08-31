@@ -85,6 +85,18 @@
                   />
                 </label>
 
+                <section class="deposit-banks-info" aria-labelledby="deposit-banks-sepa-title">
+                  <h3 id="deposit-banks-sepa-title" class="deposit-banks-info-title">
+                    {{ 'app.deposit.banks.sepa.title' | translate }}
+                  </h3>
+                  <ul class="deposit-banks-info-list">
+                    <li>{{ 'app.deposit.banks.sepa.noFees' | translate }}</li>
+                    <li>{{ 'app.deposit.banks.sepa.minAmount' | translate }}</li>
+                  </ul>
+                  <p>{{ 'app.deposit.banks.sepa.uniqueAccount' | translate }}</p>
+                  <p>{{ 'app.deposit.banks.sepa.eurOnly' | translate }}</p>
+                </section>
+
                 @if (banksLoading()) {
                   <p class="deposit-banks-state">{{ 'app.deposit.banks.loading' | translate }}</p>
                 } @else if (banksError()) {
@@ -99,59 +111,35 @@
                       <span>{{ 'app.deposit.banks.columnBank' | translate }}</span>
                     </div>
                     <ul class="deposit-banks-list">
-                      @for (row of filteredBanks(); track row.bank.id) {
-                        <li class="deposit-banks-row" [class.deposit-banks-row--clickable]="row.isEnabled">
-                          @if (row.isEnabled) {
-                            <button
-                              type="button"
-                              class="deposit-banks-row-action"
-                              (click)="openBankDetail(row)"
-                            >
-                              <span class="deposit-banks-logo" aria-hidden="true">
-                                @if (showLogo(row.bank)) {
-                                  <img
-                                    [src]="row.bank.bank_logo"
-                                    [alt]=""
-                                    (error)="onLogoError(row.bank.id)"
-                                  />
-                                } @else {
-                                  <span class="deposit-banks-logo-fallback">{{
-                                    getBankInitials(row.bank.name)
-                                  }}</span>
-                                }
-                              </span>
-                              <span class="deposit-banks-name">{{ row.bank.name }}</span>
-                              <span
-                                class="deposit-method-status deposit-banks-status"
-                                data-status="active"
-                              >
-                                <span class="deposit-method-status-dot" aria-hidden="true"></span>
-                                {{ 'app.deposit.paymentMethods.statusActive' | translate }}
-                              </span>
-                            </button>
-                          } @else {
+                      @for (bank of filteredBanks(); track bank.id) {
+                        <li class="deposit-banks-row deposit-banks-row--clickable">
+                          <button
+                            type="button"
+                            class="deposit-banks-row-action"
+                            (click)="openBankDetail(bank)"
+                          >
                             <span class="deposit-banks-logo" aria-hidden="true">
-                              @if (showLogo(row.bank)) {
+                              @if (showLogo(bank)) {
                                 <img
-                                  [src]="row.bank.bank_logo"
+                                  [src]="logoUrl(bank)"
                                   [alt]=""
-                                  (error)="onLogoError(row.bank.id)"
+                                  (error)="onLogoError(bank.id)"
                                 />
                               } @else {
                                 <span class="deposit-banks-logo-fallback">{{
-                                  getBankInitials(row.bank.name)
+                                  getBankInitials(bank.name)
                                 }}</span>
                               }
                             </span>
-                            <span class="deposit-banks-name">{{ row.bank.name }}</span>
+                            <span class="deposit-banks-name">{{ bank.name }}</span>
                             <span
                               class="deposit-method-status deposit-banks-status"
-                              data-status="inactive"
+                              data-status="active"
                             >
                               <span class="deposit-method-status-dot" aria-hidden="true"></span>
-                              {{ 'app.deposit.paymentMethods.statusInactive' | translate }}
+                              {{ 'app.deposit.paymentMethods.statusActive' | translate }}
                             </span>
-                          }
+                          </button>
                         </li>
                       }
                     </ul>
@@ -163,5 +151,22 @@
         </li>
       }
     </ul>
+  </section>
+
+  <section class="deposit-funding" aria-labelledby="deposit-funding-title">
+    <h3 id="deposit-funding-title" class="deposit-funding-title">
+      {{ 'app.deposit.funding.title' | translate }}
+    </h3>
+    <p>{{ 'app.deposit.funding.intro' | translate }}</p>
+    <p>{{ 'app.deposit.funding.availability' | translate }}</p>
+    <p>{{ 'app.deposit.funding.licensed' | translate }}</p>
+    <p>{{ 'app.deposit.funding.note' | translate }}</p>
+    <ul class="deposit-funding-requirements">
+      <li>{{ 'app.deposit.funding.requirements.identity' | translate }}</li>
+      <li>{{ 'app.deposit.funding.requirements.eea' | translate }}</li>
+      <li>{{ 'app.deposit.funding.requirements.nameMatch' | translate }}</li>
+      <li>{{ 'app.deposit.funding.requirements.sepaSwift' | translate }}</li>
+    </ul>
+    <p>{{ 'app.deposit.funding.unsupported' | translate }}</p>
   </section>
 </section>
