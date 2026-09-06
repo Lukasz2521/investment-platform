@@ -17,6 +17,8 @@ import {
   CategoryTableRow,
   mapCategoriesForTable,
 } from '../../core/campaigns/utils/category-display.utils';
+import { CampaignsDeleteDialog } from './campaigns-delete-dialog/campaigns-delete-dialog';
+import { CampaignsFormDialog } from './campaigns-form-dialog/campaigns-form-dialog';
 import { CampaignsTable } from './campaigns-table/campaigns-table';
 import { CategoriesCreateDialog } from './categories-create-dialog/categories-create-dialog';
 import { CategoriesDeleteDialog } from './categories-delete-dialog/categories-delete-dialog';
@@ -35,6 +37,8 @@ import { CategoriesTable } from './categories-table/categories-table';
     TabPanel,
     CampaignsTable,
     CategoriesTable,
+    CampaignsFormDialog,
+    CampaignsDeleteDialog,
     CategoriesCreateDialog,
     CategoriesDeleteDialog,
   ],
@@ -50,6 +54,11 @@ export class CampaignsList {
   protected readonly categoriesLoading = signal(true);
   protected readonly campaigns = signal<CampaignTableRow[]>([]);
   protected readonly categories = signal<CategoryTableRow[]>([]);
+  protected readonly campaignFormDialogVisible = signal(false);
+  protected readonly campaignToEdit = signal<CampaignPublic | null>(null);
+  protected readonly campaignDeleteDialogVisible = signal(false);
+  protected readonly campaignToDelete = signal<CampaignPublic | null>(null);
+  protected readonly campaignDeleting = signal(false);
   protected readonly categoryFormDialogVisible = signal(false);
   protected readonly categoryToEdit = signal<CategoryPublic | null>(null);
   protected readonly categoryDeleteDialogVisible = signal(false);
@@ -60,6 +69,18 @@ export class CampaignsList {
   private loadedCategories: CategoryPublic[] | null = null;
 
   constructor() {
+    effect(() => {
+      if (!this.campaignFormDialogVisible()) {
+        this.campaignToEdit.set(null);
+      }
+    });
+
+    effect(() => {
+      if (!this.campaignDeleteDialogVisible()) {
+        this.campaignToDelete.set(null);
+      }
+    });
+
     effect(() => {
       if (!this.categoryFormDialogVisible()) {
         this.categoryToEdit.set(null);
@@ -81,6 +102,42 @@ export class CampaignsList {
 
       this.loadCategories();
       this.loadCampaigns();
+    });
+  }
+
+  protected openAddCampaignDialog(): void {
+    this.campaignToEdit.set(null);
+    this.campaignFormDialogVisible.set(true);
+  }
+
+  protected openEditCampaignDialog(campaign: CampaignTableRow): void {
+    this.campaignToEdit.set(campaign);
+    this.campaignFormDialogVisible.set(true);
+  }
+
+  protected openDeleteCampaignDialog(campaign: CampaignTableRow): void {
+    this.campaignToDelete.set(campaign);
+    this.campaignDeleteDialogVisible.set(true);
+  }
+
+  protected onCampaignSaved(): void {
+    this.loadCampaigns(true);
+  }
+
+  protected confirmDeleteCampaign(): void {
+    const campaign = this.campaignToDelete();
+    if (!campaign || this.campaignDeleting()) {
+      return;
+    }
+
+    this.campaignDeleting.set(true);
+    this.campaignsService.delete(campaign.id).subscribe({
+      next: () => {
+        this.campaignDeleteDialogVisible.set(false);
+        this.campaignDeleting.set(false);
+        this.loadCampaigns(true);
+      },
+      error: () => this.campaignDeleting.set(false),
     });
   }
 
@@ -136,7 +193,11 @@ export class CampaignsList {
     });
   }
 
-  private loadCampaigns(): void {
+  private loadCampaigns(showLoading = false): void {
+    if (showLoading) {
+      this.campaignsLoading.set(true);
+    }
+
     this.campaignsService.getAll().subscribe({
       next: ({ data }) => {
         this.loadedCampaigns = data;

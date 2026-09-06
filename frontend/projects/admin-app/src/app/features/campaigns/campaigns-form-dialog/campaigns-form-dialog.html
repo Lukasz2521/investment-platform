@@ -1,0 +1,173 @@
+<p-dialog
+  [header]="dialogHeader()"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '52rem', maxWidth: '95vw' }"
+  styleClass="campaigns-form-dialog"
+>
+  <form class="campaigns-form-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="campaigns-form-dialog-columns">
+      <div class="campaigns-form-dialog-column">
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Title<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="title" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Category<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <p-select
+            formControlName="category_id"
+            [options]="categoryOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select category"
+            [filter]="true"
+            filterBy="label"
+            appendTo="body"
+          />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Min Days<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="min_days" inputmode="numeric" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Days Count<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="days_count" inputmode="numeric" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Budget<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="budget" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Currency<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="currency" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Min Account<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <p-select
+            formControlName="min_account"
+            [options]="accountTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+          />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >Location<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="location" placeholder="PL, DE, FR" />
+        </label>
+      </div>
+
+      <div class="campaigns-form-dialog-column">
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >CPM Base<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="cpm_base" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >CPM Min<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="cpm_min" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >CPM Max<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="cpm_max" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >EPC Min<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="epc_min" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >EPC Max<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="epc_max" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >CTR Min<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="ctr_min" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label"
+            >CTR Max<span class="campaigns-form-dialog-required">*</span></span
+          >
+          <input pInputText type="text" formControlName="ctr_max" inputmode="decimal" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label">Image URL</span>
+          <input pInputText type="text" formControlName="image_url" />
+        </label>
+
+        <label class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label">Video URL</span>
+          <input pInputText type="text" formControlName="video_url" />
+        </label>
+      </div>
+    </div>
+
+    @if (submitError(); as error) {
+      <p class="campaigns-form-dialog-error" role="alert">{{ error }}</p>
+    }
+  </form>
+
+  <ng-template #footer>
+    <div class="campaigns-form-dialog-footer">
+      <p-button
+        type="button"
+        label="CANCEL"
+        [outlined]="true"
+        [disabled]="submitting()"
+        (onClick)="closeDialog()"
+      />
+      <p-button
+        type="button"
+        [label]="submitLabel()"
+        severity="secondary"
+        [loading]="submitting()"
+        [disabled]="form.invalid || submitting()"
+        (onClick)="submit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

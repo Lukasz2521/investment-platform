@@ -26,3 +26,26 @@ export type CampaignsPublic = {
   data: CampaignPublic[];
   count: number;
 };
+
+export type CampaignWrite = {
+  title: string;
+  min_days: number;
+  days_count: number;
+  category_id: string;
+  budget: number;
+  currency: string;
+  cpm_base: number;
+  cpm_min: number;
+  cpm_max: number;
+  epc_min: number;
+  epc_max: number;
+  ctr_min: number;
+  ctr_max: number;
+  location: string[];
+  min_account: AccountType;
+  image_url: string;
+  video_url: string;
+};
+
+export type CampaignCreate = CampaignWrite;
+export type CampaignUpdate = Partial<CampaignWrite>;

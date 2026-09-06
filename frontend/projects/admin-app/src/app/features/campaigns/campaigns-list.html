@@ -12,12 +12,17 @@
         </ng-template>
 
         <ng-template #end>
-          <p-button icon="pi pi-plus" ariaLabel="Add campaign" />
+          <p-button icon="pi pi-plus" ariaLabel="Add campaign" (onClick)="openAddCampaignDialog()" />
         </ng-template>
       </p-toolbar>
 
       <p-card>
-        <admin-app-campaigns-table [campaigns]="campaigns()" [loading]="campaignsLoading()" />
+        <admin-app-campaigns-table
+          [campaigns]="campaigns()"
+          [loading]="campaignsLoading()"
+          (editCampaign)="openEditCampaignDialog($event)"
+          (deleteCampaign)="openDeleteCampaignDialog($event)"
+        />
       </p-card>
     </p-tabpanel>
 
@@ -43,6 +48,20 @@
     </p-tabpanel>
   </p-tabpanels>
 </p-tabs>
+
+<admin-app-campaigns-form-dialog
+  [(visible)]="campaignFormDialogVisible"
+  [campaign]="campaignToEdit()"
+  [categories]="categories()"
+  (campaignSaved)="onCampaignSaved()"
+/>
+
+<admin-app-campaigns-delete-dialog
+  [(visible)]="campaignDeleteDialogVisible"
+  [campaign]="campaignToDelete()"
+  [deleting]="campaignDeleting()"
+  (confirm)="confirmDeleteCampaign()"
+/>
 
 <admin-app-categories-create-dialog
   [(visible)]="categoryFormDialogVisible"

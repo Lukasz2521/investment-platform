@@ -84,6 +84,7 @@
             [rounded]="true"
             [outlined]="true"
             ariaLabel="Edit campaign"
+            (onClick)="onEditClick(campaign, $event)"
           />
           <p-button
             icon="pi pi-trash"
@@ -91,6 +92,7 @@
             [rounded]="true"
             [outlined]="true"
             ariaLabel="Delete campaign"
+            (onClick)="onDeleteClick(campaign, $event)"
           />
         </div>
       </td>
