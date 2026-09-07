@@ -101,24 +101,30 @@
   </section>
 
   <div class="markets-categories">
-    @for (category of categories(); track category.id) {
-      <section class="markets-category" [attr.aria-labelledby]="'markets-category-' + category.id">
-        <h2 class="markets-category-title" [id]="'markets-category-' + category.id">
-          {{ category.labelKey | translate }}
-        </h2>
+    @if (loading()) {
+      <p class="markets-empty">{{ 'app.markets.loading' | translate }}</p>
+    } @else if (loadError()) {
+      <p class="markets-empty">{{ 'app.markets.error' | translate }}</p>
+    } @else {
+      @for (category of categories(); track category.id) {
+        <section class="markets-category" [attr.aria-labelledby]="'markets-category-' + category.id">
+          <h2 class="markets-category-title" [id]="'markets-category-' + category.id">
+            {{ category.name }}
+          </h2>
 
-        <app-campaign-card-row [visibleCount]="3">
-          @for (campaign of category.campaigns; track campaign.id) {
-            <app-campaign-card
-              variant="markets"
-              [campaign]="campaign"
-              (select)="openCampaign($event)"
-            />
-          }
-        </app-campaign-card-row>
-      </section>
-    } @empty {
-      <p class="markets-empty">{{ 'app.markets.empty' | translate }}</p>
+          <app-campaign-card-row [visibleCount]="3">
+            @for (campaign of category.campaigns; track campaign.id) {
+              <app-campaign-card
+                variant="markets"
+                [campaign]="campaign"
+                (select)="openCampaign($event)"
+              />
+            }
+          </app-campaign-card-row>
+        </section>
+      } @empty {
+        <p class="markets-empty">{{ 'app.markets.empty' | translate }}</p>
+      }
     }
   </div>
 </section>

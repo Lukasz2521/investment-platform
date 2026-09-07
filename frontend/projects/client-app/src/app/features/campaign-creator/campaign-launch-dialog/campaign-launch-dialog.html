@@ -18,15 +18,29 @@
       {{ 'app.campaignCreator.launchDialog.message' | translate }}
     </p>
 
+    @if (error()) {
+      <p class="launch-dialog-error" role="alert">{{ error() }}</p>
+    }
+
     <div class="launch-dialog-actions">
       <button
         type="button"
         class="launch-dialog-btn launch-dialog-btn--confirm"
+        [disabled]="busy()"
         (click)="onConfirm()"
       >
-        {{ 'app.campaignCreator.launchDialog.confirm' | translate }}
+        {{
+          (busy()
+            ? 'app.campaignCreator.launchDialog.confirming'
+            : 'app.campaignCreator.launchDialog.confirm') | translate
+        }}
       </button>
-      <button type="button" class="launch-dialog-btn launch-dialog-btn--cancel" (click)="onCancel()">
+      <button
+        type="button"
+        class="launch-dialog-btn launch-dialog-btn--cancel"
+        [disabled]="busy()"
+        (click)="onCancel()"
+      >
         {{ 'app.campaignCreator.launchDialog.cancel' | translate }}
       </button>
     </div>

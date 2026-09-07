@@ -28,7 +28,11 @@
   </div>
 
   <div class="my-campaigns-panel" role="tabpanel">
-    @if (visibleCampaigns().length === 0) {
+    @if (loading()) {
+      <p class="my-campaigns-empty">{{ 'app.myCampaigns.loading' | translate }}</p>
+    } @else if (loadError()) {
+      <p class="my-campaigns-empty">{{ 'app.myCampaigns.error' | translate }}</p>
+    } @else if (visibleCampaigns().length === 0) {
       <p class="my-campaigns-empty">{{ 'app.myCampaigns.empty' | translate }}</p>
     } @else {
       <div class="my-campaigns-grid">

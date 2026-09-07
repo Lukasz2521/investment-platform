@@ -415,8 +415,20 @@
   width: 100%;
 }
 
-.market-detail-start:hover {
+.market-detail-start:hover:not(:disabled) {
   background: var(--detail-start-hover);
+}
+
+.market-detail-start:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.market-detail-start-error {
+  color: #f87171;
+  font-size: 0.875rem;
+  margin: 0.55rem 0 0;
+  text-align: center;
 }
 
 .market-detail-missing p {

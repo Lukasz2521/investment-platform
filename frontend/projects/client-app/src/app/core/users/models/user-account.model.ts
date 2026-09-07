@@ -7,6 +7,8 @@ export type AccountBankPublic = {
 };
 
 export type AccountPublicForUser = {
+  balance: string;
+  available_balance: string;
   created_at: string | null;
   banks: AccountBankPublic[];
 };

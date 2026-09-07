@@ -1,4 +1,5 @@
 import uuid
+from datetime import date, datetime, timezone
 from typing import Any
 
 from sqlalchemy.orm import selectinload
@@ -33,6 +34,11 @@ from app.models import (
     Transaction,
     UpdateTransaction,
     User,
+    UserCampaign,
+    UserCampaignCreate,
+    UserCampaignPublic,
+    UserCampaignStatus,
+    UserCampaignsPublic,
     UserCreate,
     UserRegister,
     UserUpdate,
@@ -150,6 +156,15 @@ def get_campaigns(
     )
     rows = session.exec(statement).all()
     return list(rows), count
+
+
+def get_campaign(*, session: Session, campaign_id: uuid.UUID) -> Campaign | None:
+    statement = (
+        select(Campaign)
+        .options(selectinload(Campaign.stats))
+        .where(Campaign.id == campaign_id)
+    )
+    return session.exec(statement).first()
 
 
 def to_campaign_public(campaign: Campaign) -> CampaignPublic:
@@ -353,3 +368,84 @@ def set_account_bank_enabled(
     session.commit()
     session.refresh(link)
     return link
+
+
+def resolve_user_campaign_status(
+    row: UserCampaign, *, today: date | None = None
+) -> UserCampaignStatus:
+    if row.status == UserCampaignStatus.CANCELLED:
+        return UserCampaignStatus.CANCELLED
+    today = today or datetime.now(timezone.utc).date()
+    if row.end_date < today:
+        return UserCampaignStatus.COMPLETED
+    return UserCampaignStatus.ACTIVE
+
+
+def to_user_campaign_public(row: UserCampaign) -> UserCampaignPublic:
+    if row.campaign is None:
+        raise ValueError("Campaign is required")
+    return UserCampaignPublic(
+        id=row.id,
+        user_id=row.user_id,
+        campaign_id=row.campaign_id,
+        start_date=row.start_date,
+        end_date=row.end_date,
+        budget=row.budget,
+        status=resolve_user_campaign_status(row),
+        created_at=row.created_at,
+        campaign=to_campaign_public(row.campaign),
+    )
+
+
+def _user_campaign_query():
+    return select(UserCampaign).options(
+        selectinload(UserCampaign.campaign).selectinload(Campaign.stats)
+    )
+
+
+def create_user_campaign(
+    *,
+    session: Session,
+    user_id: uuid.UUID,
+    campaign_in: UserCampaignCreate,
+) -> UserCampaign:
+    db_obj = UserCampaign(
+        user_id=user_id,
+        campaign_id=campaign_in.campaign_id,
+        start_date=campaign_in.start_date,
+        end_date=campaign_in.end_date,
+        budget=campaign_in.budget,
+        status=UserCampaignStatus.ACTIVE,
+    )
+    session.add(db_obj)
+    session.commit()
+    loaded = get_user_campaign(session=session, user_campaign_id=db_obj.id)
+    assert loaded is not None
+    return loaded
+
+
+def get_user_campaign(
+    *, session: Session, user_campaign_id: uuid.UUID
+) -> UserCampaign | None:
+    statement = _user_campaign_query().where(UserCampaign.id == user_campaign_id)
+    return session.exec(statement).first()
+
+
+def get_user_campaigns_by_user_id(
+    *, session: Session, user_id: uuid.UUID, skip: int = 0, limit: int = 100
+) -> tuple[list[UserCampaign], int]:
+    count_statement = (
+        select(func.count())
+        .select_from(UserCampaign)
+        .where(UserCampaign.user_id == user_id)
+    )
+    count = session.exec(count_statement).one()
+    statement = (
+        _user_campaign_query()
+        .where(UserCampaign.user_id == user_id)
+        .order_by(col(UserCampaign.created_at).desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    rows = session.exec(statement).all()
+    return list(rows), count

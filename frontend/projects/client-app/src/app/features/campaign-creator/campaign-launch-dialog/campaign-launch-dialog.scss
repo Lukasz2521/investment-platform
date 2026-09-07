@@ -104,3 +104,15 @@
 .launch-dialog-btn--confirm:hover {
   background: var(--launch-dialog-confirm-hover);
 }
+
+.launch-dialog-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.launch-dialog-error {
+  color: #f87171;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  margin: 0;
+}

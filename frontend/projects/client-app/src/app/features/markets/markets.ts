@@ -1,6 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
+import { CampaignsService } from '../../core/campaigns/services/campaigns.service';
+import { CategoriesService } from '../../core/campaigns/services/categories.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 import { CampaignCard } from '../campaigns/campaign-card/campaign-card';
@@ -9,11 +12,8 @@ import {
   CampaignMembershipPlan,
   CampaignOption,
 } from '../campaign-creator/campaign-options';
-import {
-  getMarketCategorySections,
-  MARKET_CAMPAIGNS,
-  MarketCampaign,
-} from './market-campaigns';
+import { getMarketCategorySections, MarketCampaign } from './market-campaigns';
+import { toMarketCampaign } from './to-market-campaign';
 
 type MarketFilters = {
   membershipPlan: CampaignMembershipPlan | '';
@@ -24,7 +24,7 @@ type MarketFilters = {
 
 const BUDGET_FLOOR = 0;
 const BUDGET_CEIL = 100_000;
-const DEFAULT_BUDGET_MAX = 10_000;
+const DEFAULT_BUDGET_MAX = BUDGET_CEIL;
 
 const MEMBERSHIP_PLANS: CampaignMembershipPlan[] = [
   'fundament',
@@ -69,7 +69,9 @@ function matchesFilters(campaign: MarketCampaign, filters: MarketFilters): boole
   templateUrl: './markets.html',
   styleUrl: './markets.scss',
 })
-export class Markets {
+export class Markets implements OnInit {
+  private readonly campaignsService = inject(CampaignsService);
+  private readonly categoriesService = inject(CategoriesService);
   private readonly router = inject(Router);
 
   protected readonly budgetFloor = BUDGET_FLOOR;
@@ -83,6 +85,11 @@ export class Markets {
   protected readonly draftBudgetMax = signal(DEFAULT_BUDGET_MAX);
 
   private readonly appliedFilters = signal<MarketFilters>(createDefaultFilters());
+  private readonly campaigns = signal<MarketCampaign[]>([]);
+  private readonly categoryCatalog = signal<{ id: string; name: string }[]>([]);
+
+  protected readonly loading = signal(true);
+  protected readonly loadError = signal(false);
 
   protected readonly budgetRangeFill = computed(() => {
     const span = BUDGET_CEIL - BUDGET_FLOOR || 1;
@@ -93,9 +100,13 @@ export class Markets {
 
   protected readonly categories = computed(() => {
     const filters = this.appliedFilters();
-    const campaigns = MARKET_CAMPAIGNS.filter((campaign) => matchesFilters(campaign, filters));
-    return getMarketCategorySections(campaigns);
+    const campaigns = this.campaigns().filter((campaign) => matchesFilters(campaign, filters));
+    return getMarketCategorySections(campaigns, this.categoryCatalog());
   });
+
+  ngOnInit(): void {
+    this.loadMarket();
+  }
 
   protected onMembershipPlanChange(event: Event): void {
     this.draftMembershipPlan.set(
@@ -149,5 +160,32 @@ export class Markets {
 
   protected openCampaign(campaign: CampaignOption): void {
     void this.router.navigate(['/', APP_ROUTE_PATHS.markets, campaign.id]);
+  }
+
+  private loadMarket(): void {
+    this.loading.set(true);
+    this.loadError.set(false);
+
+    forkJoin({
+      campaigns: this.campaignsService.getAll(),
+      categories: this.categoriesService.getAll(),
+    }).subscribe({
+      next: ({ campaigns, categories }) => {
+        const nameById = new Map(categories.map((category) => [category.id, category.name]));
+        this.categoryCatalog.set(categories.map((category) => ({ id: category.id, name: category.name })));
+        this.campaigns.set(
+          campaigns.data.map((campaign) =>
+            toMarketCampaign(campaign, nameById.get(campaign.category_id) ?? ''),
+          ),
+        );
+        this.loading.set(false);
+      },
+      error: () => {
+        this.campaigns.set([]);
+        this.categoryCatalog.set([]);
+        this.loading.set(false);
+        this.loadError.set(true);
+      },
+    });
   }
 }

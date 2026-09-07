@@ -1,22 +1,18 @@
-import { Component, computed, inject } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import { forkJoin, map } from 'rxjs';
 
+import { CategoriesService } from '../../../core/campaigns/services/categories.service';
+import { UserCampaignsService } from '../../../core/campaigns/services/user-campaigns.service';
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../../core/i18n/services/translation.service';
 import { APP_ROUTE_PATHS } from '../../../core/routing/app-route-paths';
-import { addDaysToDateInput } from '../../campaign-creator/campaign-guidelines';
-import { getMarketCategoryLabelKey, MarketCategoryId } from '../../markets/market-campaigns';
+import { campaignGuidelinesDurationDays } from '../../campaign-creator/campaign-guidelines';
 import { MarketMetricChart } from '../../markets/market-metric-chart/market-metric-chart';
-import { getMyCampaign, MyCampaignStatus } from '../my-campaigns-data';
-
-function toDateInputValue(date: Date): string {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+import { MyCampaign, MyCampaignStatus } from '../my-campaigns-data';
+import { toMyCampaign } from '../to-my-campaign';
 
 function buildMetricSeries(base: number, seed: number, points = 25): number[] {
   return Array.from({ length: points }, (_, index) => {
@@ -83,42 +79,40 @@ type MetricChartView = {
 })
 export class MyCampaignDetail {
   private readonly route = inject(ActivatedRoute);
+  private readonly userCampaignsService = inject(UserCampaignsService);
+  private readonly categoriesService = inject(CategoriesService);
   private readonly translationService = inject(TranslationService);
 
   protected readonly routes = APP_ROUTE_PATHS;
+  protected readonly loading = signal(true);
+  protected readonly loadError = signal(false);
+  protected readonly campaign = signal<MyCampaign | undefined>(undefined);
 
   private readonly campaignId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id'))),
     { initialValue: null },
   );
 
-  protected readonly campaign = computed(() => {
-    const id = this.campaignId();
-    return id ? getMyCampaign(id) : undefined;
-  });
-
   protected readonly overview = computed(() => {
     const campaign = this.campaign();
-    if (!campaign) {
+    if (!campaign || !campaign.startDate || !campaign.endDate) {
       return null;
     }
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const startDate = toDateInputValue(today);
-    const endDate = addDaysToDateInput(startDate, campaign.days);
+    const days =
+      campaignGuidelinesDurationDays(campaign.startDate, campaign.endDate) ?? campaign.days;
     const budget = campaign.minBudget;
     const impressions =
       campaign.cpm > 0 ? Math.round((budget / campaign.cpm) * 1000) : 0;
     const grossProfit =
-      Math.round(budget * (campaign.profitMonthly / 100) * (campaign.days / 30) * 100) / 100;
+      Math.round(budget * (campaign.profitMonthly / 100) * (days / 30) * 100) / 100;
     const grossRevenue = budget + grossProfit;
     const profitPercent = budget > 0 ? Math.round((grossProfit / budget) * 10000) / 100 : 0;
 
     return {
-      startDate,
-      endDate,
-      days: campaign.days,
+      startDate: campaign.startDate,
+      endDate: campaign.endDate,
+      days,
       budget,
       impressions,
       grossProfit,
@@ -137,8 +131,39 @@ export class MyCampaignDetail {
     return campaign ? this.buildMetricChart(campaign.epc, campaign.currency, 3) : null;
   });
 
-  protected categoryLabelKey(categoryId: MarketCategoryId): string {
-    return getMarketCategoryLabelKey(categoryId);
+  constructor() {
+    effect((onCleanup) => {
+      const id = this.campaignId();
+      if (!id) {
+        this.campaign.set(undefined);
+        this.loading.set(false);
+        this.loadError.set(false);
+        return;
+      }
+
+      this.loading.set(true);
+      this.loadError.set(false);
+
+      const sub = forkJoin({
+        enrollment: this.userCampaignsService.getById(id),
+        categories: this.categoriesService.getAll(),
+      }).subscribe({
+        next: ({ enrollment, categories }) => {
+          const categoryName =
+            categories.find((category) => category.id === enrollment.campaign.category_id)?.name ??
+            '';
+          this.campaign.set(toMyCampaign(enrollment, categoryName));
+          this.loading.set(false);
+        },
+        error: (error: unknown) => {
+          this.campaign.set(undefined);
+          this.loading.set(false);
+          this.loadError.set(!(error instanceof HttpErrorResponse && error.status === 404));
+        },
+      });
+
+      onCleanup(() => sub.unsubscribe());
+    });
   }
 
   protected statusLabelKey(status: MyCampaignStatus): string {

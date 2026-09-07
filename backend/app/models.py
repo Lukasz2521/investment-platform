@@ -97,6 +97,10 @@ class User(UserBase, table=True):
         sa_relationship_kwargs={"uselist": False},
         cascade_delete=True,
     )
+    user_campaigns: list["UserCampaign"] = Relationship(
+        back_populates="user",
+        cascade_delete=True,
+    )
 
 
 # Properties to return via API, id is always required
@@ -359,6 +363,10 @@ class Campaign(SQLModel, table=True):
         back_populates="campaign",
         cascade_delete=True,
     )
+    user_campaigns: list["UserCampaign"] = Relationship(
+        back_populates="campaign",
+        cascade_delete=True,
+    )
     image_url: str = Field(max_length=255)
     video_url: str = Field(max_length=255)
 
@@ -505,6 +513,64 @@ class CampaignMetricTickPublic(SQLModel):
 
 class CampaignMetricTicksPublic(SQLModel):
     data: list[CampaignMetricTickPublic]
+    count: int
+
+
+class UserCampaignStatus(str, Enum):
+    ACTIVE = "active"
+    CANCELLED = "cancelled"
+    COMPLETED = "completed"
+
+
+class UserCampaign(SQLModel, table=True):
+    __tablename__ = "user_campaign"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    campaign_id: uuid.UUID = Field(
+        foreign_key="campaign.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    start_date: date = Field(sa_column=Column(Date, nullable=False))
+    end_date: date = Field(sa_column=Column(Date, nullable=False))
+    budget: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    status: UserCampaignStatus = Field(
+        default=UserCampaignStatus.ACTIVE,
+        sa_column=Column(
+            SAEnum(UserCampaignStatus, native_enum=False, length=32),
+            nullable=False,
+        ),
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    user: User | None = Relationship(back_populates="user_campaigns")
+    campaign: Campaign | None = Relationship(back_populates="user_campaigns")
+
+
+class UserCampaignCreate(SQLModel):
+    campaign_id: uuid.UUID
+    start_date: date
+    end_date: date
+    budget: Decimal = Field(gt=0)
+
+
+class UserCampaignPublic(SQLModel):
+    id: uuid.UUID
+    user_id: uuid.UUID
+    campaign_id: uuid.UUID
+    start_date: date
+    end_date: date
+    budget: Decimal
+    status: UserCampaignStatus
+    created_at: datetime | None = None
+    campaign: CampaignPublic
+
+
+class UserCampaignsPublic(SQLModel):
+    data: list[UserCampaignPublic]
     count: int
 
 

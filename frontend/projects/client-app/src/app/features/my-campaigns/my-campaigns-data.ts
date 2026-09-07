@@ -4,6 +4,8 @@ export type MyCampaignStatus = 'active' | 'cancelled' | 'completed';
 
 export type MyCampaign = MarketCampaign & {
   status: MyCampaignStatus;
+  startDate: string;
+  endDate: string;
 };
 
 export type MyCampaignTab = {
@@ -35,6 +37,8 @@ export const MY_CAMPAIGNS: MyCampaign[] = MARKET_CAMPAIGNS.filter(
 ).map((campaign) => ({
   ...campaign,
   status: STATUS_BY_ID[campaign.id],
+  startDate: '',
+  endDate: '',
 }));
 
 export function getMyCampaignsByStatus(

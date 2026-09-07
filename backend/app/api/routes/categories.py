@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import func, select
 
 from app import crud
-from app.api.deps import SessionDep, get_current_active_superuser
+from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.models import (
     Campaign,
     Category,
@@ -66,14 +66,14 @@ def update_category(
     return CategoryPublic.model_validate(db_category)
 
 
-@router.get(
-    "/",
-    dependencies=[Depends(get_current_active_superuser)],
-)
-def read_categories(*, session: SessionDep) -> list[CategoryPublic]:
+@router.get("/")
+def read_categories(
+    *, session: SessionDep, current_user: CurrentUser
+) -> list[CategoryPublic]:
     """
-    List all campaign categories. Superuser only.
+    List all campaign categories. Available to any authenticated user.
     """
+    _ = current_user
     categories = crud.get_categories(session=session)
     return [CategoryPublic.model_validate(c) for c in categories]
 

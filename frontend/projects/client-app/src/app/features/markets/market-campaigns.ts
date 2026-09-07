@@ -8,8 +8,9 @@ export type MarketCategory = {
 };
 
 export type MarketCampaign = CampaignOption & {
-  categoryId: MarketCategoryId;
-  companyDescriptionKey: string;
+  categoryId: string;
+  categoryName?: string;
+  companyDescriptionKey?: string;
   countryCodes: string[];
 };
 
@@ -199,27 +200,54 @@ export const MARKET_CAMPAIGNS: MarketCampaign[] = [
   // Finance — empty
 ];
 
-export type MarketCategorySection = MarketCategory & {
+export type MarketCategorySection = {
+  id: string;
+  name: string;
   campaigns: MarketCampaign[];
 };
 
 export function getMarketCategorySections(
-  campaigns: readonly MarketCampaign[] = MARKET_CAMPAIGNS,
-  categories: readonly MarketCategory[] = MARKET_CATEGORIES,
+  campaigns: readonly MarketCampaign[],
+  categories: readonly { id: string; name: string }[],
 ): MarketCategorySection[] {
-  return categories
-    .map((category) => ({
-      ...category,
-      campaigns: campaigns.filter((campaign) => campaign.categoryId === category.id),
-    }))
-    .filter((section) => section.campaigns.length > 0);
+  const grouped = new Map<string, MarketCampaign[]>();
+  for (const campaign of campaigns) {
+    const list = grouped.get(campaign.categoryId) ?? [];
+    list.push(campaign);
+    grouped.set(campaign.categoryId, list);
+  }
+
+  const sections: MarketCategorySection[] = [];
+  for (const category of categories) {
+    const list = grouped.get(category.id);
+    if (!list?.length) {
+      continue;
+    }
+
+    sections.push({
+      id: category.id,
+      name: category.name,
+      campaigns: list,
+    });
+    grouped.delete(category.id);
+  }
+
+  for (const [id, list] of grouped) {
+    sections.push({
+      id,
+      name: list[0]?.categoryName || '-',
+      campaigns: list,
+    });
+  }
+
+  return sections;
 }
 
 export function getMarketCampaign(id: string): MarketCampaign | undefined {
   return MARKET_CAMPAIGNS.find((campaign) => campaign.id === id);
 }
 
-export function getMarketCategoryLabelKey(categoryId: MarketCategoryId): string {
+export function getMarketCategoryLabelKey(categoryId: string): string {
   return (
     MARKET_CATEGORIES.find((category) => category.id === categoryId)?.labelKey ??
     'app.markets.categories.sports'

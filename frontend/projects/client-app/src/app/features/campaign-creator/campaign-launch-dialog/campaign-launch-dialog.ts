@@ -1,4 +1,4 @@
-import { Component, output } from '@angular/core';
+import { Component, input, output } from '@angular/core';
 
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 
@@ -9,20 +9,32 @@ import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
   styleUrl: './campaign-launch-dialog.scss',
 })
 export class CampaignLaunchDialog {
+  readonly busy = input(false);
+  readonly error = input<string | null>(null);
   readonly closed = output<void>();
   readonly confirmed = output<void>();
 
   protected onBackdropClick(event: MouseEvent): void {
-    if (event.target === event.currentTarget) {
-      this.closed.emit();
+    if (this.busy() || event.target !== event.currentTarget) {
+      return;
     }
+
+    this.closed.emit();
   }
 
   protected onCancel(): void {
+    if (this.busy()) {
+      return;
+    }
+
     this.closed.emit();
   }
 
   protected onConfirm(): void {
+    if (this.busy()) {
+      return;
+    }
+
     this.confirmed.emit();
   }
 }

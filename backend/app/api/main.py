@@ -9,6 +9,7 @@ from app.api.routes import (
     login,
     private,
     transactions,
+    user_campaigns,
     users,
     utils,
 )
@@ -22,8 +23,9 @@ api_router.include_router(utils.router)
 api_router.include_router(items.router)
 api_router.include_router(transactions.router)
 api_router.include_router(banks.router)
-api_router.include_router(campaigns.router)
 api_router.include_router(categories.router)
+api_router.include_router(campaigns.router)
+api_router.include_router(user_campaigns.router)
 
 
 if settings.ENVIRONMENT == "local":

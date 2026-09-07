@@ -1,29 +1,46 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
-import { map } from 'rxjs';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { catchError, forkJoin, map, of, Subscription, switchMap } from 'rxjs';
 
+import { AuthService } from '../../../core/auth/services/auth.service';
+import { CampaignsService } from '../../../core/campaigns/services/campaigns.service';
+import { CategoriesService } from '../../../core/campaigns/services/categories.service';
+import { UserCampaignsService } from '../../../core/campaigns/services/user-campaigns.service';
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../../core/i18n/services/translation.service';
 import { APP_ROUTE_PATHS } from '../../../core/routing/app-route-paths';
+import { UserPublicWithAccount } from '../../../core/users/models/user-account.model';
+import { UsersService } from '../../../core/users/services/users.service';
 import {
   addDaysToDateInput,
   campaignGuidelinesDurationDays,
 } from '../../campaign-creator/campaign-guidelines';
 import { CampaignLaunchDialog } from '../../campaign-creator/campaign-launch-dialog/campaign-launch-dialog';
-import {
-  getMarketCampaign,
-  getMarketCategoryLabelKey,
-  MarketCampaign,
-  MarketCategoryId,
-} from '../market-campaigns';
+import { MarketCampaign } from '../market-campaigns';
 import { MarketMetricChart } from '../market-metric-chart/market-metric-chart';
+import { toMarketCampaign } from '../to-market-campaign';
 
 function toDateInputValue(date: Date): string {
   const year = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const day = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
+}
+
+function startOfToday(): Date {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+}
+
+function clampDateInputToMin(value: string, min: string): string {
+  if (!value || value < min) {
+    return min;
+  }
+
+  return value;
 }
 
 function buildMetricSeries(base: number, seed: number, points = 25): number[] {
@@ -54,6 +71,19 @@ function niceCeiling(value: number): number {
   }
 
   return 10 * magnitude;
+}
+
+function parseAccountMoney(value: string | number | null | undefined): number {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : 0;
+}
+
+function availableBalanceFromUser(user: UserPublicWithAccount | null): number {
+  if (!user?.account) {
+    return 0;
+  }
+
+  return parseAccountMoney(user.account.available_balance);
 }
 
 function localeForLanguage(language: string): string {
@@ -91,21 +121,29 @@ type MetricChartView = {
 })
 export class MarketCampaignDetail {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly campaignsService = inject(CampaignsService);
+  private readonly categoriesService = inject(CategoriesService);
+  private readonly userCampaignsService = inject(UserCampaignsService);
+  private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
   private readonly translationService = inject(TranslationService);
 
   protected readonly routes = APP_ROUTE_PATHS;
   protected readonly launchDialogOpen = signal(false);
+  protected readonly launching = signal(false);
+  protected readonly launchError = signal<string | null>(null);
+  protected readonly loading = signal(true);
+  protected readonly loadError = signal(false);
+  protected readonly campaign = signal<MarketCampaign | undefined>(undefined);
+  protected readonly availableBalance = signal(0);
 
   private readonly campaignId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id'))),
     { initialValue: null },
   );
 
-  protected readonly campaign = computed(() => {
-    const id = this.campaignId();
-    return id ? getMarketCampaign(id) : undefined;
-  });
-
+  protected readonly minStartDate = toDateInputValue(startOfToday());
   protected readonly startDate = signal('');
   protected readonly endDate = signal('');
   protected readonly budget = signal('');
@@ -153,6 +191,16 @@ export class MarketCampaignDetail {
     return Math.round((this.estimatedGrossProfit() / budget) * 10000) / 100;
   });
 
+  protected readonly canStartCampaign = computed(() => {
+    const campaign = this.campaign();
+    if (!campaign) {
+      return false;
+    }
+
+    const launchBudget = Math.max(this.budgetAmount(), campaign.minBudget);
+    return this.availableBalance() >= launchBudget;
+  });
+
   protected readonly cpmChart = computed(() => {
     const campaign = this.campaign();
     return campaign ? this.buildMetricChart(campaign.cpm, campaign.currency, 1) : null;
@@ -164,8 +212,48 @@ export class MarketCampaignDetail {
   });
 
   private readonly configCampaignId = signal<string | null>(null);
+  private launchSub: Subscription | null = null;
 
   constructor() {
+    effect((onCleanup) => {
+      const id = this.campaignId();
+      if (!id) {
+        this.campaign.set(undefined);
+        this.loading.set(false);
+        this.loadError.set(false);
+        return;
+      }
+
+      this.loading.set(true);
+      this.loadError.set(false);
+
+      const sub = this.authService.getMe().pipe(
+        switchMap((me) =>
+          forkJoin({
+            campaign: this.campaignsService.getById(id),
+            categories: this.categoriesService.getAll(),
+            user: this.usersService.getById(me.id).pipe(catchError(() => of(null))),
+          }),
+        ),
+      ).subscribe({
+        next: ({ campaign, categories, user }) => {
+          const categoryName =
+            categories.find((category) => category.id === campaign.category_id)?.name ?? '';
+          this.campaign.set(toMarketCampaign(campaign, categoryName));
+          this.availableBalance.set(availableBalanceFromUser(user));
+          this.loading.set(false);
+        },
+        error: (error: unknown) => {
+          this.campaign.set(undefined);
+          this.availableBalance.set(0);
+          this.loading.set(false);
+          this.loadError.set(!(error instanceof HttpErrorResponse && error.status === 404));
+        },
+      });
+
+      onCleanup(() => sub.unsubscribe());
+    });
+
     effect(() => {
       const campaign = this.campaign();
       if (!campaign || this.configCampaignId() === campaign.id) {
@@ -177,16 +265,31 @@ export class MarketCampaignDetail {
     });
   }
 
-  protected categoryLabelKey(categoryId: MarketCategoryId): string {
-    return getMarketCategoryLabelKey(categoryId);
-  }
-
   protected onStartDateInput(event: Event): void {
-    this.startDate.set((event.target as HTMLInputElement).value);
+    const input = event.target as HTMLInputElement;
+    const previousStart = this.startDate();
+    const next = clampDateInputToMin(input.value, this.minStartDate);
+    input.value = next;
+
+    const duration = campaignGuidelinesDurationDays(previousStart, this.endDate());
+    this.startDate.set(next);
+
+    if (duration !== null && duration >= 0) {
+      this.endDate.set(addDaysToDateInput(next, duration));
+      return;
+    }
+
+    if (this.endDate() && this.endDate() < next) {
+      this.endDate.set(addDaysToDateInput(next, this.campaign()?.days ?? 0));
+    }
   }
 
   protected onEndDateInput(event: Event): void {
-    this.endDate.set((event.target as HTMLInputElement).value);
+    const input = event.target as HTMLInputElement;
+    const minEnd = this.startDate() || this.minStartDate;
+    const next = clampDateInputToMin(input.value, minEnd);
+    input.value = next;
+    this.endDate.set(next);
   }
 
   protected onBudgetInput(event: Event): void {
@@ -199,15 +302,72 @@ export class MarketCampaignDetail {
   }
 
   protected openLaunchDialog(): void {
+    if (!this.canStartCampaign()) {
+      return;
+    }
+
+    if (this.startDate() < this.minStartDate) {
+      this.startDate.set(this.minStartDate);
+    }
+
+    this.launchError.set(null);
     this.launchDialogOpen.set(true);
   }
 
   protected closeLaunchDialog(): void {
+    this.launchSub?.unsubscribe();
+    this.launchSub = null;
+    this.launching.set(false);
+    this.launchError.set(null);
     this.launchDialogOpen.set(false);
   }
 
   protected confirmLaunch(): void {
-    this.launchDialogOpen.set(false);
+    const campaign = this.campaign();
+    if (!campaign || this.launching() || !this.canStartCampaign()) {
+      return;
+    }
+
+    const startDate = this.startDate() < this.minStartDate ? this.minStartDate : this.startDate();
+    const endDate =
+      this.endDate() && this.endDate() >= startDate
+        ? this.endDate()
+        : addDaysToDateInput(startDate, campaign.days);
+    const budget = Math.max(this.budgetAmount(), campaign.minBudget);
+
+    this.startDate.set(startDate);
+    this.endDate.set(endDate);
+    this.launching.set(true);
+    this.launchError.set(null);
+
+    this.launchSub = this.userCampaignsService
+      .start({
+        campaign_id: campaign.id,
+        start_date: startDate,
+        end_date: endDate,
+        budget,
+      })
+      .subscribe({
+        next: () => {
+          this.launching.set(false);
+          this.launchDialogOpen.set(false);
+          void this.router.navigate(['/', APP_ROUTE_PATHS.myCampaigns]);
+        },
+        error: (error: unknown) => {
+          this.launching.set(false);
+          const insufficient =
+            error instanceof HttpErrorResponse &&
+            error.status === 400 &&
+            error.error?.detail === 'Insufficient funds';
+          this.launchError.set(
+            this.translationService.translate(
+              insufficient
+                ? 'app.markets.detail.insufficientFunds'
+                : 'app.markets.detail.launchError',
+            ),
+          );
+        },
+      });
   }
 
   protected countryFlagUrl(iso: string): string {
@@ -290,9 +450,7 @@ export class MarketCampaignDetail {
   }
 
   private resetConfig(campaign: MarketCampaign): void {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const start = toDateInputValue(today);
+    const start = this.minStartDate;
 
     this.startDate.set(start);
     this.endDate.set(addDaysToDateInput(start, campaign.days));

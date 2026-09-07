@@ -1,4 +1,15 @@
-@if (campaign(); as data) {
+@if (loading()) {
+  <section class="market-detail-missing">
+    <p>{{ 'app.markets.detail.loading' | translate }}</p>
+  </section>
+} @else if (loadError()) {
+  <section class="market-detail-missing">
+    <p>{{ 'app.markets.detail.error' | translate }}</p>
+    <a class="market-detail-back" [routerLink]="['/', routes.markets]">
+      ← {{ 'app.markets.detail.back' | translate }}
+    </a>
+  </section>
+} @else if (campaign(); as data) {
   <article class="market-detail" [attr.aria-label]="'app.markets.detail.ariaLabel' | translate">
     <a class="market-detail-back" [routerLink]="['/', routes.markets]">
       ← {{ 'app.markets.detail.back' | translate }}
@@ -40,12 +51,14 @@
 
         <div class="market-detail-panel-body">
           <h1 class="market-detail-panel-title">{{ data.title }}</h1>
-          <p class="market-detail-panel-category">
-            {{ categoryLabelKey(data.categoryId) | translate }}
-          </p>
-          <p class="market-detail-panel-description">
-            {{ data.companyDescriptionKey | translate }}
-          </p>
+          @if (data.categoryName) {
+            <p class="market-detail-panel-category">{{ data.categoryName }}</p>
+          }
+          @if (data.companyDescriptionKey) {
+            <p class="market-detail-panel-description">
+              {{ data.companyDescriptionKey | translate }}
+            </p>
+          }
 
           <div class="market-detail-flags" [attr.aria-label]="'app.markets.detail.countries' | translate">
             @for (country of data.countryCodes; track country) {
@@ -85,6 +98,7 @@
               <input
                 class="market-detail-input"
                 type="date"
+                [min]="minStartDate"
                 [value]="startDate()"
                 (input)="onStartDateInput($event)"
                 (click)="openDatePicker($event)"
@@ -98,6 +112,7 @@
               <input
                 class="market-detail-input"
                 type="date"
+                [min]="startDate() || minStartDate"
                 [value]="endDate()"
                 (input)="onEndDateInput($event)"
                 (click)="openDatePicker($event)"
@@ -160,9 +175,19 @@
           </dl>
         </div>
 
-        <button type="button" class="market-detail-start" (click)="openLaunchDialog()">
+        <button
+          type="button"
+          class="market-detail-start"
+          [disabled]="!canStartCampaign()"
+          (click)="openLaunchDialog()"
+        >
           {{ 'app.markets.detail.startCampaign' | translate }}
         </button>
+        @if (!canStartCampaign()) {
+          <p class="market-detail-start-error">
+            {{ 'app.markets.detail.insufficientFunds' | translate }}
+          </p>
+        }
       </section>
 
       @if (cpmChart(); as cpm) {
@@ -196,6 +221,8 @@
 
     @if (launchDialogOpen()) {
       <app-campaign-launch-dialog
+        [busy]="launching()"
+        [error]="launchError()"
         (closed)="closeLaunchDialog()"
         (confirmed)="confirmLaunch()"
       />

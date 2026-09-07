@@ -3,7 +3,7 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException
 
 from app import crud
-from app.api.deps import SessionDep, get_current_active_superuser
+from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.models import (
     Campaign,
     CampaignCreate,
@@ -35,19 +35,18 @@ def create_campaign(
     return crud.to_campaign_public(campaign)
 
 
-@router.get(
-    "/{campaign_id}/metric-ticks",
-    dependencies=[Depends(get_current_active_superuser)],
-)
+@router.get("/{campaign_id}/metric-ticks")
 def read_campaign_metric_ticks(
     *,
     session: SessionDep,
+    current_user: CurrentUser,
     campaign_id: uuid.UUID,
     limit: int = 90,
 ) -> CampaignMetricTicksPublic:
     """
-    Daily metric snapshots for campaign charts. Superuser only.
+    Daily metric snapshots for campaign charts. Available to any authenticated user.
     """
+    _ = current_user
     if not session.get(Campaign, campaign_id):
         raise HTTPException(status_code=404, detail="Campaign not found")
     return crud.get_campaign_metric_ticks(
@@ -55,24 +54,40 @@ def read_campaign_metric_ticks(
     )
 
 
-@router.get(
-    "/",
-    dependencies=[Depends(get_current_active_superuser)],
-)
+@router.get("/")
 def read_campaigns(
     *,
     session: SessionDep,
+    current_user: CurrentUser,
     skip: int = 0,
     limit: int = 100,
 ) -> CampaignsPublic:
     """
-    List campaigns. Superuser only.
+    List campaigns. Available to any authenticated user.
     """
+    _ = current_user
     campaigns, total = crud.get_campaigns(session=session, skip=skip, limit=limit)
     return CampaignsPublic(
         data=[crud.to_campaign_public(c) for c in campaigns],
         count=total,
     )
+
+
+@router.get("/{campaign_id}")
+def read_campaign(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    campaign_id: uuid.UUID,
+) -> CampaignPublic:
+    """
+    Get a campaign by id. Available to any authenticated user.
+    """
+    _ = current_user
+    campaign = crud.get_campaign(session=session, campaign_id=campaign_id)
+    if not campaign:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    return crud.to_campaign_public(campaign)
 
 
 @router.put(
