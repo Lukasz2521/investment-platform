@@ -1,5 +1,25 @@
 import { AccountType } from '../../users/models/account-type.model';
 
+export type CampaignStatsPublic = {
+  cpm: string;
+  epc: string;
+  ctr: string;
+  calculated_at: string;
+};
+
+export type CampaignMetricTickPublic = {
+  recorded_on: string;
+  recorded_at: string;
+  cpm: string;
+  epc: string;
+  ctr: string;
+};
+
+export type CampaignMetricTicksPublic = {
+  data: CampaignMetricTickPublic[];
+  count: number;
+};
+
 export type CampaignPublic = {
   id: string;
   title: string;
@@ -20,6 +40,7 @@ export type CampaignPublic = {
   min_account: AccountType;
   image_url: string;
   video_url: string;
+  stats: CampaignStatsPublic | null;
 };
 
 export type CampaignsPublic = {

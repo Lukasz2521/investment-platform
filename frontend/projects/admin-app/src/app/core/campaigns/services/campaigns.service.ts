@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { CampaignCreate, CampaignPublic, CampaignsPublic, CampaignUpdate } from '../models/campaign.model';
+import { CampaignCreate, CampaignMetricTicksPublic, CampaignPublic, CampaignsPublic, CampaignUpdate } from '../models/campaign.model';
 
 @Injectable({ providedIn: 'root' })
 export class CampaignsService {
@@ -13,6 +13,15 @@ export class CampaignsService {
     const params = new HttpParams().set('skip', skip).set('limit', limit);
 
     return this.http.get<CampaignsPublic>(`${environment.apiUrl}/campaigns/`, { params });
+  }
+
+  getMetricTicks(campaignId: string, limit = 90): Observable<CampaignMetricTicksPublic> {
+    const params = new HttpParams().set('limit', limit);
+
+    return this.http.get<CampaignMetricTicksPublic>(
+      `${environment.apiUrl}/campaigns/${campaignId}/metric-ticks`,
+      { params },
+    );
   }
 
   create(campaign: CampaignCreate): Observable<CampaignPublic> {

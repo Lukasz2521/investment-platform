@@ -7,6 +7,7 @@ from app.api.deps import SessionDep, get_current_active_superuser
 from app.models import (
     Campaign,
     CampaignCreate,
+    CampaignMetricTicksPublic,
     CampaignPublic,
     CampaignsPublic,
     CampaignUpdate,
@@ -31,7 +32,27 @@ def create_campaign(
         raise HTTPException(status_code=404, detail="Category not found")
     campaign = crud.create_campaign(session=session, campaign_in=campaign_in)
 
-    return CampaignPublic.model_validate(campaign)
+    return crud.to_campaign_public(campaign)
+
+
+@router.get(
+    "/{campaign_id}/metric-ticks",
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def read_campaign_metric_ticks(
+    *,
+    session: SessionDep,
+    campaign_id: uuid.UUID,
+    limit: int = 90,
+) -> CampaignMetricTicksPublic:
+    """
+    Daily metric snapshots for campaign charts. Superuser only.
+    """
+    if not session.get(Campaign, campaign_id):
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    return crud.get_campaign_metric_ticks(
+        session=session, campaign_id=campaign_id, limit=limit
+    )
 
 
 @router.get(
@@ -49,7 +70,7 @@ def read_campaigns(
     """
     campaigns, total = crud.get_campaigns(session=session, skip=skip, limit=limit)
     return CampaignsPublic(
-        data=[CampaignPublic.model_validate(c) for c in campaigns],
+        data=[crud.to_campaign_public(c) for c in campaigns],
         count=total,
     )
 
@@ -79,7 +100,7 @@ def update_campaign(
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    return CampaignPublic.model_validate(updated)
+    return crud.to_campaign_public(updated)
 
 
 @router.delete(

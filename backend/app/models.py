@@ -1,14 +1,15 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from decimal import Decimal
 from enum import Enum
-from typing_extensions import Self
+from typing import Optional
 
 from pydantic import ConfigDict, EmailStr, model_validator
-from sqlalchemy import Column, DateTime, Numeric, UniqueConstraint
+from sqlalchemy import Column, Date, DateTime, Numeric, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
+from typing_extensions import Self
 
 
 def get_datetime_utc() -> datetime:
@@ -349,6 +350,15 @@ class Campaign(SQLModel, table=True):
         ),
     )
     category: Category | None = Relationship(back_populates="campaigns")
+    stats: Optional["CampaignStats"] = Relationship(
+        back_populates="campaign",
+        sa_relationship_kwargs={"uselist": False},
+        cascade_delete=True,
+    )
+    metric_ticks: list["CampaignMetricTick"] = Relationship(
+        back_populates="campaign",
+        cascade_delete=True,
+    )
     image_url: str = Field(max_length=255)
     video_url: str = Field(max_length=255)
 
@@ -410,6 +420,13 @@ class CampaignUpdate(SQLModel):
     video_url: str | None = Field(default=None, max_length=255)
 
 
+class CampaignStatsPublic(SQLModel):
+    cpm: Decimal
+    epc: Decimal
+    ctr: Decimal
+    calculated_at: datetime
+
+
 class CampaignPublic(SQLModel):
     id: uuid.UUID
     title: str
@@ -430,10 +447,64 @@ class CampaignPublic(SQLModel):
     min_account: AccountType
     image_url: str
     video_url: str
+    stats: CampaignStatsPublic | None = None
 
 
 class CampaignsPublic(SQLModel):
     data: list[CampaignPublic]
+    count: int
+
+
+class CampaignStats(SQLModel, table=True):
+    __tablename__ = "campaign_stats"
+
+    campaign_id: uuid.UUID = Field(
+        foreign_key="campaign.id",
+        primary_key=True,
+        ondelete="CASCADE",
+    )
+    cpm: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    epc: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    ctr: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    calculated_at: datetime = Field(sa_type=DateTime(timezone=True))  # type: ignore[assignment]
+    next_tick_at: datetime = Field(sa_type=DateTime(timezone=True), index=True)  # type: ignore[assignment]
+    campaign: Campaign | None = Relationship(back_populates="stats")
+
+
+class CampaignMetricTick(SQLModel, table=True):
+    __tablename__ = "campaign_metric_tick"
+    __table_args__ = (
+        UniqueConstraint(
+            "campaign_id",
+            "recorded_on",
+            name="uq_campaign_metric_tick_day",
+        ),
+    )
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    campaign_id: uuid.UUID = Field(
+        foreign_key="campaign.id",
+        ondelete="CASCADE",
+        index=True,
+    )
+    recorded_on: date = Field(sa_column=Column(Date, nullable=False, index=True))
+    recorded_at: datetime = Field(sa_type=DateTime(timezone=True))  # type: ignore[assignment]
+    cpm: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    epc: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    ctr: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    campaign: Campaign | None = Relationship(back_populates="metric_ticks")
+
+
+class CampaignMetricTickPublic(SQLModel):
+    recorded_on: date
+    recorded_at: datetime
+    cpm: Decimal
+    epc: Decimal
+    ctr: Decimal
+
+
+class CampaignMetricTicksPublic(SQLModel):
+    data: list[CampaignMetricTickPublic]
     count: int
 
 
@@ -459,7 +530,9 @@ class Bank(BankBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore[assignment]
     )
-    accounts: list["AccountBank"] = Relationship(back_populates="bank", cascade_delete=True)
+    accounts: list["AccountBank"] = Relationship(
+        back_populates="bank", cascade_delete=True
+    )
 
 
 class BankCreate(BankBase):
@@ -553,7 +626,9 @@ class Account(AccountBase, table=True):
         sa_type=DateTime(timezone=True),  # type: ignore[assignment]
     )
     user: User | None = Relationship(back_populates="account")
-    banks: list["AccountBank"] = Relationship(back_populates="account", cascade_delete=True)
+    banks: list["AccountBank"] = Relationship(
+        back_populates="account", cascade_delete=True
+    )
 
 
 class AccountCreate(SQLModel):

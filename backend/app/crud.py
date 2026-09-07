@@ -1,8 +1,14 @@
 import uuid
 from typing import Any
 
+from sqlalchemy.orm import selectinload
 from sqlmodel import Session, col, func, select
 
+from app.campaigns.tick import (
+    clamp_campaign_stats,
+    initial_campaign_stats,
+    record_daily_metric_tick,
+)
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     Account,
@@ -12,6 +18,11 @@ from app.models import (
     BankUpdate,
     Campaign,
     CampaignCreate,
+    CampaignMetricTick,
+    CampaignMetricTickPublic,
+    CampaignMetricTicksPublic,
+    CampaignPublic,
+    CampaignStatsPublic,
     CampaignUpdate,
     Category,
     CategoryCreate,
@@ -109,6 +120,17 @@ def create_category(*, session: Session, category_in: CategoryCreate) -> Categor
 def create_campaign(*, session: Session, campaign_in: CampaignCreate) -> Campaign:
     db_obj = Campaign.model_validate(campaign_in)
     session.add(db_obj)
+    session.flush()
+    stats = initial_campaign_stats(db_obj)
+    session.add(stats)
+    session.flush()
+    record_daily_metric_tick(
+        session,
+        campaign_id=db_obj.id,
+        cpm=stats.cpm,
+        epc=stats.epc,
+        ctr=stats.ctr,
+    )
     session.commit()
     session.refresh(db_obj)
     return db_obj
@@ -121,12 +143,50 @@ def get_campaigns(
     count = session.exec(count_statement).one()
     statement = (
         select(Campaign)
+        .options(selectinload(Campaign.stats))
         .order_by(col(Campaign.created_at).desc())
         .offset(skip)
         .limit(limit)
     )
     rows = session.exec(statement).all()
     return list(rows), count
+
+
+def to_campaign_public(campaign: Campaign) -> CampaignPublic:
+    public = CampaignPublic.model_validate(campaign, update={"stats": None})
+    if campaign.stats is not None:
+        public.stats = CampaignStatsPublic(
+            cpm=campaign.stats.cpm,
+            epc=campaign.stats.epc,
+            ctr=campaign.stats.ctr,
+            calculated_at=campaign.stats.calculated_at,
+        )
+    return public
+
+
+def get_campaign_metric_ticks(
+    *, session: Session, campaign_id: uuid.UUID, limit: int = 90
+) -> CampaignMetricTicksPublic:
+    statement = (
+        select(CampaignMetricTick)
+        .where(CampaignMetricTick.campaign_id == campaign_id)
+        .order_by(col(CampaignMetricTick.recorded_on).asc())
+        .limit(limit)
+    )
+    rows = list(session.exec(statement).all())
+    return CampaignMetricTicksPublic(
+        data=[
+            CampaignMetricTickPublic(
+                recorded_on=row.recorded_on,
+                recorded_at=row.recorded_at,
+                cpm=row.cpm,
+                epc=row.epc,
+                ctr=row.ctr,
+            )
+            for row in rows
+        ],
+        count=len(rows),
+    )
 
 
 def update_campaign(
@@ -149,6 +209,9 @@ def update_campaign(
         ctr_max=db_campaign.ctr_max,
     )
     session.add(db_campaign)
+    if db_campaign.stats is not None:
+        clamp_campaign_stats(db_campaign, db_campaign.stats)
+        session.add(db_campaign.stats)
     session.commit()
     session.refresh(db_campaign)
     return db_campaign
