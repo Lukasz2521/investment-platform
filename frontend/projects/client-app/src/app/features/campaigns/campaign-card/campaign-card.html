@@ -1,6 +1,22 @@
 @if (campaign(); as data) {
   <div class="campaign-card-media">
-    <img [src]="data.imageUrl" [alt]="data.title" loading="lazy" decoding="async" />
+    @if (data.videoUrl) {
+      <video
+        #campaignVideo
+        class="campaign-card-media-video"
+        [attr.src]="data.videoUrl"
+        [attr.aria-label]="data.title"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="auto"
+        disablepictureinpicture
+        (canplay)="campaignVideo.muted = true; campaignVideo.play()"
+      ></video>
+    } @else {
+      <img [src]="data.imageUrl" [alt]="data.title" loading="lazy" decoding="async" />
+    }
 
     @if (data.aiAssistant) {
       <span class="campaign-card-badge campaign-card-badge--ai">

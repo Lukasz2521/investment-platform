@@ -32,6 +32,15 @@ export class CampaignsService {
     return this.http.put<CampaignPublic>(`${environment.apiUrl}/campaigns/${campaignId}`, campaign);
   }
 
+  uploadVideo(campaignId: string, video: File): Observable<CampaignPublic> {
+    const formData = new FormData();
+    formData.append('video', video, video.name);
+    return this.http.post<CampaignPublic>(
+      `${environment.apiUrl}/campaigns/${campaignId}/video`,
+      formData,
+    );
+  }
+
   delete(campaignId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/campaigns/${campaignId}`);
   }

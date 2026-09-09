@@ -1,10 +1,12 @@
+from decimal import Decimal
+
 from fastapi.encoders import jsonable_encoder
 from pwdlib.hashers.bcrypt import BcryptHasher
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app import crud
 from app.core.security import verify_password
-from app.models import User, UserCreate, UserUpdate
+from app.models import Account, AccountType, User, UserCreate, UserUpdate
 from tests.utils.utils import random_email, random_lower_string
 
 
@@ -15,6 +17,17 @@ def test_create_user(db: Session) -> None:
     user = crud.create_user(session=db, user_create=user_in)
     assert user.email == email
     assert hasattr(user, "hashed_password")
+
+    account = db.exec(select(Account).where(Account.user_id == user.id)).first()
+    assert account is not None
+    assert account.account_type == AccountType.FUNDAMENT
+    assert account.participation == 18
+    assert account.balance == Decimal("0")
+    assert account.available_balance == Decimal("0")
+    assert account.total_deposit == Decimal("0")
+    assert account.total_withdraw == Decimal("0")
+    assert account.custom_campaigns is False
+    assert account.card_payments is False
 
 
 def test_authenticate_user(db: Session) -> None:

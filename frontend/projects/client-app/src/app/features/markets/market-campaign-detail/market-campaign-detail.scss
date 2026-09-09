@@ -173,7 +173,8 @@
   position: relative;
 }
 
-.market-detail-media-image {
+.market-detail-media-image,
+.market-detail-media-video {
   animation: market-detail-kenburns 18s ease-in-out infinite alternate;
   aspect-ratio: 16 / 10;
   display: block;
@@ -183,12 +184,23 @@
   will-change: transform;
 }
 
+.market-detail-media-video {
+  animation: none;
+  background: #000;
+  pointer-events: none;
+  will-change: auto;
+}
+
 .market-detail-media::after {
   background: linear-gradient(to top, rgb(0 0 0 / 35%), transparent 45%);
   content: '';
   inset: 0;
   pointer-events: none;
   position: absolute;
+}
+
+.market-detail-media:has(video)::after {
+  display: none;
 }
 
 @keyframes market-detail-kenburns {

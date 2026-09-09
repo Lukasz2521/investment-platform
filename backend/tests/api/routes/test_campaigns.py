@@ -146,3 +146,54 @@ def test_normal_user_can_read_campaigns(
     if db_category is not None:
         db.delete(db_category)
         db.commit()
+
+
+TINY_MP4_BYTES = b"\x00\x00\x00\x18ftypisom\x00\x00\x00\x00isomiso2"
+
+
+def test_superuser_can_upload_and_delete_campaign_mp4(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    from app.core.storage import get_campaign_videos_dir
+
+    category = crud.create_category(
+        session=db,
+        category_in=CategoryCreate(name=f"campaign-video-{uuid4().hex[:8]}"),
+    )
+    create_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=superuser_token_headers,
+        json=_campaign_payload(str(category.id), title="Video campaign"),
+    )
+    assert create_response.status_code == 200
+    campaign_id = create_response.json()["id"]
+
+    upload_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/{campaign_id}/video",
+        headers=superuser_token_headers,
+        files={"video": ("promo.mp4", TINY_MP4_BYTES, "video/mp4")},
+    )
+    assert upload_response.status_code == 200
+    filename = upload_response.json()["video_url"]
+    assert filename.endswith(".mp4")
+    video_path = get_campaign_videos_dir() / filename
+    assert video_path.is_file()
+    assert video_path.read_bytes() == TINY_MP4_BYTES
+
+    public_response = client.get(f"{settings.API_V1_STR}/uploads/campaigns/{filename}")
+    assert public_response.status_code == 200
+    assert public_response.content == TINY_MP4_BYTES
+    assert "/" not in filename
+
+    delete_response = client.delete(
+        f"{settings.API_V1_STR}/campaigns/{campaign_id}",
+        headers=superuser_token_headers,
+    )
+    assert delete_response.status_code == 200
+    assert not video_path.exists()
+    db_category = db.get(Category, category.id)
+    if db_category is not None:
+        db.delete(db_category)
+        db.commit()

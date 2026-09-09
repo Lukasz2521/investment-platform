@@ -69,11 +69,17 @@
   position: relative;
 }
 
-.campaign-card-media img {
+.campaign-card-media img,
+.campaign-card-media-video {
   aspect-ratio: 16 / 10;
   display: block;
   object-fit: cover;
   width: 100%;
+}
+
+.campaign-card-media-video {
+  background: #000;
+  pointer-events: none;
 }
 
 .campaign-card-media::after {
@@ -82,6 +88,10 @@
   inset: 0;
   pointer-events: none;
   position: absolute;
+}
+
+.campaign-card-media:has(video)::after {
+  display: none;
 }
 
 .campaign-card-badge {

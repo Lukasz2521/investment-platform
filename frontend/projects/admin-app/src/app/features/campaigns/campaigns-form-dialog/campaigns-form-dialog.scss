@@ -51,6 +51,31 @@
   justify-content: flex-end;
 }
 
+.campaigns-form-dialog-video-input {
+  display: none;
+}
+
+.campaigns-form-dialog-video-preview {
+  background: #0f172a;
+  border-radius: 0.5rem;
+  max-height: 10rem;
+  max-width: 100%;
+  width: 100%;
+}
+
+.campaigns-form-dialog-video-placeholder,
+.campaigns-form-dialog-video-name,
+.campaigns-form-dialog-video-hint {
+  color: var(--p-text-muted-color, #6c757d);
+  font-size: 0.875rem;
+}
+
+.campaigns-form-dialog-video-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+}
+
 @media (max-width: 768px) {
   .campaigns-form-dialog-columns {
     grid-template-columns: 1fr;

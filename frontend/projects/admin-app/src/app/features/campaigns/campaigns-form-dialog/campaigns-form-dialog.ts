@@ -5,14 +5,18 @@ import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
+import { Observable, of, switchMap } from 'rxjs';
 
 import { CampaignCreate, CampaignPublic } from '../../../core/campaigns/models/campaign.model';
 import { CategoryPublic } from '../../../core/campaigns/models/category.model';
 import { CampaignsService } from '../../../core/campaigns/services/campaigns.service';
+import { campaignVideoFilename, campaignVideoUrl } from '../../../core/campaigns/utils/campaign-video-url';
 import { ACCOUNT_TYPE_OPTIONS, AccountType } from '../../../core/users/models/account-type.model';
 
 const INTEGER_PATTERN = /^\d+$/;
 const DECIMAL_PATTERN = /^\d+(\.\d{1,4})?$/;
+const ALLOWED_VIDEO_TYPES = new Set(['video/mp4']);
+const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
 
 @Component({
   selector: 'admin-app-campaigns-form-dialog',
@@ -33,6 +37,11 @@ export class CampaignsFormDialog {
   protected readonly submitting = signal(false);
   protected readonly submitError = signal<string | null>(null);
   protected readonly accountTypeOptions = [...ACCOUNT_TYPE_OPTIONS];
+  protected readonly videoPreviewUrl = signal<string | null>(null);
+  protected readonly videoRemoved = signal(false);
+  protected readonly videoFileName = signal<string | null>(null);
+
+  private selectedVideoFile: File | null = null;
 
   private dialogSessionKey: string | null = null;
 
@@ -44,6 +53,17 @@ export class CampaignsFormDialog {
   protected readonly categoryOptions = computed(() =>
     this.categories().map((category) => ({ label: category.name, value: category.id })),
   );
+  protected readonly displayVideoUrl = computed(() => {
+    if (this.videoPreviewUrl()) {
+      return this.videoPreviewUrl();
+    }
+
+    if (this.videoRemoved()) {
+      return null;
+    }
+
+    return campaignVideoUrl(this.campaign()?.video_url);
+  });
 
   protected readonly form = this.formBuilder.nonNullable.group({
     title: ['', [Validators.required, Validators.pattern(/\S+/)]],
@@ -61,7 +81,6 @@ export class CampaignsFormDialog {
     epc_max: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
     ctr_min: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
     ctr_max: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
-    image_url: [''],
     video_url: [''],
   });
 
@@ -96,6 +115,45 @@ export class CampaignsFormDialog {
     this.visible.set(false);
   }
 
+  protected onVideoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isAllowedVideo(file) || file.size > MAX_VIDEO_BYTES) {
+      this.submitError.set('Use an MP4 video up to 50 MB.');
+      return;
+    }
+
+    const previousPreviewUrl = this.videoPreviewUrl();
+    if (previousPreviewUrl) {
+      URL.revokeObjectURL(previousPreviewUrl);
+    }
+
+    this.submitError.set(null);
+    this.selectedVideoFile = file;
+    this.videoFileName.set(file.name);
+    this.videoPreviewUrl.set(URL.createObjectURL(file));
+    this.videoRemoved.set(false);
+  }
+
+  protected removeVideo(): void {
+    const previewUrl = this.videoPreviewUrl();
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    this.videoPreviewUrl.set(null);
+    this.selectedVideoFile = null;
+    this.videoFileName.set(null);
+    this.videoRemoved.set(true);
+    this.submitError.set(null);
+  }
+
   protected submit(): void {
     if (this.form.invalid || this.submitting()) {
       this.form.markAllAsTouched();
@@ -117,21 +175,32 @@ export class CampaignsFormDialog {
     this.submitting.set(true);
     this.submitError.set(null);
 
-    const request$ = campaign
-      ? this.campaignsService.update(campaign.id, payload)
+    const file = this.selectedVideoFile;
+    const videoRemoved = this.videoRemoved();
+    const request$: Observable<CampaignPublic> = campaign
+      ? this.campaignsService.update(campaign.id, {
+          ...payload,
+          ...(videoRemoved && !file ? { video_url: '' } : {}),
+        })
       : this.campaignsService.create(payload);
 
-    request$.subscribe({
-      next: (savedCampaign) => {
-        this.campaignSaved.emit(savedCampaign);
-        this.closeDialog();
-        this.submitting.set(false);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.submitError.set(this.apiErrorMessage(error));
-        this.submitting.set(false);
-      },
-    });
+    request$
+      .pipe(
+        switchMap((savedCampaign) =>
+          file ? this.campaignsService.uploadVideo(savedCampaign.id, file) : of(savedCampaign),
+        ),
+      )
+      .subscribe({
+        next: (savedCampaign) => {
+          this.campaignSaved.emit(savedCampaign);
+          this.closeDialog();
+          this.submitting.set(false);
+        },
+        error: (error: HttpErrorResponse) => {
+          this.submitError.set(this.apiErrorMessage(error));
+          this.submitting.set(false);
+        },
+      });
   }
 
   private buildPayload(): CampaignCreate | null {
@@ -166,8 +235,8 @@ export class CampaignsFormDialog {
       epc_max: this.parseDecimal(value.epc_max),
       ctr_min: this.parseDecimal(value.ctr_min),
       ctr_max: this.parseDecimal(value.ctr_max),
-      image_url: value.image_url.trim(),
-      video_url: value.video_url.trim(),
+      image_url: '',
+      video_url: campaignVideoFilename(this.campaign()?.video_url),
     };
   }
 
@@ -205,6 +274,14 @@ export class CampaignsFormDialog {
     return 'Could not save the campaign. Please try again.';
   }
 
+  private isAllowedVideo(file: File): boolean {
+    if (ALLOWED_VIDEO_TYPES.has(file.type)) {
+      return true;
+    }
+
+    return file.name.toLowerCase().endsWith('.mp4');
+  }
+
   private patchFormFromCampaign(campaign: CampaignPublic): void {
     this.form.reset({
       title: campaign.title,
@@ -222,9 +299,9 @@ export class CampaignsFormDialog {
       epc_max: this.toFormNumber(campaign.epc_max),
       ctr_min: this.toFormNumber(campaign.ctr_min),
       ctr_max: this.toFormNumber(campaign.ctr_max),
-      image_url: campaign.image_url,
       video_url: campaign.video_url,
     });
+    this.clearVideoState();
     this.submitError.set(null);
   }
 
@@ -245,10 +322,22 @@ export class CampaignsFormDialog {
       epc_max: '0',
       ctr_min: '0',
       ctr_max: '0',
-      image_url: '',
       video_url: '',
     });
+    this.clearVideoState();
     this.submitError.set(null);
+  }
+
+  private clearVideoState(): void {
+    const previewUrl = this.videoPreviewUrl();
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    this.videoPreviewUrl.set(null);
+    this.selectedVideoFile = null;
+    this.videoFileName.set(null);
+    this.videoRemoved.set(false);
   }
 
   private parseDecimal(value: string): number {

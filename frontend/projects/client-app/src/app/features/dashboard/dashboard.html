@@ -24,11 +24,11 @@
   <div class="dashboard-layout">
     <section class="dashboard-left" [attr.aria-label]="'app.dashboard.tilesAria' | translate">
       <div class="dashboard-tiles">
-        @for (tile of tiles; track tile.id) {
+        @for (tile of tiles(); track tile.id) {
           <article class="dashboard-tile">
             <h2 class="dashboard-tile-title">{{ tile.titleKey | translate }}</h2>
             <button class="dashboard-tile-action" type="button">
-              <span>{{ tile.valueKey | translate }}</span>
+              <span>{{ tile.value }}</span>
               <svg class="dashboard-tile-chevron" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
                 <path
                   fill="none"
@@ -53,7 +53,7 @@
           <div
             class="dashboard-profit-chart"
             role="img"
-            [attr.aria-label]="('app.dashboard.profitShare.percent' | translate) + ' — ' + ('app.dashboard.profitShare.levelHigh' | translate)"
+            [attr.aria-label]="profitShareLabel() + ' — ' + ('app.dashboard.profitShare.levelHigh' | translate)"
           >
             <svg class="dashboard-profit-donut" viewBox="0 0 120 120" aria-hidden="true">
               <circle class="dashboard-profit-donut-track" cx="60" cy="60" r="46" />
@@ -62,7 +62,7 @@
                 cx="60"
                 cy="60"
                 r="46"
-                [style.stroke-dasharray]="donutDasharray"
+                [style.stroke-dasharray]="donutDasharray()"
               />
             </svg>
           </div>
@@ -79,7 +79,7 @@
               </li>
             </ul>
 
-            <p class="dashboard-profit-percent">{{ 'app.dashboard.profitShare.percent' | translate }}</p>
+            <p class="dashboard-profit-percent">{{ profitShareLabel() }}</p>
             <p class="dashboard-profit-level">{{ 'app.dashboard.profitShare.levelHigh' | translate }}</p>
           </div>
         </div>

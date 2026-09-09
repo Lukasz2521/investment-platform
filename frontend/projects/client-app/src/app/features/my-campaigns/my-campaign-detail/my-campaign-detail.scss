@@ -171,7 +171,8 @@
   position: relative;
 }
 
-.my-detail-media-image {
+.my-detail-media-image,
+.my-detail-media-video {
   animation: my-detail-kenburns 18s ease-in-out infinite alternate;
   aspect-ratio: 16 / 10;
   display: block;
@@ -181,12 +182,23 @@
   will-change: transform;
 }
 
+.my-detail-media-video {
+  animation: none;
+  background: #000;
+  pointer-events: none;
+  will-change: auto;
+}
+
 .my-detail-media::after {
   background: linear-gradient(to top, rgb(0 0 0 / 35%), transparent 45%);
   content: '';
   inset: 0;
   pointer-events: none;
   position: absolute;
+}
+
+.my-detail-media:has(video)::after {
+  display: none;
 }
 
 @keyframes my-detail-kenburns {

@@ -11,7 +11,10 @@ import { UserCampaignsService } from '../../../core/campaigns/services/user-camp
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../../core/i18n/services/translation.service';
 import { APP_ROUTE_PATHS } from '../../../core/routing/app-route-paths';
-import { UserPublicWithAccount } from '../../../core/users/models/user-account.model';
+import {
+  parseAccountMoney,
+  UserPublicWithAccount,
+} from '../../../core/users/models/user-account.model';
 import { UsersService } from '../../../core/users/services/users.service';
 import {
   addDaysToDateInput,
@@ -71,11 +74,6 @@ function niceCeiling(value: number): number {
   }
 
   return 10 * magnitude;
-}
-
-function parseAccountMoney(value: string | number | null | undefined): number {
-  const amount = Number(value);
-  return Number.isFinite(amount) ? amount : 0;
 }
 
 function availableBalanceFromUser(user: UserPublicWithAccount | null): number {

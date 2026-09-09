@@ -40,13 +40,29 @@
     <div class="market-detail-panels">
       <section class="market-detail-panel market-detail-panel--campaign">
         <div class="market-detail-media">
-          <img
-            class="market-detail-media-image"
-            [src]="data.imageUrl"
-            [alt]="data.title"
-            loading="eager"
-            decoding="async"
-          />
+          @if (data.videoUrl) {
+            <video
+              #campaignVideo
+              class="market-detail-media-video"
+              [attr.src]="data.videoUrl"
+              [attr.aria-label]="data.title"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="auto"
+              disablepictureinpicture
+              (canplay)="campaignVideo.muted = true; campaignVideo.play()"
+            ></video>
+          } @else {
+            <img
+              class="market-detail-media-image"
+              [src]="data.imageUrl"
+              [alt]="data.title"
+              loading="eager"
+              decoding="async"
+            />
+          }
         </div>
 
         <div class="market-detail-panel-body">

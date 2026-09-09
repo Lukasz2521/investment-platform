@@ -7,8 +7,14 @@ export type AccountBankPublic = {
 };
 
 export type AccountPublicForUser = {
+  account_type: string;
+  participation: number;
   balance: string;
   available_balance: string;
+  total_deposit: string;
+  total_withdraw: string;
+  custom_campaigns: boolean;
+  card_payments: boolean;
   created_at: string | null;
   banks: AccountBankPublic[];
 };
@@ -29,3 +35,8 @@ export type UserPublicWithAccount = {
   created_at?: string | null;
   account: AccountPublicForUser | null;
 };
+
+export function parseAccountMoney(value: string | number | null | undefined): number {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? amount : 0;
+}

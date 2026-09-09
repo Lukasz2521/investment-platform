@@ -134,15 +134,43 @@
           <input pInputText type="text" formControlName="ctr_max" inputmode="decimal" />
         </label>
 
-        <label class="campaigns-form-dialog-field">
-          <span class="campaigns-form-dialog-label">Image URL</span>
-          <input pInputText type="text" formControlName="image_url" />
-        </label>
-
-        <label class="campaigns-form-dialog-field">
-          <span class="campaigns-form-dialog-label">Video URL</span>
-          <input pInputText type="text" formControlName="video_url" />
-        </label>
+        <div class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label">Video (MP4)</span>
+          <span class="campaigns-form-dialog-video-hint">Upload a file — it is stored on the server (max 50 MB).</span>
+          <input
+            #videoInput
+            class="campaigns-form-dialog-video-input"
+            type="file"
+            accept="video/mp4,.mp4"
+            (change)="onVideoSelected($event)"
+          />
+          @if (displayVideoUrl(); as videoUrl) {
+            <video class="campaigns-form-dialog-video-preview" [attr.src]="videoUrl" controls muted></video>
+          } @else {
+            <span class="campaigns-form-dialog-video-placeholder">No video</span>
+          }
+          @if (videoFileName(); as fileName) {
+            <span class="campaigns-form-dialog-video-name">{{ fileName }}</span>
+          }
+          <div class="campaigns-form-dialog-video-actions">
+            <p-button
+              type="button"
+              [label]="isEditMode() && displayVideoUrl() ? 'CHANGE VIDEO' : 'UPLOAD MP4'"
+              [outlined]="true"
+              (onClick)="videoInput.click()"
+            />
+            @if (displayVideoUrl()) {
+              <p-button
+                type="button"
+                icon="pi pi-trash"
+                severity="danger"
+                [outlined]="true"
+                ariaLabel="Remove video"
+                (onClick)="removeVideo()"
+              />
+            }
+          </div>
+        </div>
       </div>
     </div>
 

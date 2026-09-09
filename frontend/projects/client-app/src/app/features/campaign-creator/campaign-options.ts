@@ -10,6 +10,7 @@ export type CampaignOption = {
   id: string;
   title: string;
   imageUrl: string;
+  videoUrl?: string | null;
   days: number;
   minBudget: number;
   currency: string;

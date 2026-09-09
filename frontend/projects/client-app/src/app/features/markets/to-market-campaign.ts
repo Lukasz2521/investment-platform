@@ -1,4 +1,5 @@
 import { CampaignPublic } from '../../core/campaigns/models/campaign.model';
+import { campaignVideoUrl } from '../../core/campaigns/utils/campaign-video-url';
 import { CampaignMembershipPlan } from '../campaign-creator/campaign-options';
 import { MarketCampaign } from './market-campaigns';
 
@@ -33,6 +34,7 @@ export function toMarketCampaign(campaign: CampaignPublic, categoryName: string)
     id: campaign.id,
     title: campaign.title,
     imageUrl: campaign.image_url.trim() || FALLBACK_IMAGE,
+    videoUrl: campaignVideoUrl(campaign.video_url),
     days: campaign.days_count,
     minBudget: toNumber(campaign.budget),
     currency: campaign.currency || 'EUR',

@@ -1,8 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { interval } from 'rxjs';
+import { catchError, interval, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../../core/auth/services/auth.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
@@ -16,11 +16,33 @@ import {
   transactionStatusLabelKey,
   transactionTypeLabelKey,
 } from '../../core/transactions/utils/transaction-display.utils';
-import { DASHBOARD_TILES } from './dashboard-tiles';
+import {
+  AccountPublicForUser,
+  parseAccountMoney,
+} from '../../core/users/models/user-account.model';
+import { UsersService } from '../../core/users/services/users.service';
+import { DASHBOARD_TILES, DashboardTileId } from './dashboard-tiles';
 
-const PROFIT_SHARE_PERCENT = 49;
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * 46;
 const HISTORY_PAGE_SIZE = 20;
+const DASHBOARD_CURRENCY = 'PLN';
+
+function localeForLanguage(language: string): string {
+  switch (language) {
+    case 'pl':
+      return 'pl-PL';
+    case 'de':
+      return 'de-DE';
+    case 'fr':
+      return 'fr-FR';
+    case 'pt':
+      return 'pt-PT';
+    case 'ru':
+      return 'ru-RU';
+    default:
+      return 'en-US';
+  }
+}
 
 @Component({
   selector: 'app-dashboard',
@@ -31,18 +53,47 @@ const HISTORY_PAGE_SIZE = 20;
 export class Dashboard implements OnInit {
   private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
   private readonly router = inject(Router);
   private readonly translationService = inject(TranslationService);
   private readonly transactionsService = inject(TransactionsService);
 
   protected readonly routes = APP_ROUTE_PATHS;
 
-  protected readonly tiles = DASHBOARD_TILES;
   protected readonly campaignName = 'Lays';
-  protected readonly profitSharePercent = PROFIT_SHARE_PERCENT;
-  protected readonly donutDasharray = `${(PROFIT_SHARE_PERCENT / 100) * DONUT_CIRCUMFERENCE} ${DONUT_CIRCUMFERENCE}`;
   protected readonly countdownLabel = signal('');
   protected readonly username = signal('');
+  protected readonly account = signal<AccountPublicForUser | null>(null);
+
+  protected readonly profitSharePercent = computed(() => {
+    const participation = this.account()?.participation;
+    return typeof participation === 'number' && Number.isFinite(participation)
+      ? Math.min(100, Math.max(0, participation))
+      : 0;
+  });
+
+  protected readonly profitShareLabel = computed(() => {
+    this.translationService.activeLanguage();
+    return `${new Intl.NumberFormat(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(this.profitSharePercent())}%`;
+  });
+
+  protected readonly donutDasharray = computed(() => {
+    const value = (this.profitSharePercent() / 100) * DONUT_CIRCUMFERENCE;
+    return `${value} ${DONUT_CIRCUMFERENCE}`;
+  });
+
+  protected readonly tiles = computed(() => {
+    this.translationService.activeLanguage();
+    const account = this.account();
+    return DASHBOARD_TILES.map((tile) => ({
+      id: tile.id,
+      titleKey: tile.titleKey,
+      value: this.tileValue(tile.id, account),
+    }));
+  });
 
   protected readonly transactions = signal<TransactionPublic[]>([]);
   protected readonly transactionsCount = signal(0);
@@ -65,17 +116,6 @@ export class Dashboard implements OnInit {
     void this.router.navigate(['/', this.routes.deposit]);
   }
 
-  private loadUser(): void {
-    this.authService.getMe().subscribe({
-      next: (user) => {
-        this.username.set(user.username || user.name || user.email);
-      },
-      error: () => {
-        this.username.set('');
-      },
-    });
-  }
-
   protected formatAmount(amount: string): string {
     return formatTransactionAmount(amount);
   }
@@ -94,6 +134,51 @@ export class Dashboard implements OnInit {
 
   protected isOutgoing(transaction: TransactionPublic): boolean {
     return isOutgoingTransaction(transaction);
+  }
+
+  private loadUser(): void {
+    this.authService
+      .getMe()
+      .pipe(
+        switchMap((user) => {
+          this.username.set(user.username || user.name || user.email);
+          return this.usersService.getById(user.id).pipe(catchError(() => of(null)));
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe({
+        next: (user) => {
+          this.account.set(user?.account ?? null);
+        },
+        error: () => {
+          this.username.set('');
+          this.account.set(null);
+        },
+      });
+  }
+
+  private tileValue(id: DashboardTileId, account: AccountPublicForUser | null): string {
+    const available = parseAccountMoney(account?.available_balance);
+    const balance = parseAccountMoney(account?.balance);
+    const amounts: Record<DashboardTileId, number> = {
+      availableBalance: available,
+      assetsInCirculation: Math.max(0, balance - available),
+      currentProfit: 0,
+      totalDeposits: parseAccountMoney(account?.total_deposit),
+      withdrawals: parseAccountMoney(account?.total_withdraw),
+      returnsConversion: 0,
+    };
+
+    return this.formatMoney(amounts[id]);
+  }
+
+  private formatMoney(amount: number): string {
+    return new Intl.NumberFormat(localeForLanguage(this.translationService.activeLanguage()), {
+      style: 'currency',
+      currency: DASHBOARD_CURRENCY,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount);
   }
 
   private loadHistory(): void {

@@ -40,13 +40,29 @@
     <div class="my-detail-panels">
       <section class="my-detail-panel my-detail-panel--campaign">
         <div class="my-detail-media">
-          <img
-            class="my-detail-media-image"
-            [src]="data.imageUrl"
-            [alt]="data.title"
-            loading="eager"
-            decoding="async"
-          />
+          @if (data.videoUrl) {
+            <video
+              #campaignVideo
+              class="my-detail-media-video"
+              [attr.src]="data.videoUrl"
+              [attr.aria-label]="data.title"
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="auto"
+              disablepictureinpicture
+              (canplay)="campaignVideo.muted = true; campaignVideo.play()"
+            ></video>
+          } @else {
+            <img
+              class="my-detail-media-image"
+              [src]="data.imageUrl"
+              [alt]="data.title"
+              loading="eager"
+              decoding="async"
+            />
+          }
         </div>
 
         <div class="my-detail-panel-body">

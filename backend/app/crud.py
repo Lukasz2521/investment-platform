@@ -46,6 +46,12 @@ from app.models import (
 )
 
 
+def create_default_account(*, session: Session, user_id: uuid.UUID) -> Account:
+    account = Account(user_id=user_id)
+    session.add(account)
+    return account
+
+
 def create_user(*, session: Session, user_create: UserCreate | UserRegister) -> User:
     update_kw: dict[str, Any] = {
         "hashed_password": get_password_hash(user_create.password),
@@ -54,6 +60,8 @@ def create_user(*, session: Session, user_create: UserCreate | UserRegister) -> 
         update_kw["is_active"] = False
     db_obj = User.model_validate(user_create, update=update_kw)
     session.add(db_obj)
+    session.flush()
+    create_default_account(session=session, user_id=db_obj.id)
     session.commit()
     session.refresh(db_obj)
     return db_obj
