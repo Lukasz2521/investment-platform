@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import UploadFile
 
 MAX_BANK_LOGO_BYTES = 2 * 1024 * 1024
-MAX_CAMPAIGN_VIDEO_BYTES = 50 * 1024 * 1024
+MAX_CAMPAIGN_VIDEO_BYTES = 15 * 1024 * 1024
 
 _CONTENT_TYPE_TO_EXT = {
     "image/png": ".png",
@@ -116,7 +116,7 @@ def sniff_mp4(data: bytes) -> bool:
 
 def save_campaign_video_from_bytes(raw: bytes) -> str:
     if len(raw) > MAX_CAMPAIGN_VIDEO_BYTES:
-        raise ValueError("Campaign video is too large (max 50 MB)")
+        raise ValueError("Campaign video is too large (max 15 MB)")
     if not sniff_mp4(raw):
         raise ValueError("Unsupported campaign video format. Use MP4.")
 

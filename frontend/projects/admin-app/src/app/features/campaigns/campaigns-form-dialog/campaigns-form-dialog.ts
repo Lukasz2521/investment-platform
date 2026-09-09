@@ -16,7 +16,7 @@ import { ACCOUNT_TYPE_OPTIONS, AccountType } from '../../../core/users/models/ac
 const INTEGER_PATTERN = /^\d+$/;
 const DECIMAL_PATTERN = /^\d+(\.\d{1,4})?$/;
 const ALLOWED_VIDEO_TYPES = new Set(['video/mp4']);
-const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+const MAX_VIDEO_BYTES = 15 * 1024 * 1024;
 
 @Component({
   selector: 'admin-app-campaigns-form-dialog',
@@ -125,7 +125,7 @@ export class CampaignsFormDialog {
     }
 
     if (!this.isAllowedVideo(file) || file.size > MAX_VIDEO_BYTES) {
-      this.submitError.set('Use an MP4 video up to 50 MB.');
+      this.submitError.set('Use an MP4 video up to 15 MB.');
       return;
     }
 
