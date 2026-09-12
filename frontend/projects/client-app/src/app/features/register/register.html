@@ -226,9 +226,21 @@
           />
           <span class="register-checkbox-label">
             {{ 'marketing.register.acceptTermsPrefix' | translate }}
-            <a class="register-checkbox-link" href="#">{{ 'marketing.register.termsOfService' | translate }}</a>
+            <a
+              class="register-checkbox-link"
+              [href]="legalDocuments.rules"
+              target="_blank"
+              rel="noopener noreferrer"
+              (click)="$event.stopPropagation()"
+            >{{ 'marketing.register.termsOfService' | translate }}</a>
             {{ 'marketing.register.acceptTermsJoin' | translate }}
-            <a class="register-checkbox-link" href="#">{{ 'marketing.register.privacyPolicy' | translate }}</a>
+            <a
+              class="register-checkbox-link"
+              [href]="legalDocuments.privacy"
+              target="_blank"
+              rel="noopener noreferrer"
+              (click)="$event.stopPropagation()"
+            >{{ 'marketing.register.privacyPolicy' | translate }}</a>
           </span>
         </label>
 

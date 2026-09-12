@@ -85,10 +85,15 @@
     <div class="marketing-footer-bottom">
       <span>{{ 'marketing.footer.region' | translate }}</span>
       <div class="marketing-footer-legal">
-        <a href="#">{{ 'marketing.footer.terms' | translate }}</a>
-        <a href="#">{{ 'marketing.footer.legal' | translate }}</a>
-        <a href="#">{{ 'marketing.footer.privacy' | translate }}</a>
-        <a href="#">{{ 'marketing.footer.sitemap' | translate }}</a>
+        <a [href]="legalDocuments.terms" target="_blank" rel="noopener noreferrer">{{
+          'marketing.footer.terms' | translate
+        }}</a>
+        <a [href]="legalDocuments.rules" target="_blank" rel="noopener noreferrer">{{
+          'marketing.footer.legal' | translate
+        }}</a>
+        <a [href]="legalDocuments.privacy" target="_blank" rel="noopener noreferrer">{{
+          'marketing.footer.privacy' | translate
+        }}</a>
       </div>
     </div>
   </div>

@@ -12,6 +12,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { LanguageSelector } from '../../core/i18n/components/language-selector/language-selector';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import { LEGAL_DOCUMENTS } from '../../core/legal/legal-documents';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 
 const DESKTOP_NAV_MIN_WIDTH = 1025;
@@ -30,6 +31,7 @@ export class MarketingShell implements OnDestroy {
   private readonly platformId = inject(PLATFORM_ID);
 
   protected readonly routes = APP_ROUTE_PATHS;
+  protected readonly legalDocuments = LEGAL_DOCUMENTS;
   protected readonly sideMenuOpen = signal(false);
 
   protected readonly navItems = [

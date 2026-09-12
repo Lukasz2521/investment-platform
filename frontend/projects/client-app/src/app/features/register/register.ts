@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/services/auth.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../core/i18n/services/translation.service';
+import { LEGAL_DOCUMENTS } from '../../core/legal/legal-documents';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
 import {
   EMPTY_REGISTER_FORM,
@@ -29,6 +30,7 @@ export class Register {
   private readonly translationService = inject(TranslationService);
 
   protected readonly routes = APP_ROUTE_PATHS;
+  protected readonly legalDocuments = LEGAL_DOCUMENTS;
   protected readonly countries = REGISTER_COUNTRIES;
   protected readonly timeZones = REGISTER_TIME_ZONES;
   protected readonly form = signal<RegisterForm>({ ...EMPTY_REGISTER_FORM });
