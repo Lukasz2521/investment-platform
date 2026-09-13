@@ -1,6 +1,6 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, interval, Subscription } from 'rxjs';
 
 import { CategoriesService } from '../../core/campaigns/services/categories.service';
 import { UserCampaignsService } from '../../core/campaigns/services/user-campaigns.service';
@@ -16,16 +16,19 @@ import {
 } from './my-campaigns-data';
 import { toMyCampaign } from './to-my-campaign';
 
+const STATUS_POLL_MS = 10_000;
+
 @Component({
   selector: 'app-my-campaigns',
   imports: [TranslatePipe, CampaignCard],
   templateUrl: './my-campaigns.html',
   styleUrl: './my-campaigns.scss',
 })
-export class MyCampaigns implements OnInit {
+export class MyCampaigns implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly userCampaignsService = inject(UserCampaignsService);
   private readonly categoriesService = inject(CategoriesService);
+  private pollSub: Subscription | null = null;
 
   protected readonly tabs = MY_CAMPAIGN_TABS;
   protected readonly activeTab = signal<MyCampaignStatus>('active');
@@ -39,7 +42,12 @@ export class MyCampaigns implements OnInit {
   );
 
   ngOnInit(): void {
-    this.loadCampaigns();
+    this.loadCampaigns(true);
+    this.pollSub = interval(STATUS_POLL_MS).subscribe(() => this.loadCampaigns(false));
+  }
+
+  ngOnDestroy(): void {
+    this.pollSub?.unsubscribe();
   }
 
   protected setTab(tab: MyCampaignStatus): void {
@@ -50,8 +58,10 @@ export class MyCampaigns implements OnInit {
     void this.router.navigate(['/', APP_ROUTE_PATHS.myCampaigns, campaign.id]);
   }
 
-  private loadCampaigns(): void {
-    this.loading.set(true);
+  private loadCampaigns(showLoading = true): void {
+    if (showLoading) {
+      this.loading.set(true);
+    }
     this.loadError.set(false);
 
     forkJoin({
@@ -68,9 +78,11 @@ export class MyCampaigns implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.campaigns.set([]);
         this.loading.set(false);
-        this.loadError.set(true);
+        if (showLoading) {
+          this.campaigns.set([]);
+          this.loadError.set(true);
+        }
       },
     });
   }

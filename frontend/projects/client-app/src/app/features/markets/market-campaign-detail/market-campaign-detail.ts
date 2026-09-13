@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { catchError, forkJoin, map, of, Subscription, switchMap } from 'rxjs';
+import { catchError, forkJoin, interval, map, of, Subscription, switchMap } from 'rxjs';
 
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { CampaignsService } from '../../../core/campaigns/services/campaigns.service';
@@ -110,6 +110,8 @@ type MetricChartView = {
   currentLegend: string;
   previousLegend: string;
 };
+
+const STATS_POLL_MS = 10_000;
 
 @Component({
   selector: 'app-market-campaign-detail',
@@ -249,7 +251,26 @@ export class MarketCampaignDetail {
         },
       });
 
-      onCleanup(() => sub.unsubscribe());
+      const pollSub = interval(STATS_POLL_MS)
+        .pipe(
+          switchMap(() =>
+            this.campaignsService.getById(id).pipe(catchError(() => of(null))),
+          ),
+        )
+        .subscribe((campaign) => {
+          if (!campaign) {
+            return;
+          }
+
+          this.campaign.set(
+            toMarketCampaign(campaign, this.campaign()?.categoryName ?? ''),
+          );
+        });
+
+      onCleanup(() => {
+        sub.unsubscribe();
+        pollSub.unsubscribe();
+      });
     });
 
     effect(() => {

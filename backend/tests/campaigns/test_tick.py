@@ -5,7 +5,7 @@ from uuid import UUID, uuid4
 from sqlmodel import Session, col, select
 
 from app import crud
-from app.campaigns.tick import TICK_INTERVAL, is_campaign_running, run_tick
+from app.campaigns.tick import TICK_INTERVAL, run_tick
 from app.models import (
     AccountType,
     Campaign,
@@ -58,8 +58,8 @@ def _metric_ticks(db: Session, campaign_id: UUID) -> list[CampaignMetricTick]:
     )
 
 
-def test_tick_interval_is_thirty_minutes() -> None:
-    assert TICK_INTERVAL == timedelta(minutes=30)
+def test_tick_interval_is_ten_seconds() -> None:
+    assert TICK_INTERVAL == timedelta(seconds=10)
 
 
 def test_create_campaign_inserts_stats(db: Session) -> None:
@@ -109,7 +109,7 @@ def test_run_tick_updates_all_running_campaigns_each_pass(db: Session) -> None:
         db.commit()
 
 
-def test_run_tick_skips_ended_campaigns(db: Session) -> None:
+def test_run_tick_updates_catalog_campaigns_past_days_count(db: Session) -> None:
     category, campaign = _create_campaign(db, days_count=3)
     try:
         assert campaign.created_at is not None
@@ -118,20 +118,18 @@ def test_run_tick_skips_ended_campaigns(db: Session) -> None:
         db.commit()
         db.refresh(campaign)
 
-        now = get_datetime_utc()
-        assert not is_campaign_running(campaign, now)
-
         stats = db.get(CampaignStats, campaign.id)
         assert stats is not None
-        previous_cpm = stats.cpm
         previous_calculated_at = stats.calculated_at
 
-        run_tick(db, now=now)
+        now = get_datetime_utc()
+        updated = run_tick(db, now=now)
         db.commit()
         db.refresh(stats)
 
-        assert stats.cpm == previous_cpm
-        assert stats.calculated_at == previous_calculated_at
+        assert updated >= 1
+        assert stats.calculated_at == now
+        assert stats.calculated_at != previous_calculated_at
     finally:
         db.delete(campaign)
         db.delete(category)

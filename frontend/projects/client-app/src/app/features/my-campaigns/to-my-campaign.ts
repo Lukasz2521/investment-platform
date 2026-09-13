@@ -11,9 +11,26 @@ function todayInputValue(): string {
   return `${year}-${month}-${day}`;
 }
 
-function resolveStatus(status: UserCampaignStatus, endDate: string): MyCampaignStatus {
+const USER_CAMPAIGN_TEST_DURATION_MS = 5 * 60 * 1000;
+
+function resolveStatus(
+  status: UserCampaignStatus,
+  endDate: string,
+  createdAt: string | null,
+): MyCampaignStatus {
   if (status === 'cancelled') {
     return 'cancelled';
+  }
+
+  if (status === 'completed') {
+    return 'completed';
+  }
+
+  if (createdAt) {
+    const startedAt = new Date(createdAt).getTime();
+    if (Number.isFinite(startedAt) && Date.now() >= startedAt + USER_CAMPAIGN_TEST_DURATION_MS) {
+      return 'completed';
+    }
   }
 
   if (endDate < todayInputValue()) {
@@ -33,7 +50,7 @@ export function toMyCampaign(enrollment: UserCampaignPublic, categoryName: strin
     id: enrollment.id,
     days,
     minBudget: Number(enrollment.budget),
-    status: resolveStatus(enrollment.status, enrollment.end_date),
+    status: resolveStatus(enrollment.status, enrollment.end_date, enrollment.created_at),
     startDate: enrollment.start_date,
     endDate: enrollment.end_date,
   };

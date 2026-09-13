@@ -8,25 +8,11 @@ from sqlmodel import Session, col, select
 from app.campaigns.engine import midpoint, step_metric
 from app.models import Campaign, CampaignMetricTick, CampaignStats, get_datetime_utc
 
-TICK_INTERVAL = timedelta(minutes=30)
+# Test timings. Restore TICK_INTERVAL = timedelta(minutes=30)
+# and disable USER_CAMPAIGN_DURATION before production.
+TICK_INTERVAL = timedelta(seconds=10)
+USER_CAMPAIGN_DURATION = timedelta(minutes=5)
 DAILY_SNAPSHOT_HOUR_UTC = 0
-
-
-def campaign_end_at(campaign: Campaign) -> datetime | None:
-    if campaign.created_at is None:
-        return None
-    start = campaign.created_at
-    if start.tzinfo is None:
-        start = start.replace(tzinfo=timezone.utc)
-    return start + timedelta(days=campaign.days_count)
-
-
-def is_campaign_running(campaign: Campaign, now: datetime | None = None) -> bool:
-    now = now or get_datetime_utc()
-    end_at = campaign_end_at(campaign)
-    if end_at is None:
-        return True
-    return now < end_at
 
 
 def initial_campaign_stats(
@@ -94,7 +80,7 @@ def run_tick(session: Session, *, now: datetime | None = None) -> int:
     updated = 0
     for campaign in campaigns:
         stats = campaign.stats
-        if stats is None or not is_campaign_running(campaign, now):
+        if stats is None:
             continue
         stats.cpm = step_metric(
             stats.cpm, campaign.cpm_base, campaign.cpm_min, campaign.cpm_max

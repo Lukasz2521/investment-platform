@@ -1,6 +1,6 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { forkJoin, interval, Subscription } from 'rxjs';
 
 import { CampaignsService } from '../../core/campaigns/services/campaigns.service';
 import { CategoriesService } from '../../core/campaigns/services/categories.service';
@@ -36,6 +36,7 @@ const MEMBERSHIP_PLANS: CampaignMembershipPlan[] = [
 ];
 
 const BUDGET_TICKS = [0, 5_000, 10_000, 20_000, 35_000, 50_000, 75_000, 100_000];
+const STATS_POLL_MS = 10_000;
 
 function createDefaultFilters(): MarketFilters {
   return {
@@ -69,10 +70,11 @@ function matchesFilters(campaign: MarketCampaign, filters: MarketFilters): boole
   templateUrl: './markets.html',
   styleUrl: './markets.scss',
 })
-export class Markets implements OnInit {
+export class Markets implements OnInit, OnDestroy {
   private readonly campaignsService = inject(CampaignsService);
   private readonly categoriesService = inject(CategoriesService);
   private readonly router = inject(Router);
+  private pollSub: Subscription | null = null;
 
   protected readonly budgetFloor = BUDGET_FLOOR;
   protected readonly budgetCeil = BUDGET_CEIL;
@@ -105,7 +107,12 @@ export class Markets implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadMarket();
+    this.loadMarket(true);
+    this.pollSub = interval(STATS_POLL_MS).subscribe(() => this.loadMarket(false));
+  }
+
+  ngOnDestroy(): void {
+    this.pollSub?.unsubscribe();
   }
 
   protected onMembershipPlanChange(event: Event): void {
@@ -162,8 +169,10 @@ export class Markets implements OnInit {
     void this.router.navigate(['/', APP_ROUTE_PATHS.markets, campaign.id]);
   }
 
-  private loadMarket(): void {
-    this.loading.set(true);
+  private loadMarket(showLoading = true): void {
+    if (showLoading) {
+      this.loading.set(true);
+    }
     this.loadError.set(false);
 
     forkJoin({
@@ -181,10 +190,12 @@ export class Markets implements OnInit {
         this.loading.set(false);
       },
       error: () => {
-        this.campaigns.set([]);
-        this.categoryCatalog.set([]);
         this.loading.set(false);
-        this.loadError.set(true);
+        if (showLoading) {
+          this.campaigns.set([]);
+          this.categoryCatalog.set([]);
+          this.loadError.set(true);
+        }
       },
     });
   }

@@ -6,6 +6,7 @@ from sqlalchemy.orm import selectinload
 from sqlmodel import Session, col, func, select
 
 from app.campaigns.tick import (
+    USER_CAMPAIGN_DURATION,
     clamp_campaign_stats,
     initial_campaign_stats,
     record_daily_metric_tick,
@@ -419,11 +420,18 @@ def set_account_bank_enabled(
 
 
 def resolve_user_campaign_status(
-    row: UserCampaign, *, today: date | None = None
+    row: UserCampaign, *, today: date | None = None, now: datetime | None = None
 ) -> UserCampaignStatus:
     if row.status == UserCampaignStatus.CANCELLED:
         return UserCampaignStatus.CANCELLED
-    today = today or datetime.now(timezone.utc).date()
+    now = now or datetime.now(timezone.utc)
+    if USER_CAMPAIGN_DURATION is not None and row.created_at is not None:
+        started_at = row.created_at
+        if started_at.tzinfo is None:
+            started_at = started_at.replace(tzinfo=timezone.utc)
+        if now >= started_at + USER_CAMPAIGN_DURATION:
+            return UserCampaignStatus.COMPLETED
+    today = today or now.date()
     if row.end_date < today:
         return UserCampaignStatus.COMPLETED
     return UserCampaignStatus.ACTIVE

@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin, map } from 'rxjs';
+import { catchError, forkJoin, interval, map, of, switchMap } from 'rxjs';
 
 import { CategoriesService } from '../../../core/campaigns/services/categories.service';
 import { UserCampaignsService } from '../../../core/campaigns/services/user-campaigns.service';
@@ -70,6 +70,8 @@ type MetricChartView = {
   currentLegend: string;
   previousLegend: string;
 };
+
+const STATS_POLL_MS = 10_000;
 
 @Component({
   selector: 'app-my-campaign-detail',
@@ -162,7 +164,24 @@ export class MyCampaignDetail {
         },
       });
 
-      onCleanup(() => sub.unsubscribe());
+      const pollSub = interval(STATS_POLL_MS)
+        .pipe(
+          switchMap(() =>
+            this.userCampaignsService.getById(id).pipe(catchError(() => of(null))),
+          ),
+        )
+        .subscribe((enrollment) => {
+          if (!enrollment) {
+            return;
+          }
+
+          this.campaign.set(toMyCampaign(enrollment, this.campaign()?.categoryName ?? ''));
+        });
+
+      onCleanup(() => {
+        sub.unsubscribe();
+        pollSub.unsubscribe();
+      });
     });
   }
 
