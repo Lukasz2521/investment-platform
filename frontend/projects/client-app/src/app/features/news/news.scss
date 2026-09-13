@@ -95,6 +95,14 @@
   max-width: 40rem;
 }
 
+.news-status {
+  color: rgb(255 255 255 / 62%);
+  font-size: 0.975rem;
+  line-height: 1.6;
+  margin: 0;
+  text-align: center;
+}
+
 @media (max-width: 720px) {
   .news-hero {
     padding-top: 3rem;

@@ -43,6 +43,10 @@ export const routes: Routes = [
           import('./features/users/users-list').then((m) => m.UsersList),
       },
       {
+        path: APP_ROUTE_PATHS.news,
+        loadComponent: () => import('./features/news/news').then((m) => m.News),
+      },
+      {
         path: `${APP_ROUTE_PATHS.users}/:userId`,
         loadComponent: () =>
           import('./features/users/user-detail').then((m) => m.UserDetail),

@@ -8,14 +8,24 @@
   </div>
 
   <div class="news-inner">
-    <ul class="news-list">
-      @for (item of items; track item.id) {
-        <li class="news-item">
-          <time class="news-item-date">{{ item.dateKey | translate }}</time>
-          <h2 class="news-item-title">{{ item.titleKey | translate }}</h2>
-          <p class="news-item-excerpt">{{ item.excerptKey | translate }}</p>
-        </li>
-      }
-    </ul>
+    @if (loading()) {
+      <p class="news-status">{{ 'marketing.news.loading' | translate }}</p>
+    } @else if (error()) {
+      <p class="news-status">{{ 'marketing.news.error' | translate }}</p>
+    } @else if (items().length === 0) {
+      <p class="news-status">{{ 'marketing.news.empty' | translate }}</p>
+    } @else {
+      <ul class="news-list">
+        @for (item of items(); track item.id) {
+          <li class="news-item">
+            <time class="news-item-date" [attr.datetime]="item.published_at">{{
+              item.publishedLabel
+            }}</time>
+            <h2 class="news-item-title">{{ item.title }}</h2>
+            <p class="news-item-excerpt">{{ item.description }}</p>
+          </li>
+        }
+      </ul>
+    }
   </div>
 </section>

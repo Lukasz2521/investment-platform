@@ -16,6 +16,10 @@ def get_datetime_utc() -> datetime:
     return datetime.now(timezone.utc)
 
 
+def get_date_utc() -> date:
+    return datetime.now(timezone.utc).date()
+
+
 # Shared properties
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
@@ -287,6 +291,47 @@ class CategoryPublic(SQLModel):
 
 class CategoryUpdate(SQLModel):
     name: str = Field(min_length=1, max_length=255)
+
+
+class News(SQLModel, table=True):
+    __tablename__ = "news"
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    title: str = Field(max_length=255)
+    description: str = Field(max_length=4000)
+    published_at: date = Field(
+        default_factory=get_date_utc,
+        sa_column=Column(Date, nullable=False, index=True),
+    )
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+
+
+class NewsCreate(SQLModel):
+    title: str = Field(min_length=1, max_length=255)
+    description: str = Field(min_length=1, max_length=4000)
+    published_at: date | None = None
+
+
+class NewsPublic(SQLModel):
+    id: uuid.UUID
+    title: str
+    description: str
+    published_at: date
+    created_at: datetime | None = None
+
+
+class NewsUpdate(SQLModel):
+    title: str | None = Field(default=None, min_length=1, max_length=255)
+    description: str | None = Field(default=None, min_length=1, max_length=4000)
+    published_at: date | None = None
+
+
+class NewsListPublic(SQLModel):
+    data: list[NewsPublic]
+    count: int
 
 
 class AccountType(str, Enum):

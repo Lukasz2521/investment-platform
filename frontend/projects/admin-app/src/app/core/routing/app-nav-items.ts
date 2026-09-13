@@ -33,6 +33,11 @@ export const APP_NAV_ITEMS: AppNavItem[] = [
     route: APP_ROUTE_PATHS.banks,
   },
   {
+    label: 'News',
+    icon: 'pi pi-megaphone',
+    route: APP_ROUTE_PATHS.news,
+  },
+  {
     label: 'Security',
     icon: 'pi pi-shield',
   },

@@ -31,6 +31,9 @@ from app.models import (
     CreateTransaction,
     Item,
     ItemCreate,
+    News,
+    NewsCreate,
+    NewsUpdate,
     Transaction,
     UpdateTransaction,
     User,
@@ -253,6 +256,43 @@ def update_category(
     session.commit()
     session.refresh(db_category)
     return db_category
+
+
+def create_news(*, session: Session, news_in: NewsCreate) -> News:
+    payload = news_in.model_dump()
+    if payload.get("published_at") is None:
+        payload["published_at"] = datetime.now(timezone.utc).date()
+    db_obj = News.model_validate(payload)
+    session.add(db_obj)
+    session.commit()
+    session.refresh(db_obj)
+    return db_obj
+
+
+def get_news_items(
+    *, session: Session, skip: int = 0, limit: int = 100
+) -> tuple[list[News], int]:
+    count_statement = select(func.count()).select_from(News)
+    count = session.exec(count_statement).one()
+    statement = (
+        select(News)
+        .order_by(col(News.published_at).desc(), col(News.created_at).desc())
+        .offset(skip)
+        .limit(limit)
+    )
+    rows = session.exec(statement).all()
+    return list(rows), count
+
+
+def update_news(*, session: Session, db_news: News, news_in: NewsUpdate) -> News:
+    update_dict = news_in.model_dump(exclude_unset=True)
+    if not update_dict:
+        return db_news
+    db_news.sqlmodel_update(update_dict)
+    session.add(db_news)
+    session.commit()
+    session.refresh(db_news)
+    return db_news
 
 
 def create_transaction(

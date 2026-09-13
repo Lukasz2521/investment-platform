@@ -1,0 +1,60 @@
+<p-dialog
+  [header]="dialogHeader()"
+  [(visible)]="visible"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="false"
+  [dismissableMask]="false"
+  [style]="{ width: '36rem', maxWidth: '95vw' }"
+  styleClass="news-form-dialog"
+  (onHide)="closeDialog()"
+>
+  <form class="news-form-dialog-form" [formGroup]="form" (ngSubmit)="submit()">
+    <label class="news-form-dialog-field">
+      <span class="news-form-dialog-label"
+        >Title<span class="news-form-dialog-required">*</span></span
+      >
+      <input pInputText type="text" formControlName="title" maxlength="255" />
+    </label>
+
+    <label class="news-form-dialog-field">
+      <span class="news-form-dialog-label"
+        >Description<span class="news-form-dialog-required">*</span></span
+      >
+      <textarea
+        class="news-form-dialog-textarea"
+        formControlName="description"
+        rows="5"
+        maxlength="4000"
+      ></textarea>
+    </label>
+
+    <label class="news-form-dialog-field">
+      <span class="news-form-dialog-label"
+        >Publication date<span class="news-form-dialog-required">*</span></span
+      >
+      <input pInputText type="date" formControlName="published_at" />
+    </label>
+  </form>
+
+  <ng-template #footer>
+    <div class="news-form-dialog-footer">
+      <p-button
+        type="button"
+        label="CANCEL"
+        [outlined]="true"
+        [disabled]="submitting()"
+        (onClick)="closeDialog()"
+      />
+      <p-button
+        type="button"
+        label="SAVE"
+        severity="secondary"
+        [loading]="submitting()"
+        [disabled]="form.invalid || submitting()"
+        (onClick)="submit()"
+      />
+    </div>
+  </ng-template>
+</p-dialog>

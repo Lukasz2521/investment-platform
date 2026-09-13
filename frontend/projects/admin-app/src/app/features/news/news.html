@@ -1,0 +1,31 @@
+<p-toolbar class="news-toolbar">
+  <ng-template #start>
+    <h1>News</h1>
+  </ng-template>
+
+  <ng-template #end>
+    <p-button icon="pi pi-plus" ariaLabel="Add news" (onClick)="openAddDialog()" />
+  </ng-template>
+</p-toolbar>
+
+<p-card>
+  <admin-app-news-table
+    [items]="items()"
+    [loading]="loading()"
+    (editItem)="openEditDialog($event)"
+    (deleteItem)="openDeleteDialog($event)"
+  />
+</p-card>
+
+<admin-app-news-form-dialog
+  [item]="itemToEdit()"
+  [(visible)]="formDialogVisible"
+  (newsSaved)="onNewsSaved()"
+/>
+
+<admin-app-news-delete-dialog
+  [(visible)]="deleteDialogVisible"
+  [item]="itemToDelete()"
+  [deleting]="deleting()"
+  (confirm)="confirmDelete()"
+/>
