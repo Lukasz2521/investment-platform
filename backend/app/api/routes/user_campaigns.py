@@ -6,7 +6,15 @@ from sqlmodel import select
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Account, UserCampaignCreate, UserCampaignPublic, UserCampaignsPublic
+from app.models import (
+    Account,
+    Transaction,
+    TransactionStatus,
+    TransactionType,
+    UserCampaignCreate,
+    UserCampaignPublic,
+    UserCampaignsPublic,
+)
 
 router = APIRouter(prefix="/user-campaigns", tags=["user-campaigns"])
 
@@ -55,9 +63,25 @@ def start_user_campaign(
 
     account.available_balance -= campaign_in.budget
     session.add(account)
+    session.add(
+        Transaction(
+            user_id=current_user.id,
+            amount=campaign_in.budget,
+            transaction_type=TransactionType.CAMPAIGN_WITHDRAW.value,
+            status=TransactionStatus.DONE.value,
+            description=campaign.title,
+        )
+    )
 
+    cpm, epc, ctr = crud.snapshot_campaign_metrics(campaign)
     row = crud.create_user_campaign(
-        session=session, user_id=current_user.id, campaign_in=campaign_in
+        session=session,
+        user_id=current_user.id,
+        campaign_in=campaign_in,
+        cpm=cpm,
+        epc=epc,
+        ctr=ctr,
+        participation=account.participation,
     )
     return crud.to_user_campaign_public(row)
 
@@ -73,6 +97,7 @@ def read_my_user_campaigns(
     """
     List campaigns started by the current user.
     """
+    crud.settle_completed_user_campaigns(session=session, user_id=current_user.id)
     rows, total = crud.get_user_campaigns_by_user_id(
         session=session, user_id=current_user.id, skip=skip, limit=limit
     )
@@ -92,6 +117,7 @@ def read_my_user_campaign(
     """
     Get a campaign started by the current user.
     """
+    crud.settle_completed_user_campaigns(session=session, user_id=current_user.id)
     row = crud.get_user_campaign(session=session, user_campaign_id=user_campaign_id)
     if not row or row.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Campaign not found")

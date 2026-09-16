@@ -580,6 +580,20 @@ class UserCampaign(SQLModel, table=True):
     start_date: date = Field(sa_column=Column(Date, nullable=False))
     end_date: date = Field(sa_column=Column(Date, nullable=False))
     budget: Decimal = Field(sa_column=Column(Numeric(18, 4), nullable=False))
+    cpm: Decimal | None = Field(
+        default=None, sa_column=Column(Numeric(18, 4), nullable=True)
+    )
+    epc: Decimal | None = Field(
+        default=None, sa_column=Column(Numeric(18, 4), nullable=True)
+    )
+    ctr: Decimal | None = Field(
+        default=None, sa_column=Column(Numeric(18, 4), nullable=True)
+    )
+    participation: int = Field(default=18, ge=0, le=100)
+    settled_at: datetime | None = Field(
+        default=None,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
     status: UserCampaignStatus = Field(
         default=UserCampaignStatus.ACTIVE,
         sa_column=Column(
@@ -609,8 +623,18 @@ class UserCampaignPublic(SQLModel):
     start_date: date
     end_date: date
     budget: Decimal
+    cpm: Decimal
+    epc: Decimal
+    ctr: Decimal
+    participation: int
+    impressions: int
+    clicks: int
+    gross_revenue: Decimal
+    gross_profit: Decimal
+    net_profit: Decimal
     status: UserCampaignStatus
     created_at: datetime | None = None
+    settled_at: datetime | None = None
     campaign: CampaignPublic
 
 

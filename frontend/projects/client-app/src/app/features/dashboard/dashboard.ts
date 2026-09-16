@@ -2,9 +2,10 @@ import { DatePipe } from '@angular/common';
 import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { catchError, interval, of, switchMap } from 'rxjs';
+import { catchError, forkJoin, interval, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../../core/auth/services/auth.service';
+import { UserCampaignsService } from '../../core/campaigns/services/user-campaigns.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../core/i18n/services/translation.service';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
@@ -26,6 +27,7 @@ import { DASHBOARD_TILES, DashboardTileId } from './dashboard-tiles';
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * 46;
 const HISTORY_PAGE_SIZE = 20;
 const DASHBOARD_CURRENCY = 'PLN';
+const DASHBOARD_POLL_MS = 10_000;
 
 function localeForLanguage(language: string): string {
   switch (language) {
@@ -57,6 +59,7 @@ export class Dashboard implements OnInit {
   private readonly router = inject(Router);
   private readonly translationService = inject(TranslationService);
   private readonly transactionsService = inject(TransactionsService);
+  private readonly userCampaignsService = inject(UserCampaignsService);
 
   protected readonly routes = APP_ROUTE_PATHS;
 
@@ -64,6 +67,7 @@ export class Dashboard implements OnInit {
   protected readonly countdownLabel = signal('');
   protected readonly username = signal('');
   protected readonly account = signal<AccountPublicForUser | null>(null);
+  protected readonly realizedProfit = signal(0);
 
   protected readonly profitSharePercent = computed(() => {
     const participation = this.account()?.participation;
@@ -88,10 +92,11 @@ export class Dashboard implements OnInit {
   protected readonly tiles = computed(() => {
     this.translationService.activeLanguage();
     const account = this.account();
+    const realizedProfit = this.realizedProfit();
     return DASHBOARD_TILES.map((tile) => ({
       id: tile.id,
       titleKey: tile.titleKey,
-      value: this.tileValue(tile.id, account),
+      value: this.tileValue(tile.id, account, realizedProfit),
     }));
   });
 
@@ -108,8 +113,10 @@ export class Dashboard implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => this.updateCountdown());
 
-    this.loadUser();
-    this.loadHistory();
+    this.loadDashboard(true);
+    interval(DASHBOARD_POLL_MS)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.loadDashboard(false));
   }
 
   protected goToDeposit(): void {
@@ -136,34 +143,73 @@ export class Dashboard implements OnInit {
     return isOutgoingTransaction(transaction);
   }
 
-  private loadUser(): void {
+  private loadDashboard(showHistoryLoading: boolean): void {
+    if (showHistoryLoading) {
+      this.historyLoading.set(true);
+      this.historyError.set(false);
+    }
+
     this.authService
       .getMe()
       .pipe(
         switchMap((user) => {
           this.username.set(user.username || user.name || user.email);
-          return this.usersService.getById(user.id).pipe(catchError(() => of(null)));
+          return forkJoin({
+            accountUser: this.usersService.getById(user.id).pipe(catchError(() => of(null))),
+            campaigns: this.userCampaignsService.getAll().pipe(
+              catchError(() => of({ data: [], count: 0 })),
+            ),
+            history: this.transactionsService.getMine(0, HISTORY_PAGE_SIZE).pipe(
+              catchError(() => of(null)),
+            ),
+          });
         }),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe({
-        next: (user) => {
-          this.account.set(user?.account ?? null);
+        next: ({ accountUser, campaigns, history }) => {
+          this.account.set(accountUser?.account ?? null);
+          this.realizedProfit.set(
+            campaigns.data
+              .filter((enrollment) => enrollment.status === 'completed')
+              .reduce((sum, enrollment) => sum + parseAccountMoney(enrollment.net_profit), 0),
+          );
+          if (history) {
+            this.transactions.set(history.data);
+            this.transactionsCount.set(history.count);
+            this.historyError.set(false);
+          } else if (showHistoryLoading) {
+            this.transactions.set([]);
+            this.transactionsCount.set(0);
+            this.historyError.set(true);
+          }
+          this.historyLoading.set(false);
         },
         error: () => {
           this.username.set('');
           this.account.set(null);
+          this.realizedProfit.set(0);
+          if (showHistoryLoading) {
+            this.transactions.set([]);
+            this.transactionsCount.set(0);
+            this.historyError.set(true);
+          }
+          this.historyLoading.set(false);
         },
       });
   }
 
-  private tileValue(id: DashboardTileId, account: AccountPublicForUser | null): string {
+  private tileValue(
+    id: DashboardTileId,
+    account: AccountPublicForUser | null,
+    realizedProfit: number,
+  ): string {
     const available = parseAccountMoney(account?.available_balance);
     const balance = parseAccountMoney(account?.balance);
     const amounts: Record<DashboardTileId, number> = {
       availableBalance: available,
       assetsInCirculation: Math.max(0, balance - available),
-      currentProfit: 0,
+      currentProfit: realizedProfit,
       totalDeposits: parseAccountMoney(account?.total_deposit),
       withdrawals: parseAccountMoney(account?.total_withdraw),
       returnsConversion: 0,
@@ -179,25 +225,6 @@ export class Dashboard implements OnInit {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
-  }
-
-  private loadHistory(): void {
-    this.historyLoading.set(true);
-    this.historyError.set(false);
-
-    this.transactionsService.getMine(0, HISTORY_PAGE_SIZE).subscribe({
-      next: (response) => {
-        this.transactions.set(response.data);
-        this.transactionsCount.set(response.count);
-        this.historyLoading.set(false);
-      },
-      error: () => {
-        this.transactions.set([]);
-        this.transactionsCount.set(0);
-        this.historyLoading.set(false);
-        this.historyError.set(true);
-      },
-    });
   }
 
   private updateCountdown(): void {

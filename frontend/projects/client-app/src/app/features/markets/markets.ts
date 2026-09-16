@@ -1,11 +1,13 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { forkJoin, interval, Subscription } from 'rxjs';
+import { catchError, forkJoin, interval, of, Subscription, switchMap } from 'rxjs';
 
+import { AuthService } from '../../core/auth/services/auth.service';
 import { CampaignsService } from '../../core/campaigns/services/campaigns.service';
 import { CategoriesService } from '../../core/campaigns/services/categories.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
+import { UsersService } from '../../core/users/services/users.service';
 import { CampaignCard } from '../campaigns/campaign-card/campaign-card';
 import { CampaignCardRow } from '../campaigns/campaign-card-row/campaign-card-row';
 import {
@@ -73,6 +75,8 @@ function matchesFilters(campaign: MarketCampaign, filters: MarketFilters): boole
 export class Markets implements OnInit, OnDestroy {
   private readonly campaignsService = inject(CampaignsService);
   private readonly categoriesService = inject(CategoriesService);
+  private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
   private readonly router = inject(Router);
   private pollSub: Subscription | null = null;
 
@@ -89,6 +93,7 @@ export class Markets implements OnInit, OnDestroy {
   private readonly appliedFilters = signal<MarketFilters>(createDefaultFilters());
   private readonly campaigns = signal<MarketCampaign[]>([]);
   private readonly categoryCatalog = signal<{ id: string; name: string }[]>([]);
+  private readonly participation = signal(0);
 
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
@@ -178,13 +183,22 @@ export class Markets implements OnInit, OnDestroy {
     forkJoin({
       campaigns: this.campaignsService.getAll(),
       categories: this.categoriesService.getAll(),
+      user: this.authService.getMe().pipe(
+        switchMap((me) => this.usersService.getById(me.id).pipe(catchError(() => of(null)))),
+        catchError(() => of(null)),
+      ),
     }).subscribe({
-      next: ({ campaigns, categories }) => {
+      next: ({ campaigns, categories, user }) => {
         const nameById = new Map(categories.map((category) => [category.id, category.name]));
         this.categoryCatalog.set(categories.map((category) => ({ id: category.id, name: category.name })));
+        this.participation.set(user?.account?.participation ?? 0);
         this.campaigns.set(
           campaigns.data.map((campaign) =>
-            toMarketCampaign(campaign, nameById.get(campaign.category_id) ?? ''),
+            toMarketCampaign(
+              campaign,
+              nameById.get(campaign.category_id) ?? '',
+              this.participation(),
+            ),
           ),
         );
         this.loading.set(false);

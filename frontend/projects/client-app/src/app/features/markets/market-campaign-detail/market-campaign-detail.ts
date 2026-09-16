@@ -8,6 +8,7 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 import { CampaignsService } from '../../../core/campaigns/services/campaigns.service';
 import { CategoriesService } from '../../../core/campaigns/services/categories.service';
 import { UserCampaignsService } from '../../../core/campaigns/services/user-campaigns.service';
+import { estimateCampaignEconomics } from '../../../core/campaigns/utils/campaign-economics';
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../../core/i18n/services/translation.service';
 import { APP_ROUTE_PATHS } from '../../../core/routing/app-route-paths';
@@ -137,6 +138,7 @@ export class MarketCampaignDetail {
   protected readonly loadError = signal(false);
   protected readonly campaign = signal<MarketCampaign | undefined>(undefined);
   protected readonly availableBalance = signal(0);
+  protected readonly participation = signal(0);
 
   private readonly campaignId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id'))),
@@ -157,39 +159,45 @@ export class MarketCampaignDetail {
     return Number.isFinite(value) ? value : 0;
   });
 
-  protected readonly estimatedImpressions = computed(() => {
+  protected readonly estimatedEconomics = computed(() => {
     const campaign = this.campaign();
     const budget = this.budgetAmount();
-    if (!campaign || campaign.cpm <= 0 || budget <= 0) {
-      return 0;
+    if (!campaign || budget <= 0) {
+      return estimateCampaignEconomics({
+        budget: 0,
+        cpm: 0,
+        epc: 0,
+        ctr: 0,
+        participation: this.participation(),
+      });
     }
 
-    return Math.round((budget / campaign.cpm) * 1000);
+    return estimateCampaignEconomics({
+      budget,
+      cpm: campaign.cpm,
+      epc: campaign.epc,
+      ctr: campaign.ctr,
+      participation: this.participation(),
+    });
   });
 
-  protected readonly estimatedGrossProfit = computed(() => {
-    const campaign = this.campaign();
-    const budget = this.budgetAmount();
-    const days = this.durationDays();
-    if (!campaign || budget <= 0 || days === null || days <= 0) {
-      return 0;
-    }
+  protected readonly estimatedImpressions = computed(() => this.estimatedEconomics().impressions);
 
-    return Math.round(budget * (campaign.profitMonthly / 100) * (days / 30) * 100) / 100;
-  });
+  protected readonly estimatedGrossProfit = computed(() => this.estimatedEconomics().grossProfit);
 
-  protected readonly estimatedGrossRevenue = computed(
-    () => this.budgetAmount() + this.estimatedGrossProfit(),
+  protected readonly estimatedGrossRevenue = computed(() => this.estimatedEconomics().grossRevenue);
+
+  protected readonly estimatedNetProfit = computed(() => this.estimatedEconomics().netProfit);
+
+  protected readonly estimatedProfitPercent = computed(() => this.estimatedEconomics().profitPercent);
+
+  protected readonly estimatedNetProfitPercent = computed(
+    () => this.estimatedEconomics().netProfitPercent,
   );
 
-  protected readonly estimatedProfitPercent = computed(() => {
-    const budget = this.budgetAmount();
-    if (budget <= 0) {
-      return 0;
-    }
-
-    return Math.round((this.estimatedGrossProfit() / budget) * 10000) / 100;
-  });
+  protected readonly estimatedBalanceAfter = computed(
+    () => this.availableBalance() + this.estimatedNetProfit(),
+  );
 
   protected readonly canStartCampaign = computed(() => {
     const campaign = this.campaign();
@@ -206,9 +214,9 @@ export class MarketCampaignDetail {
     return campaign ? this.buildMetricChart(campaign.cpm, campaign.currency, 1) : null;
   });
 
-  protected readonly epcChart = computed(() => {
+  protected readonly ctrChart = computed(() => {
     const campaign = this.campaign();
-    return campaign ? this.buildMetricChart(campaign.epc, campaign.currency, 3) : null;
+    return campaign ? this.buildMetricChart(campaign.ctr, campaign.currency, 3, 'percent') : null;
   });
 
   private readonly configCampaignId = signal<string | null>(null);
@@ -239,13 +247,15 @@ export class MarketCampaignDetail {
         next: ({ campaign, categories, user }) => {
           const categoryName =
             categories.find((category) => category.id === campaign.category_id)?.name ?? '';
-          this.campaign.set(toMarketCampaign(campaign, categoryName));
           this.availableBalance.set(availableBalanceFromUser(user));
+          this.participation.set(user?.account?.participation ?? 0);
+          this.campaign.set(toMarketCampaign(campaign, categoryName, this.participation()));
           this.loading.set(false);
         },
         error: (error: unknown) => {
           this.campaign.set(undefined);
           this.availableBalance.set(0);
+          this.participation.set(0);
           this.loading.set(false);
           this.loadError.set(!(error instanceof HttpErrorResponse && error.status === 404));
         },
@@ -263,7 +273,7 @@ export class MarketCampaignDetail {
           }
 
           this.campaign.set(
-            toMarketCampaign(campaign, this.campaign()?.categoryName ?? ''),
+            toMarketCampaign(campaign, this.campaign()?.categoryName ?? '', this.participation()),
           );
         });
 
@@ -422,7 +432,12 @@ export class MarketCampaignDetail {
     return new Intl.NumberFormat(undefined).format(value);
   }
 
-  private buildMetricChart(base: number, currency: string, seed: number): MetricChartView {
+  private buildMetricChart(
+    base: number,
+    currency: string,
+    seed: number,
+    format: 'money' | 'percent' = 'money',
+  ): MetricChartView {
     const currentValues = buildMetricSeries(base, seed);
     const previousValues = buildMetricSeries(base * 0.92, seed + 11);
     const peak = Math.max(...currentValues, ...previousValues, base);
@@ -434,13 +449,12 @@ export class MarketCampaignDetail {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
+    const formatAxis = (value: number) =>
+      format === 'percent' ? this.formatPercent(value) : this.formatAxisMoney(value, currency);
+
     return {
-      heroValue: this.formatMoney(base, currency),
-      yLabels: [
-        this.formatAxisMoney(yMax, currency),
-        this.formatAxisMoney(mid, currency),
-        this.formatAxisMoney(0, currency),
-      ],
+      heroValue: format === 'percent' ? this.formatPercent(base) : this.formatMoney(base, currency),
+      yLabels: [formatAxis(yMax), formatAxis(mid), formatAxis(0)],
       yMax,
       currentValues,
       previousValues,

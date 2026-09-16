@@ -6,6 +6,7 @@ import { catchError, forkJoin, interval, map, of, switchMap } from 'rxjs';
 
 import { CategoriesService } from '../../../core/campaigns/services/categories.service';
 import { UserCampaignsService } from '../../../core/campaigns/services/user-campaigns.service';
+import { estimateCampaignEconomics } from '../../../core/campaigns/utils/campaign-economics';
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../../core/i18n/services/translation.service';
 import { APP_ROUTE_PATHS } from '../../../core/routing/app-route-paths';
@@ -104,22 +105,25 @@ export class MyCampaignDetail {
     const days =
       campaignGuidelinesDurationDays(campaign.startDate, campaign.endDate) ?? campaign.days;
     const budget = campaign.minBudget;
-    const impressions =
-      campaign.cpm > 0 ? Math.round((budget / campaign.cpm) * 1000) : 0;
-    const grossProfit =
-      Math.round(budget * (campaign.profitMonthly / 100) * (days / 30) * 100) / 100;
-    const grossRevenue = budget + grossProfit;
-    const profitPercent = budget > 0 ? Math.round((grossProfit / budget) * 10000) / 100 : 0;
+    const economics = estimateCampaignEconomics({
+      budget,
+      cpm: campaign.cpm,
+      epc: campaign.epc,
+      ctr: campaign.ctr,
+      participation: campaign.participation ?? 0,
+    });
 
     return {
       startDate: campaign.startDate,
       endDate: campaign.endDate,
       days,
       budget,
-      impressions,
-      grossProfit,
-      grossRevenue,
-      profitPercent,
+      impressions: campaign.impressions ?? economics.impressions,
+      grossProfit: campaign.grossProfit ?? economics.grossProfit,
+      grossRevenue: campaign.grossRevenue ?? economics.grossRevenue,
+      netProfit: campaign.netProfit ?? economics.netProfit,
+      profitPercent: economics.profitPercent,
+      netProfitPercent: economics.netProfitPercent,
     };
   });
 
@@ -128,9 +132,9 @@ export class MyCampaignDetail {
     return campaign ? this.buildMetricChart(campaign.cpm, campaign.currency, 1) : null;
   });
 
-  protected readonly epcChart = computed(() => {
+  protected readonly ctrChart = computed(() => {
     const campaign = this.campaign();
-    return campaign ? this.buildMetricChart(campaign.epc, campaign.currency, 3) : null;
+    return campaign ? this.buildMetricChart(campaign.ctr, campaign.currency, 3, 'percent') : null;
   });
 
   constructor() {
@@ -237,7 +241,12 @@ export class MyCampaignDetail {
     }).format(new Date(year, month - 1, day));
   }
 
-  private buildMetricChart(base: number, currency: string, seed: number): MetricChartView {
+  private buildMetricChart(
+    base: number,
+    currency: string,
+    seed: number,
+    format: 'money' | 'percent' = 'money',
+  ): MetricChartView {
     const currentValues = buildMetricSeries(base, seed);
     const previousValues = buildMetricSeries(base * 0.92, seed + 11);
     const peak = Math.max(...currentValues, ...previousValues, base);
@@ -249,13 +258,12 @@ export class MyCampaignDetail {
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
 
+    const formatAxis = (value: number) =>
+      format === 'percent' ? this.formatPercent(value) : this.formatAxisMoney(value, currency);
+
     return {
-      heroValue: this.formatMoney(base, currency),
-      yLabels: [
-        this.formatAxisMoney(yMax, currency),
-        this.formatAxisMoney(mid, currency),
-        this.formatAxisMoney(0, currency),
-      ],
+      heroValue: format === 'percent' ? this.formatPercent(base) : this.formatMoney(base, currency),
+      yLabels: [formatAxis(yMax), formatAxis(mid), formatAxis(0)],
       yMax,
       currentValues,
       previousValues,

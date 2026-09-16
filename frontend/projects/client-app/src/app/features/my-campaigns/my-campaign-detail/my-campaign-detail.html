@@ -164,6 +164,12 @@
                   {{ formatMoney(summary.grossProfit, data.currency) }}
                 </dd>
               </div>
+              <div class="my-detail-summary-row">
+                <dt>{{ 'app.markets.detail.config.netProfit' | translate }}</dt>
+                <dd class="my-detail-summary-profit">
+                  {{ formatMoney(summary.netProfit, data.currency) }}
+                </dd>
+              </div>
             </dl>
           </div>
         </section>
@@ -183,17 +189,17 @@
         />
       }
 
-      @if (epcChart(); as epc) {
+      @if (ctrChart(); as ctr) {
         <app-market-metric-chart
           class="my-detail-panel my-detail-panel--chart"
-          [title]="'app.markets.detail.charts.epcTitle' | translate"
-          [heroValue]="epc.heroValue"
-          [yLabels]="epc.yLabels"
-          [yMax]="epc.yMax"
-          [currentValues]="epc.currentValues"
-          [previousValues]="epc.previousValues"
-          [currentLegend]="epc.currentLegend"
-          [previousLegend]="epc.previousLegend"
+          [title]="'app.markets.detail.charts.ctrTitle' | translate"
+          [heroValue]="ctr.heroValue"
+          [yLabels]="ctr.yLabels"
+          [yMax]="ctr.yMax"
+          [currentValues]="ctr.currentValues"
+          [previousValues]="ctr.previousValues"
+          [currentLegend]="ctr.currentLegend"
+          [previousLegend]="ctr.previousLegend"
         />
       }
     </div>

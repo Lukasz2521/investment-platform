@@ -33,7 +33,7 @@
 
       <article class="market-detail-tile market-detail-tile--profit" role="listitem">
         <p class="market-detail-tile-label">{{ 'app.markets.detail.params.profit' | translate }}</p>
-        <p class="market-detail-tile-value">{{ formatPercent(data.profitMonthly) }}</p>
+        <p class="market-detail-tile-value">{{ formatPercent(estimatedNetProfitPercent()) }}</p>
       </article>
     </div>
 
@@ -188,6 +188,16 @@
                 {{ formatMoney(estimatedGrossProfit(), data.currency) }}
               </dd>
             </div>
+            <div class="market-detail-summary-row">
+              <dt>{{ 'app.markets.detail.config.netProfit' | translate }}</dt>
+              <dd class="market-detail-summary-profit">
+                {{ formatMoney(estimatedNetProfit(), data.currency) }}
+              </dd>
+            </div>
+            <div class="market-detail-summary-row">
+              <dt>{{ 'app.markets.detail.config.balanceAfter' | translate }}</dt>
+              <dd>{{ formatMoney(estimatedBalanceAfter(), data.currency) }}</dd>
+            </div>
           </dl>
         </div>
 
@@ -220,17 +230,17 @@
         />
       }
 
-      @if (epcChart(); as epc) {
+      @if (ctrChart(); as ctr) {
         <app-market-metric-chart
           class="market-detail-panel market-detail-panel--chart"
-          [title]="'app.markets.detail.charts.epcTitle' | translate"
-          [heroValue]="epc.heroValue"
-          [yLabels]="epc.yLabels"
-          [yMax]="epc.yMax"
-          [currentValues]="epc.currentValues"
-          [previousValues]="epc.previousValues"
-          [currentLegend]="epc.currentLegend"
-          [previousLegend]="epc.previousLegend"
+          [title]="'app.markets.detail.charts.ctrTitle' | translate"
+          [heroValue]="ctr.heroValue"
+          [yLabels]="ctr.yLabels"
+          [yMax]="ctr.yMax"
+          [currentValues]="ctr.currentValues"
+          [previousValues]="ctr.previousValues"
+          [currentLegend]="ctr.currentLegend"
+          [previousLegend]="ctr.previousLegend"
         />
       }
     </div>

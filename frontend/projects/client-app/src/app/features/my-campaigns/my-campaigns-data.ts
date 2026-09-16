@@ -6,6 +6,12 @@ export type MyCampaign = MarketCampaign & {
   status: MyCampaignStatus;
   startDate: string;
   endDate: string;
+  impressions?: number;
+  clicks?: number;
+  grossRevenue?: number;
+  grossProfit?: number;
+  netProfit?: number;
+  participation?: number;
 };
 
 export type MyCampaignTab = {

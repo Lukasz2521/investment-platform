@@ -260,6 +260,8 @@ def read_user_by_id(
             detail="The user doesn't have enough privileges",
         )
 
+    crud.settle_completed_user_campaigns(session=session, user_id=user_id)
+
     account = session.exec(
         select(Account)
         .where(Account.user_id == user_id)

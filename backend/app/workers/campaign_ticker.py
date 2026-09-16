@@ -4,6 +4,7 @@ import time
 
 from sqlmodel import Session
 
+from app import crud
 from app.campaigns.tick import TICK_INTERVAL, run_tick
 from app.core.db import engine
 
@@ -41,8 +42,13 @@ def main() -> None:
         try:
             with Session(engine) as session:
                 updated = run_tick(session)
+                settled = crud.settle_completed_user_campaigns(session=session)
                 session.commit()
-            logger.info("tick updated %s running campaigns", updated)
+            logger.info(
+                "tick updated %s running campaigns; settled %s user campaigns",
+                updated,
+                settled,
+            )
             _sleep_interruptible(TICK_INTERVAL.total_seconds())
         except Exception:
             logger.exception("tick failed")

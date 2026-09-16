@@ -1,10 +1,13 @@
 import uuid
 from datetime import date, datetime, timezone
+from decimal import Decimal
 from typing import Any
 
 from sqlalchemy.orm import selectinload
 from sqlmodel import Session, col, func, select
 
+from app.campaigns.economics import estimate_campaign_economics
+from app.campaigns.engine import midpoint
 from app.campaigns.tick import (
     USER_CAMPAIGN_DURATION,
     clamp_campaign_stats,
@@ -36,6 +39,8 @@ from app.models import (
     NewsCreate,
     NewsUpdate,
     Transaction,
+    TransactionStatus,
+    TransactionType,
     UpdateTransaction,
     User,
     UserCampaign,
@@ -424,6 +429,8 @@ def resolve_user_campaign_status(
 ) -> UserCampaignStatus:
     if row.status == UserCampaignStatus.CANCELLED:
         return UserCampaignStatus.CANCELLED
+    if row.status == UserCampaignStatus.COMPLETED or row.settled_at is not None:
+        return UserCampaignStatus.COMPLETED
     now = now or datetime.now(timezone.utc)
     if USER_CAMPAIGN_DURATION is not None and row.created_at is not None:
         started_at = row.created_at
@@ -437,9 +444,50 @@ def resolve_user_campaign_status(
     return UserCampaignStatus.ACTIVE
 
 
+def snapshot_campaign_metrics(
+    campaign: Campaign,
+) -> tuple[Decimal, Decimal, Decimal]:
+    stats = campaign.stats
+    if stats is not None:
+        return stats.cpm, stats.epc, stats.ctr
+    return (
+        campaign.cpm_base,
+        midpoint(campaign.epc_min, campaign.epc_max),
+        midpoint(campaign.ctr_min, campaign.ctr_max),
+    )
+
+
+def user_campaign_snapshot_metrics(
+    row: UserCampaign,
+) -> tuple[Decimal, Decimal, Decimal, int]:
+    cpm, epc, ctr = (
+        (row.cpm, row.epc, row.ctr)
+        if row.cpm is not None and row.epc is not None and row.ctr is not None
+        else snapshot_campaign_metrics(row.campaign)
+        if row.campaign is not None
+        else (Decimal("0"), Decimal("0"), Decimal("0"))
+    )
+    return cpm, epc, ctr, row.participation
+
+
 def to_user_campaign_public(row: UserCampaign) -> UserCampaignPublic:
     if row.campaign is None:
         raise ValueError("Campaign is required")
+    cpm, epc, ctr, participation = user_campaign_snapshot_metrics(row)
+    economics = estimate_campaign_economics(
+        budget=row.budget,
+        cpm=cpm,
+        epc=epc,
+        ctr=ctr,
+        participation=participation,
+    )
+    campaign_public = to_campaign_public(row.campaign)
+    campaign_public.stats = CampaignStatsPublic(
+        cpm=cpm,
+        epc=epc,
+        ctr=ctr,
+        calculated_at=row.created_at or datetime.now(timezone.utc),
+    )
     return UserCampaignPublic(
         id=row.id,
         user_id=row.user_id,
@@ -447,9 +495,19 @@ def to_user_campaign_public(row: UserCampaign) -> UserCampaignPublic:
         start_date=row.start_date,
         end_date=row.end_date,
         budget=row.budget,
+        cpm=cpm,
+        epc=epc,
+        ctr=ctr,
+        participation=participation,
+        impressions=economics.impressions,
+        clicks=economics.clicks,
+        gross_revenue=economics.gross_revenue,
+        gross_profit=economics.gross_profit,
+        net_profit=economics.net_profit,
         status=resolve_user_campaign_status(row),
         created_at=row.created_at,
-        campaign=to_campaign_public(row.campaign),
+        settled_at=row.settled_at,
+        campaign=campaign_public,
     )
 
 
@@ -464,6 +522,10 @@ def create_user_campaign(
     session: Session,
     user_id: uuid.UUID,
     campaign_in: UserCampaignCreate,
+    cpm: Decimal,
+    epc: Decimal,
+    ctr: Decimal,
+    participation: int,
 ) -> UserCampaign:
     db_obj = UserCampaign(
         user_id=user_id,
@@ -471,6 +533,10 @@ def create_user_campaign(
         start_date=campaign_in.start_date,
         end_date=campaign_in.end_date,
         budget=campaign_in.budget,
+        cpm=cpm,
+        epc=epc,
+        ctr=ctr,
+        participation=participation,
         status=UserCampaignStatus.ACTIVE,
     )
     session.add(db_obj)
@@ -478,6 +544,64 @@ def create_user_campaign(
     loaded = get_user_campaign(session=session, user_campaign_id=db_obj.id)
     assert loaded is not None
     return loaded
+
+
+def settle_completed_user_campaigns(
+    session: Session,
+    *,
+    user_id: uuid.UUID | None = None,
+    now: datetime | None = None,
+) -> int:
+    now = now or datetime.now(timezone.utc)
+    statement = select(UserCampaign).where(
+        col(UserCampaign.settled_at).is_(None),
+        UserCampaign.status != UserCampaignStatus.CANCELLED,
+    )
+    if user_id is not None:
+        statement = statement.where(UserCampaign.user_id == user_id)
+    statement = statement.with_for_update()
+    rows = list(session.exec(statement).all())
+    settled = 0
+    for row in rows:
+        if resolve_user_campaign_status(row, now=now) != UserCampaignStatus.COMPLETED:
+            continue
+        campaign = row.campaign or session.get(Campaign, row.campaign_id)
+        if campaign is not None and row.campaign is None:
+            row.campaign = campaign
+        cpm, epc, ctr, participation = user_campaign_snapshot_metrics(row)
+        economics = estimate_campaign_economics(
+            budget=row.budget,
+            cpm=cpm,
+            epc=epc,
+            ctr=ctr,
+            participation=participation,
+        )
+        account = session.exec(
+            select(Account)
+            .where(Account.user_id == row.user_id)
+            .with_for_update()
+        ).first()
+        if account is None:
+            continue
+        account.available_balance += economics.payout
+        account.balance += economics.net_profit
+        session.add(account)
+        session.add(
+            Transaction(
+                user_id=row.user_id,
+                amount=economics.payout,
+                transaction_type=TransactionType.CAMPAIGN_DEPOSIT.value,
+                status=TransactionStatus.DONE.value,
+                description=campaign.title if campaign is not None else None,
+            )
+        )
+        row.status = UserCampaignStatus.COMPLETED
+        row.settled_at = now
+        session.add(row)
+        settled += 1
+    if settled:
+        session.commit()
+    return settled
 
 
 def get_user_campaign(
