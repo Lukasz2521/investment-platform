@@ -10,6 +10,10 @@ function isAuthFailure(error: HttpErrorResponse): boolean {
   }
 
   const detail = error.error?.detail;
+  if (error.status === 404 && detail === 'User not found') {
+    return true;
+  }
+
   return error.status === 403 && detail === 'Could not validate credentials';
 }
 

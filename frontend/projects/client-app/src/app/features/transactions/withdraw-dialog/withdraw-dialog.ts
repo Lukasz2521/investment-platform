@@ -115,6 +115,13 @@ export class WithdrawDialog {
         error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
           const detail = error.error?.detail;
+          if (detail === 'Insufficient available balance') {
+            this.error.set(
+              this.translationService.translate('app.transactions.withdrawDialog.insufficientBalance'),
+            );
+            return;
+          }
+
           this.error.set(
             typeof detail === 'string'
               ? detail

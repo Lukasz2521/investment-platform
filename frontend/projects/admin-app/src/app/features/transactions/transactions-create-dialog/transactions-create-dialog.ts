@@ -40,7 +40,7 @@ export class TransactionsCreateDialog {
   protected readonly userOptions = signal<{ label: string; value: string }[]>([]);
 
   protected readonly form = this.formBuilder.group({
-    amount: ['', [Validators.required, Validators.pattern(/^\d+(\.\d{1,4})?$/)]],
+    amount: ['', [Validators.required, Validators.pattern(/^-?\d+(\.\d{1,4})?$/)]],
     currency: ['EUR', Validators.required],
     transaction_type: [TransactionType.Deposit, Validators.required],
     status: [TransactionStatus.Pending, Validators.required],

@@ -114,6 +114,7 @@ export class TransactionsList {
   }
 
   protected onTransactionCreated(): void {
+    this.loadUsers();
     this.loadTransactions(true);
   }
 
@@ -123,6 +124,7 @@ export class TransactionsList {
   }
 
   protected onTransactionUpdated(): void {
+    this.loadUsers();
     this.loadTransactions(true);
   }
 
@@ -142,6 +144,7 @@ export class TransactionsList {
       next: () => {
         this.deleteDialogVisible.set(false);
         this.deleting.set(false);
+        this.loadUsers();
         this.loadTransactions(true);
       },
       error: () => this.deleting.set(false),

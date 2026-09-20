@@ -4,7 +4,7 @@ from decimal import Decimal
 from enum import Enum
 from typing import Optional
 
-from pydantic import ConfigDict, EmailStr, model_validator
+from pydantic import ConfigDict, EmailStr, field_validator, model_validator
 from sqlalchemy import Column, Date, DateTime, Numeric, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
@@ -245,6 +245,13 @@ class CreateTransaction(SQLModel):
     status: TransactionStatus = Field(max_length=64)
     user_id: uuid.UUID = Field(alias="userId")
     description: str | None = Field(default=None, max_length=1024)
+
+    @field_validator("amount")
+    @classmethod
+    def amount_must_not_be_zero(cls, value: Decimal) -> Decimal:
+        if value == 0:
+            raise ValueError("Amount must not be zero")
+        return value
 
 
 class WithdrawTransferType(str, Enum):

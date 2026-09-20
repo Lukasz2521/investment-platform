@@ -67,6 +67,7 @@ export class AppShell implements OnDestroy {
         return;
       }
 
+      this.authService.getMe().subscribe();
       this.sessionTimeoutService.start();
     });
   }

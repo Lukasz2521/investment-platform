@@ -1,17 +1,40 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { catchError, of, switchMap } from 'rxjs';
 
+import { AuthService } from '../../core/auth/services/auth.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import { TranslationService } from '../../core/i18n/services/translation.service';
 import { TransactionPublic } from '../../core/transactions/models/transaction.model';
 import { TransactionsService } from '../../core/transactions/services/transactions.service';
 import {
   formatTransactionAmount,
+  transactionStatusLabelKey,
   transactionTypeLabelKey,
 } from '../../core/transactions/utils/transaction-display.utils';
+import { parseAccountMoney } from '../../core/users/models/user-account.model';
+import { UsersService } from '../../core/users/services/users.service';
 import { WithdrawDialog } from './withdraw-dialog/withdraw-dialog';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25] as const;
 const DEFAULT_CURRENCY = 'PLN';
+
+function localeForLanguage(language: string): string {
+  switch (language) {
+    case 'pl':
+      return 'pl-PL';
+    case 'de':
+      return 'de-DE';
+    case 'fr':
+      return 'fr-FR';
+    case 'pt':
+      return 'pt-PT';
+    case 'ru':
+      return 'ru-RU';
+    default:
+      return 'en-US';
+  }
+}
 
 @Component({
   selector: 'app-transactions',
@@ -21,6 +44,9 @@ const DEFAULT_CURRENCY = 'PLN';
 })
 export class Transactions implements OnInit {
   private readonly transactionsService = inject(TransactionsService);
+  private readonly authService = inject(AuthService);
+  private readonly usersService = inject(UsersService);
+  private readonly translationService = inject(TranslationService);
 
   protected readonly pageSizeOptions = PAGE_SIZE_OPTIONS;
   protected readonly currency = DEFAULT_CURRENCY;
@@ -32,6 +58,15 @@ export class Transactions implements OnInit {
   protected readonly loading = signal(true);
   protected readonly error = signal(false);
   protected readonly withdrawDialogOpen = signal(false);
+  protected readonly availableBalance = signal(0);
+
+  protected readonly availableBalanceLabel = computed(() => {
+    this.translationService.activeLanguage();
+    return new Intl.NumberFormat(localeForLanguage(this.translationService.activeLanguage()), {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(this.availableBalance());
+  });
 
   protected readonly rangeStart = computed(() => {
     if (this.totalCount() === 0) {
@@ -51,6 +86,7 @@ export class Transactions implements OnInit {
   );
 
   ngOnInit(): void {
+    this.loadAccount();
     this.loadTransactions();
   }
 
@@ -65,11 +101,16 @@ export class Transactions implements OnInit {
   protected onWithdrawSubmitted(): void {
     this.withdrawDialogOpen.set(false);
     this.pageIndex.set(0);
+    this.loadAccount();
     this.loadTransactions();
   }
 
   protected typeLabelKey(type: string): string {
     return transactionTypeLabelKey(type);
+  }
+
+  protected statusLabelKey(status: string): string {
+    return transactionStatusLabelKey(status);
   }
 
   protected formatAmount(amount: string): string {
@@ -103,6 +144,20 @@ export class Transactions implements OnInit {
 
     this.pageIndex.update((index) => index + 1);
     this.loadTransactions();
+  }
+
+  private loadAccount(): void {
+    this.authService
+      .getMe()
+      .pipe(
+        switchMap((user) => this.usersService.getById(user.id).pipe(catchError(() => of(null)))),
+      )
+      .subscribe({
+        next: (user) => {
+          this.availableBalance.set(parseAccountMoney(user?.account?.available_balance));
+        },
+        error: () => this.availableBalance.set(0),
+      });
   }
 
   private loadTransactions(): void {

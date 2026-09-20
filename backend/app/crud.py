@@ -301,11 +301,135 @@ def update_news(*, session: Session, db_news: News, news_in: NewsUpdate) -> News
     return db_news
 
 
+def _status_value(status: TransactionStatus | str | None) -> str | None:
+    if status is None:
+        return None
+    if isinstance(status, TransactionStatus):
+        return status.value
+    return str(status)
+
+
+def _transaction_type_value(transaction_type: TransactionType | str) -> str:
+    if isinstance(transaction_type, TransactionType):
+        return transaction_type.value
+    return str(transaction_type)
+
+
+def _get_account_by_user_id(*, session: Session, user_id: uuid.UUID) -> Account | None:
+    return session.exec(select(Account).where(Account.user_id == user_id)).first()
+
+
+def _apply_deposit_status_change(
+    *,
+    session: Session,
+    user_id: uuid.UUID,
+    amount: Decimal,
+    transaction_type: TransactionType | str,
+    previous_status: TransactionStatus | str | None,
+    new_status: TransactionStatus | str | None,
+) -> None:
+    if _transaction_type_value(transaction_type) != TransactionType.DEPOSIT.value:
+        return
+
+    was_done = _status_value(previous_status) == TransactionStatus.DONE.value
+    is_done = _status_value(new_status) == TransactionStatus.DONE.value
+    if was_done == is_done:
+        return
+
+    account = _get_account_by_user_id(session=session, user_id=user_id)
+    if account is None:
+        raise ValueError("User has no account")
+
+    delta = amount if is_done else -amount
+    account.available_balance += delta
+    account.total_deposit = max(Decimal("0"), account.total_deposit + delta)
+    session.add(account)
+
+
+_HELD_WITHDRAW_STATUSES = {
+    TransactionStatus.PENDING.value,
+    TransactionStatus.DONE.value,
+}
+INSUFFICIENT_AVAILABLE_BALANCE = "Insufficient available balance"
+
+
+def _apply_withdraw_status_change(
+    *,
+    session: Session,
+    user_id: uuid.UUID,
+    amount: Decimal,
+    transaction_type: TransactionType | str,
+    previous_status: TransactionStatus | str | None,
+    new_status: TransactionStatus | str | None,
+) -> None:
+    if _transaction_type_value(transaction_type) != TransactionType.WITHDRAW.value:
+        return
+
+    previous = _status_value(previous_status)
+    new = _status_value(new_status)
+    was_held = previous in _HELD_WITHDRAW_STATUSES
+    is_held = new in _HELD_WITHDRAW_STATUSES
+    was_done = previous == TransactionStatus.DONE.value
+    is_done = new == TransactionStatus.DONE.value
+    if was_held == is_held and was_done == is_done:
+        return
+
+    account = _get_account_by_user_id(session=session, user_id=user_id)
+    if account is None:
+        raise ValueError("User has no account")
+
+    if is_held and not was_held and amount > 0 and account.available_balance < amount:
+        raise ValueError(INSUFFICIENT_AVAILABLE_BALANCE)
+
+    if was_held != is_held:
+        account.available_balance += -amount if is_held else amount
+    if was_done != is_done:
+        withdraw_delta = amount if is_done else -amount
+        account.total_withdraw = max(Decimal("0"), account.total_withdraw + withdraw_delta)
+    session.add(account)
+
+
+def _apply_transaction_status_change(
+    *,
+    session: Session,
+    user_id: uuid.UUID,
+    amount: Decimal,
+    transaction_type: TransactionType | str,
+    previous_status: TransactionStatus | str | None,
+    new_status: TransactionStatus | str | None,
+) -> None:
+    _apply_deposit_status_change(
+        session=session,
+        user_id=user_id,
+        amount=amount,
+        transaction_type=transaction_type,
+        previous_status=previous_status,
+        new_status=new_status,
+    )
+    _apply_withdraw_status_change(
+        session=session,
+        user_id=user_id,
+        amount=amount,
+        transaction_type=transaction_type,
+        previous_status=previous_status,
+        new_status=new_status,
+    )
+
+
 def create_transaction(
     *, session: Session, transaction_in: CreateTransaction
 ) -> Transaction:
     db_obj = Transaction.model_validate(transaction_in)
     session.add(db_obj)
+    session.flush()
+    _apply_transaction_status_change(
+        session=session,
+        user_id=db_obj.user_id,
+        amount=db_obj.amount,
+        transaction_type=db_obj.transaction_type,
+        previous_status=None,
+        new_status=db_obj.status,
+    )
     session.commit()
     session.refresh(db_obj)
     return db_obj
@@ -356,12 +480,34 @@ def update_transaction(
     db_transaction: Transaction,
     transaction_in: UpdateTransaction,
 ) -> Transaction:
+    previous_status = db_transaction.status
     update_dict = transaction_in.model_dump(exclude_unset=True, mode="json")
     db_transaction.sqlmodel_update(update_dict)
     session.add(db_transaction)
+    _apply_transaction_status_change(
+        session=session,
+        user_id=db_transaction.user_id,
+        amount=db_transaction.amount,
+        transaction_type=db_transaction.transaction_type,
+        previous_status=previous_status,
+        new_status=db_transaction.status,
+    )
     session.commit()
     session.refresh(db_transaction)
     return db_transaction
+
+
+def delete_transaction(*, session: Session, db_transaction: Transaction) -> None:
+    _apply_transaction_status_change(
+        session=session,
+        user_id=db_transaction.user_id,
+        amount=db_transaction.amount,
+        transaction_type=db_transaction.transaction_type,
+        previous_status=db_transaction.status,
+        new_status=None,
+    )
+    session.delete(db_transaction)
+    session.commit()
 
 
 def create_bank(*, session: Session, bank_in: BankCreate) -> Bank:

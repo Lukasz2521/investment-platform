@@ -208,6 +208,52 @@
   white-space: nowrap;
 }
 
+.transactions-status {
+  background: rgb(255 255 255 / 8%);
+  border-radius: 999px;
+  color: var(--transactions-muted);
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.6rem;
+}
+
+:host-context(.app-shell--light) .transactions-status {
+  background: #f3f4f6;
+}
+
+.transactions-status[data-status='done'] {
+  background: rgb(16 185 129 / 16%);
+  color: #34d399;
+}
+
+.transactions-status[data-status='pending'] {
+  background: rgb(245 158 11 / 16%);
+  color: #fbbf24;
+}
+
+.transactions-status[data-status='failed'] {
+  background: rgb(239 68 68 / 16%);
+  color: #f87171;
+}
+
+:host-context(.app-shell--light) {
+  .transactions-status[data-status='done'] {
+    background: #ecfdf5;
+    color: #047857;
+  }
+
+  .transactions-status[data-status='pending'] {
+    background: #fffbeb;
+    color: #b45309;
+  }
+
+  .transactions-status[data-status='failed'] {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+}
+
 .transactions-table-col-amount {
   text-align: right;
   white-space: nowrap;

@@ -39,7 +39,10 @@ def create_transaction(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    tx = crud.create_transaction(session=session, transaction_in=transaction_in)
+    try:
+        tx = crud.create_transaction(session=session, transaction_in=transaction_in)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return TransactionPublic.model_validate(tx)
 
 
@@ -103,7 +106,10 @@ def create_my_withdraw(
         user_id=current_user.id,
         description=description,
     )
-    tx = crud.create_transaction(session=session, transaction_in=transaction_in)
+    try:
+        tx = crud.create_transaction(session=session, transaction_in=transaction_in)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return TransactionPublic.model_validate(tx)
 
 
@@ -148,9 +154,12 @@ def update_transaction(
     transaction = session.get(Transaction, transaction_id)
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
-    transaction = crud.update_transaction(
-        session=session, db_transaction=transaction, transaction_in=transaction_in
-    )
+    try:
+        transaction = crud.update_transaction(
+            session=session, db_transaction=transaction, transaction_in=transaction_in
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return TransactionPublic.model_validate(transaction)
 
 
@@ -169,6 +178,8 @@ def remove_transaction(
     transaction = session.get(Transaction, transaction_id)
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
-    session.delete(transaction)
-    session.commit()
+    try:
+        crud.delete_transaction(session=session, db_transaction=transaction)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     return Message(message="Transaction deleted successfully")

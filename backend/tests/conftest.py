@@ -2,7 +2,7 @@ from collections.abc import Generator
 
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session, delete
+from sqlmodel import Session, delete, select
 
 from app.core.config import settings
 from app.core.db import engine, init_db
@@ -15,12 +15,16 @@ from tests.utils.utils import get_superuser_token_headers
 @pytest.fixture(scope="session", autouse=True)
 def db() -> Generator[Session, None, None]:
     with Session(engine) as session:
+        existing_user_ids = set(session.exec(select(User.id)).all())
         init_db(session)
         yield session
-        statement = delete(Item)
-        session.execute(statement)
-        statement = delete(User)
-        session.execute(statement)
+        session.execute(delete(Item))
+        created_users = session.exec(select(User)).all()
+        for user in created_users:
+            if user.email == settings.FIRST_SUPERUSER:
+                continue
+            if user.id not in existing_user_ids:
+                session.delete(user)
         session.commit()
 
 
