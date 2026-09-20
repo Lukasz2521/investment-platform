@@ -40,10 +40,10 @@ class UserRegister(SQLModel):
     email: EmailStr = Field(max_length=255)
     phone: str = Field(max_length=255)
     country: str = Field(max_length=255)
-    city: str = Field(max_length=255)
-    address_line_one: str = Field(max_length=255)
-    address_line_two: str = Field(max_length=255)
-    timezone: str = Field(max_length=255)
+    city: str = Field(default="", max_length=255)
+    address_line_one: str = Field(default="", max_length=255)
+    address_line_two: str = Field(default="", max_length=255)
+    timezone: str = Field(default="", max_length=255)
     password: str = Field(min_length=8, max_length=128)
 
 

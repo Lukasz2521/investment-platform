@@ -7,10 +7,10 @@ export type UserRegisterPayload = {
   email: string;
   phone: string;
   country: string;
-  city: string;
-  address_line_one: string;
-  address_line_two: string;
-  timezone: string;
+  city?: string;
+  address_line_one?: string;
+  address_line_two?: string;
+  timezone?: string;
   password: string;
 };
 

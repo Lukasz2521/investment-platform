@@ -355,6 +355,37 @@ def test_register_user_already_exists_error(client: TestClient) -> None:
     assert r.json()["detail"] == "The user with this email already exists in the system"
 
 
+def test_register_user_without_optional_address_fields(client: TestClient, db: Session) -> None:
+    email = random_email()
+    password = random_lower_string()
+    data = {
+        "username": "newuser",
+        "name": "Jan",
+        "last_name": "Kowalski",
+        "email": email,
+        "phone": "+48 600 000 000",
+        "country": "Poland",
+        "password": password,
+    }
+    r = client.post(
+        f"{settings.API_V1_STR}/users/signup",
+        json=data,
+    )
+    assert r.status_code == 200
+    created_user = r.json()
+    assert created_user["email"] == email
+    assert created_user["username"] == "newuser"
+    assert created_user["city"] == ""
+    assert created_user["address_line_one"] == ""
+    assert created_user["timezone"] == ""
+
+    user_db = db.exec(select(User).where(User.email == email)).first()
+    assert user_db is not None
+    assert user_db.is_active is False
+    verified, _ = verify_password(password, user_db.hashed_password)
+    assert verified
+
+
 def test_update_user(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:

@@ -23,20 +23,27 @@
       }
 
       <div class="register-field">
-        <label class="register-label" for="register-username">{{ 'marketing.register.username' | translate }}</label>
+        <label class="register-label" for="register-username">
+          {{ 'marketing.register.username' | translate }}
+          <span class="register-required" aria-hidden="true">*</span>
+        </label>
         <input
           id="register-username"
           class="register-input"
           type="text"
           name="username"
           autocomplete="username"
+          required
           [value]="form().username"
           (input)="updateField('username', $event)"
         />
       </div>
 
       <div class="register-field">
-        <label class="register-label" for="register-email">{{ 'marketing.register.email' | translate }}</label>
+        <label class="register-label" for="register-email">
+          {{ 'marketing.register.email' | translate }}
+          <span class="register-required" aria-hidden="true">*</span>
+        </label>
         <input
           id="register-email"
           class="register-input"
@@ -51,26 +58,34 @@
 
       <div class="register-row">
         <div class="register-field">
-          <label class="register-label" for="register-first-name">{{ 'marketing.register.firstName' | translate }}</label>
+          <label class="register-label" for="register-first-name">
+            {{ 'marketing.register.firstName' | translate }}
+            <span class="register-required" aria-hidden="true">*</span>
+          </label>
           <input
             id="register-first-name"
             class="register-input"
             type="text"
             name="firstName"
             autocomplete="given-name"
+            required
             [value]="form().firstName"
             (input)="updateField('firstName', $event)"
           />
         </div>
 
         <div class="register-field">
-          <label class="register-label" for="register-last-name">{{ 'marketing.register.lastName' | translate }}</label>
+          <label class="register-label" for="register-last-name">
+            {{ 'marketing.register.lastName' | translate }}
+            <span class="register-required" aria-hidden="true">*</span>
+          </label>
           <input
             id="register-last-name"
             class="register-input"
             type="text"
             name="lastName"
             autocomplete="family-name"
+            required
             [value]="form().lastName"
             (input)="updateField('lastName', $event)"
           />
@@ -78,25 +93,33 @@
       </div>
 
       <div class="register-field">
-        <label class="register-label" for="register-phone">{{ 'marketing.register.phone' | translate }}</label>
+        <label class="register-label" for="register-phone">
+          {{ 'marketing.register.phone' | translate }}
+          <span class="register-required" aria-hidden="true">*</span>
+        </label>
         <input
           id="register-phone"
           class="register-input"
           type="tel"
           name="phone"
           autocomplete="tel"
+          required
           [value]="form().phone"
           (input)="updateField('phone', $event)"
         />
       </div>
 
       <div class="register-field">
-        <label class="register-label" for="register-country">{{ 'marketing.register.country' | translate }}</label>
+        <label class="register-label" for="register-country">
+          {{ 'marketing.register.country' | translate }}
+          <span class="register-required" aria-hidden="true">*</span>
+        </label>
         <select
           id="register-country"
           class="register-input register-select"
           name="country"
           autocomplete="country-name"
+          required
           [value]="form().country"
           (change)="updateField('country', $event)"
         >
@@ -170,7 +193,7 @@
           [value]="form().timeZone"
           (change)="updateField('timeZone', $event)"
         >
-          <option value="" disabled selected hidden>{{ 'marketing.register.selectTimeZone' | translate }}</option>
+          <option value="">{{ 'marketing.register.selectTimeZone' | translate }}</option>
           @for (zone of timeZones; track zone) {
             <option [value]="zone">{{ zone }}</option>
           }
@@ -178,13 +201,17 @@
       </div>
 
       <div class="register-field">
-        <label class="register-label" for="register-password">{{ 'marketing.register.password' | translate }}</label>
+        <label class="register-label" for="register-password">
+          {{ 'marketing.register.password' | translate }}
+          <span class="register-required" aria-hidden="true">*</span>
+        </label>
         <input
           id="register-password"
           class="register-input"
           type="password"
           name="password"
           autocomplete="new-password"
+          required
           [value]="form().password"
           (input)="updateField('password', $event)"
         />
@@ -203,13 +230,17 @@
       </ul>
 
       <div class="register-field">
-        <label class="register-label" for="register-confirm-password">{{ 'marketing.register.confirmPassword' | translate }}</label>
+        <label class="register-label" for="register-confirm-password">
+          {{ 'marketing.register.confirmPassword' | translate }}
+          <span class="register-required" aria-hidden="true">*</span>
+        </label>
         <input
           id="register-confirm-password"
           class="register-input"
           type="password"
           name="confirmPassword"
           autocomplete="new-password"
+          required
           [value]="form().confirmPassword"
           (input)="updateField('confirmPassword', $event)"
         />

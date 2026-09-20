@@ -89,10 +89,10 @@ export function toUserRegisterPayload(form: RegisterForm): UserRegisterPayload {
     email: form.email.trim(),
     phone: form.phone.trim(),
     country: form.country.trim(),
-    city: form.town.trim(),
-    address_line_one: form.addressLine1.trim(),
-    address_line_two: form.addressLine2.trim(),
-    timezone: form.timeZone.trim(),
+    city: form.town.trim() || undefined,
+    address_line_one: form.addressLine1.trim() || undefined,
+    address_line_two: form.addressLine2.trim() || undefined,
+    timezone: form.timeZone.trim() || undefined,
     password: form.password,
   };
 }
@@ -105,9 +105,6 @@ export function getRegisterValidationError(form: RegisterForm): RegisterValidati
     form.lastName,
     form.phone,
     form.country,
-    form.town,
-    form.addressLine1,
-    form.timeZone,
     form.password,
     form.confirmPassword,
   ];
