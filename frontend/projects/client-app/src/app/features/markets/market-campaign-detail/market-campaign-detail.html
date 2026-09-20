@@ -112,12 +112,10 @@
                 {{ 'app.markets.detail.config.startDate' | translate }}
               </span>
               <input
-                class="market-detail-input"
+                class="market-detail-input market-detail-input--locked"
                 type="date"
-                [min]="minStartDate"
                 [value]="startDate()"
-                (input)="onStartDateInput($event)"
-                (click)="openDatePicker($event)"
+                disabled
               />
             </label>
 
@@ -128,7 +126,7 @@
               <input
                 class="market-detail-input"
                 type="date"
-                [min]="startDate() || minStartDate"
+                [min]="startDate()"
                 [value]="endDate()"
                 (input)="onEndDateInput($event)"
                 (click)="openDatePicker($event)"

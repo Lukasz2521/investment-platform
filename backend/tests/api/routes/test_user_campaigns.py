@@ -108,6 +108,18 @@ def test_user_can_start_and_list_campaigns(
         },
     )
     assert past_response.status_code == 400
+    assert past_response.json()["detail"] == "Start date must be today"
+
+    future_response = client.post(
+        f"{settings.API_V1_STR}/user-campaigns/",
+        headers=normal_user_token_headers,
+        json={
+            **start_payload,
+            "start_date": (today + timedelta(days=1)).isoformat(),
+        },
+    )
+    assert future_response.status_code == 400
+    assert future_response.json()["detail"] == "Start date must be today"
 
     list_response = client.get(
         f"{settings.API_V1_STR}/user-campaigns/",

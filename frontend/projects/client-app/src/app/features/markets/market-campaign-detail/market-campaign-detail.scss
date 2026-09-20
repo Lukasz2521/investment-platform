@@ -335,6 +335,16 @@
   outline: none;
 }
 
+.market-detail-input--locked {
+  cursor: default;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.market-detail-input--locked::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
 .market-detail-budget {
   display: block;
   position: relative;

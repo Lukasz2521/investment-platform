@@ -145,7 +145,6 @@ export class MarketCampaignDetail {
     { initialValue: null },
   );
 
-  protected readonly minStartDate = toDateInputValue(startOfToday());
   protected readonly startDate = signal('');
   protected readonly endDate = signal('');
   protected readonly budget = signal('');
@@ -294,28 +293,9 @@ export class MarketCampaignDetail {
     });
   }
 
-  protected onStartDateInput(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const previousStart = this.startDate();
-    const next = clampDateInputToMin(input.value, this.minStartDate);
-    input.value = next;
-
-    const duration = campaignGuidelinesDurationDays(previousStart, this.endDate());
-    this.startDate.set(next);
-
-    if (duration !== null && duration >= 0) {
-      this.endDate.set(addDaysToDateInput(next, duration));
-      return;
-    }
-
-    if (this.endDate() && this.endDate() < next) {
-      this.endDate.set(addDaysToDateInput(next, this.campaign()?.days ?? 0));
-    }
-  }
-
   protected onEndDateInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const minEnd = this.startDate() || this.minStartDate;
+    const minEnd = this.startDate() || this.todayDate();
     const next = clampDateInputToMin(input.value, minEnd);
     input.value = next;
     this.endDate.set(next);
@@ -335,10 +315,7 @@ export class MarketCampaignDetail {
       return;
     }
 
-    if (this.startDate() < this.minStartDate) {
-      this.startDate.set(this.minStartDate);
-    }
-
+    this.lockStartDateToToday();
     this.launchError.set(null);
     this.launchDialogOpen.set(true);
   }
@@ -357,7 +334,7 @@ export class MarketCampaignDetail {
       return;
     }
 
-    const startDate = this.startDate() < this.minStartDate ? this.minStartDate : this.startDate();
+    const startDate = this.todayDate();
     const endDate =
       this.endDate() && this.endDate() >= startDate
         ? this.endDate()
@@ -482,8 +459,21 @@ export class MarketCampaignDetail {
     }).format(date);
   }
 
+  private todayDate(): string {
+    return toDateInputValue(startOfToday());
+  }
+
+  private lockStartDateToToday(): void {
+    const today = this.todayDate();
+    this.startDate.set(today);
+
+    if (this.endDate() && this.endDate() < today) {
+      this.endDate.set(addDaysToDateInput(today, this.campaign()?.days ?? 0));
+    }
+  }
+
   private resetConfig(campaign: MarketCampaign): void {
-    const start = this.minStartDate;
+    const start = this.todayDate();
 
     this.startDate.set(start);
     this.endDate.set(addDaysToDateInput(start, campaign.days));

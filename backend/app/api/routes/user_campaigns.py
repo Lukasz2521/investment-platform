@@ -36,10 +36,8 @@ def start_user_campaign(
         raise HTTPException(status_code=404, detail="Campaign not found")
 
     today = datetime.now(timezone.utc).date()
-    if campaign_in.start_date < today:
-        raise HTTPException(
-            status_code=400, detail="Start date cannot be in the past"
-        )
+    if campaign_in.start_date != today:
+        raise HTTPException(status_code=400, detail="Start date must be today")
     if campaign_in.end_date < campaign_in.start_date:
         raise HTTPException(
             status_code=400, detail="End date cannot be before start date"

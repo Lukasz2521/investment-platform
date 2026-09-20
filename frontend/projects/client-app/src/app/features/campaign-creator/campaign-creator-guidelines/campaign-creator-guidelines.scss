@@ -180,6 +180,16 @@
   opacity: 1;
 }
 
+.guidelines-input--locked {
+  cursor: default;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.guidelines-input--locked::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
 .guidelines-input--budget {
   -moz-appearance: textfield;
 }
