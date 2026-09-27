@@ -12,6 +12,7 @@ export type MarketCampaign = CampaignOption & {
   categoryName?: string;
   companyDescriptionKey?: string;
   countryCodes: string[];
+  minDays?: number;
 };
 
 export const MARKET_CATEGORIES: MarketCategory[] = [

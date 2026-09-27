@@ -47,6 +47,15 @@ function clampDateInputToMin(value: string, min: string): string {
   return value;
 }
 
+function minimumCampaignDays(campaign: MarketCampaign): number {
+  const minDays = campaign.minDays;
+  if (typeof minDays === 'number' && Number.isFinite(minDays) && minDays > 0) {
+    return Math.floor(minDays);
+  }
+
+  return campaign.days;
+}
+
 function buildMetricSeries(base: number, seed: number, points = 25): number[] {
   return Array.from({ length: points }, (_, index) => {
     const wave =
@@ -154,6 +163,16 @@ export class MarketCampaignDetail {
   protected readonly durationDays = computed(() =>
     campaignGuidelinesDurationDays(this.startDate(), this.endDate()),
   );
+
+  protected readonly minEndDate = computed(() => {
+    const start = this.startDate();
+    const campaign = this.campaign();
+    if (!start || !campaign) {
+      return start;
+    }
+
+    return addDaysToDateInput(start, minimumCampaignDays(campaign));
+  });
 
   protected readonly budgetAmount = computed(() => {
     const value = Number(this.budget().replace(',', '.'));
@@ -315,7 +334,7 @@ export class MarketCampaignDetail {
 
   protected onEndDateInput(event: Event): void {
     const input = event.target as HTMLInputElement;
-    const minEnd = this.startDate() || this.todayDate();
+    const minEnd = this.minEndDate() || this.startDate() || this.todayDate();
     const next = clampDateInputToMin(input.value, minEnd);
     input.value = next;
     this.endDate.set(next);
@@ -355,10 +374,8 @@ export class MarketCampaignDetail {
     }
 
     const startDate = this.todayDate();
-    const endDate =
-      this.endDate() && this.endDate() >= startDate
-        ? this.endDate()
-        : addDaysToDateInput(startDate, campaign.days);
+    const minEnd = addDaysToDateInput(startDate, minimumCampaignDays(campaign));
+    const endDate = this.endDate() && this.endDate() >= minEnd ? this.endDate() : minEnd;
     const budget = Math.max(this.budgetAmount(), campaign.minBudget);
 
     this.startDate.set(startDate);
@@ -489,8 +506,10 @@ export class MarketCampaignDetail {
     const today = this.todayDate();
     this.startDate.set(today);
 
-    if (this.endDate() && this.endDate() < today) {
-      this.endDate.set(addDaysToDateInput(today, this.campaign()?.days ?? 0));
+    const campaign = this.campaign();
+    const minEnd = campaign ? addDaysToDateInput(today, minimumCampaignDays(campaign)) : today;
+    if (!this.endDate() || this.endDate() < minEnd) {
+      this.endDate.set(minEnd);
     }
   }
 
@@ -498,7 +517,7 @@ export class MarketCampaignDetail {
     const start = this.todayDate();
 
     this.startDate.set(start);
-    this.endDate.set(addDaysToDateInput(start, campaign.days));
+    this.endDate.set(addDaysToDateInput(start, minimumCampaignDays(campaign)));
     this.budget.set(String(campaign.minBudget));
   }
 }

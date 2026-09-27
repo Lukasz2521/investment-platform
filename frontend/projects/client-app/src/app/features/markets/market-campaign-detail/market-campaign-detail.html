@@ -126,9 +126,10 @@
               <input
                 class="market-detail-input"
                 type="date"
-                [min]="startDate()"
+                [min]="minEndDate()"
                 [value]="endDate()"
                 (input)="onEndDateInput($event)"
+                (change)="onEndDateInput($event)"
                 (click)="openDatePicker($event)"
               />
             </label>

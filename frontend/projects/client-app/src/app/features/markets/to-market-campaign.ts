@@ -53,6 +53,7 @@ export function toMarketCampaign(
     imageUrl: campaign.image_url.trim() || FALLBACK_IMAGE,
     videoUrl: campaignVideoUrl(campaign.video_url),
     days: campaign.days_count,
+    minDays: Math.max(1, Math.floor(toNumber(campaign.min_days, campaign.days_count))),
     minBudget,
     currency: campaign.currency || 'EUR',
     profitMonthly: economics.netProfitPercent,
