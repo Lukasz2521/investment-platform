@@ -92,133 +92,27 @@
         </div>
       </section>
 
-      <section
-        class="market-detail-panel market-detail-panel--config"
-        [attr.aria-label]="'app.markets.detail.config.ariaLabel' | translate"
-      >
-        <header class="market-detail-config-header">
-          <h2 class="market-detail-config-title">
-            {{ 'app.markets.detail.config.title' | translate }}
-          </h2>
-          <p class="market-detail-config-subtitle">
-            {{ 'app.markets.detail.config.subtitle' | translate }}
-          </p>
-        </header>
-
-        <div class="market-detail-config-grid">
-          <div class="market-detail-config-fields">
-            <label class="market-detail-field">
-              <span class="market-detail-field-label">
-                {{ 'app.markets.detail.config.startDate' | translate }}
-              </span>
-              <input
-                class="market-detail-input market-detail-input--locked"
-                type="date"
-                [value]="startDate()"
-                disabled
-              />
-            </label>
-
-            <label class="market-detail-field">
-              <span class="market-detail-field-label">
-                {{ 'app.markets.detail.config.endDate' | translate }}
-              </span>
-              <input
-                class="market-detail-input"
-                type="date"
-                [min]="minEndDate()"
-                [value]="endDate()"
-                (input)="onEndDateInput($event)"
-                (change)="onEndDateInput($event)"
-                (click)="openDatePicker($event)"
-              />
-            </label>
-
-            @if (durationDays(); as days) {
-              <span class="market-detail-duration">
-                {{ 'app.campaignCreator.select.days' | translate: { count: '' + days } }}
-              </span>
-            }
-
-            <label class="market-detail-field">
-              <span class="market-detail-field-label">
-                {{
-                  'app.markets.detail.config.budgetLabel'
-                    | translate: { min: formatBudget(data.minBudget, data.currency) }
-                }}
-              </span>
-              <span class="market-detail-budget">
-                <span class="market-detail-budget-float">
-                  {{ 'app.markets.detail.config.amount' | translate }}
-                </span>
-                <input
-                  class="market-detail-input market-detail-input--budget"
-                  type="number"
-                  min="0"
-                  step="1"
-                  [value]="budget()"
-                  (input)="onBudgetInput($event)"
-                />
-              </span>
-            </label>
-          </div>
-
-          <dl class="market-detail-summary">
-            <div class="market-detail-summary-row">
-              <dt>{{ 'app.markets.detail.config.totalBudget' | translate }}</dt>
-              <dd>{{ formatBudget(budgetAmount(), data.currency) }}</dd>
-            </div>
-            <div class="market-detail-summary-row">
-              <dt>{{ 'app.markets.detail.config.impressions' | translate }}</dt>
-              <dd>{{ formatInteger(estimatedImpressions()) }}</dd>
-            </div>
-            <div class="market-detail-summary-row">
-              <dt>{{ 'app.markets.detail.config.grossRevenue' | translate }}</dt>
-              <dd>
-                {{ formatMoney(estimatedGrossRevenue(), data.currency) }}
-                <span class="market-detail-summary-growth">
-                  (+{{ formatPercent(estimatedProfitPercent()) }})
-                </span>
-              </dd>
-            </div>
-            <div class="market-detail-summary-row">
-              <dt>{{ 'app.markets.detail.config.grossProfit' | translate }}</dt>
-              <dd class="market-detail-summary-profit">
-                {{ formatMoney(estimatedGrossProfit(), data.currency) }}
-              </dd>
-            </div>
-            <div class="market-detail-summary-row">
-              <dt>{{ 'app.markets.detail.config.netProfit' | translate }}</dt>
-              <dd class="market-detail-summary-profit">
-                {{ formatMoney(estimatedNetProfit(), data.currency) }}
-              </dd>
-            </div>
-            <div class="market-detail-summary-row">
-              <dt>{{ 'app.markets.detail.config.balanceAfter' | translate }}</dt>
-              <dd>{{ formatMoney(estimatedBalanceAfter(), data.currency) }}</dd>
-            </div>
-          </dl>
-        </div>
-
-        <button
-          type="button"
-          class="market-detail-start"
-          [disabled]="!canStartCampaign()"
-          (click)="openLaunchDialog()"
-        >
-          {{ 'app.markets.detail.startCampaign' | translate }}
-        </button>
-        @if (startBlockReason(); as reason) {
-          <p class="market-detail-start-error">
-            {{ reason | translate }}
-            @if (reason !== 'app.markets.detail.insufficientFunds') {
-              <a class="market-detail-start-profile" [routerLink]="['/', routes.profile]">
-                {{ 'app.markets.detail.goToProfile' | translate }}
-              </a>
-            }
-          </p>
-        }
-      </section>
+      <app-market-campaign-config
+        [startDate]="startDate()"
+        [endDate]="endDate()"
+        [minEndDate]="minEndDate()"
+        [durationDays]="durationDays()"
+        [budget]="budget()"
+        [minBudgetLabel]="formatBudget(data.minBudget, data.currency)"
+        [totalBudget]="formatBudget(budgetAmount(), data.currency)"
+        [impressions]="formatInteger(estimatedImpressions())"
+        [grossRevenue]="formatMoney(estimatedGrossRevenue(), data.currency)"
+        [profitPercent]="formatPercent(estimatedProfitPercent())"
+        [grossProfit]="formatMoney(estimatedGrossProfit(), data.currency)"
+        [netProfit]="formatMoney(estimatedNetProfit(), data.currency)"
+        [balanceAfter]="formatMoney(estimatedBalanceAfter(), data.currency)"
+        [canStart]="canStartCampaign()"
+        [startBlockReason]="startBlockReason()"
+        [profilePath]="routes.profile"
+        (endDateChange)="onEndDateInput($event)"
+        (budgetChange)="onBudgetInput($event)"
+        (startCampaign)="openLaunchDialog()"
+      />
 
       @if (cpmChart(); as cpm) {
         <app-market-metric-chart

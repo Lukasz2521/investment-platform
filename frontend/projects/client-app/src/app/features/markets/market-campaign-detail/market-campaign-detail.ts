@@ -23,6 +23,7 @@ import {
 } from '../../campaign-creator/campaign-guidelines';
 import { CampaignLaunchDialog } from '../../campaign-creator/campaign-launch-dialog/campaign-launch-dialog';
 import { MarketCampaign } from '../market-campaigns';
+import { MarketCampaignConfig } from '../market-campaign-config/market-campaign-config';
 import { MarketMetricChart } from '../market-metric-chart/market-metric-chart';
 import { toMarketCampaign } from '../to-market-campaign';
 
@@ -125,7 +126,7 @@ const STATS_POLL_MS = 10_000;
 
 @Component({
   selector: 'app-market-campaign-detail',
-  imports: [RouterLink, TranslatePipe, MarketMetricChart, CampaignLaunchDialog],
+  imports: [RouterLink, TranslatePipe, MarketMetricChart, CampaignLaunchDialog, MarketCampaignConfig],
   templateUrl: './market-campaign-detail.html',
   styleUrl: './market-campaign-detail.scss',
 })
@@ -342,11 +343,6 @@ export class MarketCampaignDetail {
 
   protected onBudgetInput(event: Event): void {
     this.budget.set((event.target as HTMLInputElement).value);
-  }
-
-  protected openDatePicker(event: Event): void {
-    const input = event.currentTarget as HTMLInputElement;
-    input.showPicker?.();
   }
 
   protected openLaunchDialog(): void {

@@ -1,0 +1,118 @@
+<section [attr.aria-label]="'app.markets.detail.config.ariaLabel' | translate">
+  <header class="market-detail-config-header">
+    <h2 class="market-detail-config-title">
+      {{ 'app.markets.detail.config.title' | translate }}
+    </h2>
+    <p class="market-detail-config-subtitle">
+      {{ 'app.markets.detail.config.subtitle' | translate }}
+    </p>
+  </header>
+
+  <div class="market-detail-config-grid">
+    <div class="market-detail-config-fields">
+      <label class="market-detail-field">
+        <span class="market-detail-field-label">
+          {{ 'app.markets.detail.config.startDate' | translate }}
+        </span>
+        <input
+          class="market-detail-input market-detail-input--locked"
+          type="date"
+          [value]="startDate()"
+          disabled
+        />
+      </label>
+
+      <label class="market-detail-field">
+        <span class="market-detail-field-label">
+          {{ 'app.markets.detail.config.endDate' | translate }}
+        </span>
+        <input
+          class="market-detail-input"
+          type="date"
+          [min]="minEndDate()"
+          [value]="endDate()"
+          (input)="endDateChange.emit($event)"
+          (change)="endDateChange.emit($event)"
+          (click)="openDatePicker($event)"
+        />
+      </label>
+
+      @if (durationDays(); as days) {
+        <span class="market-detail-duration">
+          {{ 'app.campaignCreator.select.days' | translate: { count: '' + days } }}
+        </span>
+      }
+
+      <label class="market-detail-field">
+        <span class="market-detail-field-label">
+          {{
+            'app.markets.detail.config.budgetLabel'
+              | translate: { min: minBudgetLabel() }
+          }}
+        </span>
+        <span class="market-detail-budget">
+          <span class="market-detail-budget-float">
+            {{ 'app.markets.detail.config.amount' | translate }}
+          </span>
+          <input
+            class="market-detail-input market-detail-input--budget"
+            type="number"
+            min="0"
+            step="1"
+            [value]="budget()"
+            (input)="budgetChange.emit($event)"
+          />
+        </span>
+      </label>
+    </div>
+
+    <dl class="market-detail-summary">
+      <div class="market-detail-summary-row">
+        <dt>{{ 'app.markets.detail.config.totalBudget' | translate }}</dt>
+        <dd>{{ totalBudget() }}</dd>
+      </div>
+      <div class="market-detail-summary-row">
+        <dt>{{ 'app.markets.detail.config.impressions' | translate }}</dt>
+        <dd>{{ impressions() }}</dd>
+      </div>
+      <div class="market-detail-summary-row">
+        <dt>{{ 'app.markets.detail.config.grossRevenue' | translate }}</dt>
+        <dd>
+          {{ grossRevenue() }}
+          <span class="market-detail-summary-growth">(+{{ profitPercent() }})</span>
+        </dd>
+      </div>
+      <div class="market-detail-summary-row">
+        <dt>{{ 'app.markets.detail.config.grossProfit' | translate }}</dt>
+        <dd class="market-detail-summary-profit">{{ grossProfit() }}</dd>
+      </div>
+      <div class="market-detail-summary-row">
+        <dt>{{ 'app.markets.detail.config.netProfit' | translate }}</dt>
+        <dd class="market-detail-summary-profit">{{ netProfit() }}</dd>
+      </div>
+      <div class="market-detail-summary-row">
+        <dt>{{ 'app.markets.detail.config.balanceAfter' | translate }}</dt>
+        <dd>{{ balanceAfter() }}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <button
+    type="button"
+    class="market-detail-start"
+    [disabled]="!canStart()"
+    (click)="startCampaign.emit()"
+  >
+    {{ 'app.markets.detail.startCampaign' | translate }}
+  </button>
+  @if (startBlockReason(); as reason) {
+    <p class="market-detail-start-error">
+      {{ reason | translate }}
+      @if (reason !== 'app.markets.detail.insufficientFunds') {
+        <a class="market-detail-start-profile" [routerLink]="['/', profilePath()]">
+          {{ 'app.markets.detail.goToProfile' | translate }}
+        </a>
+      }
+    </p>
+  }
+</section>
