@@ -207,9 +207,14 @@
         >
           {{ 'app.markets.detail.startCampaign' | translate }}
         </button>
-        @if (!canStartCampaign()) {
+        @if (startBlockReason(); as reason) {
           <p class="market-detail-start-error">
-            {{ 'app.markets.detail.insufficientFunds' | translate }}
+            {{ reason | translate }}
+            @if (reason !== 'app.markets.detail.insufficientFunds') {
+              <a class="market-detail-start-profile" [routerLink]="['/', routes.profile]">
+                {{ 'app.markets.detail.goToProfile' | translate }}
+              </a>
+            }
           </p>
         }
       </section>

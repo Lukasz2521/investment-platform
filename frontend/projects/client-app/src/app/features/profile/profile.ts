@@ -4,6 +4,10 @@ import { AuthService } from '../../core/auth/services/auth.service';
 import { UserPublic } from '../../core/auth/models/user-public.model';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../core/i18n/services/translation.service';
+import {
+  UserDocumentType,
+  UserDocumentsService,
+} from '../../core/users/services/user-documents.service';
 import { ProfilePersonalData } from './profile-personal-data/profile-personal-data';
 
 function localeForLanguage(language: string): string {
@@ -75,6 +79,22 @@ const PROFILE_DOCUMENTS: ProfileDocumentDefinition[] = [
   },
 ];
 
+const DOCUMENT_API_TYPE: Record<Exclude<ProfileDocumentId, 'creditCard'>, UserDocumentType> = {
+  idFront: 'id_front',
+  idBack: 'id_back',
+  addressProof: 'address_proof',
+  iban: 'iban',
+  fundsSource: 'funds_source',
+};
+
+const API_TYPE_TO_ID: Record<UserDocumentType, Exclude<ProfileDocumentId, 'creditCard'>> = {
+  id_front: 'idFront',
+  id_back: 'idBack',
+  address_proof: 'addressProof',
+  iban: 'iban',
+  funds_source: 'fundsSource',
+};
+
 const ACCEPTED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'application/pdf']);
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 
@@ -90,6 +110,7 @@ function emptyDocumentState(): ProfileDocumentState {
 })
 export class Profile implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
+  private readonly documentsService = inject(UserDocumentsService);
   private readonly translationService = inject(TranslationService);
 
   protected readonly user = signal<UserPublic | null>(null);
@@ -166,6 +187,7 @@ export class Profile implements OnInit, OnDestroy {
         this.error.set(true);
       },
     });
+    this.loadDocuments();
   }
 
   ngOnDestroy(): void {
@@ -252,14 +274,31 @@ export class Profile implements OnInit, OnDestroy {
       return;
     }
 
-    const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
-    this.setDocumentState(docId, {
-      status: 'uploaded',
-      fileName: file.name,
-      previewUrl,
+    const apiType = DOCUMENT_API_TYPE[docId as Exclude<ProfileDocumentId, 'creditCard'>];
+    if (!apiType) {
+      return;
+    }
+
+    this.documentsService.upload(apiType, file).subscribe({
+      next: () => {
+        const previewUrl = file.type.startsWith('image/') ? URL.createObjectURL(file) : null;
+        this.setDocumentState(docId, {
+          status: 'uploaded',
+          fileName: file.name,
+          previewUrl,
+        });
+        this.uploadError.set(false);
+        this.uploadDocId.set(null);
+      },
+      error: () => {
+        this.setDocumentState(docId, {
+          status: 'invalid',
+          fileName: file.name,
+          previewUrl: null,
+        });
+        this.uploadError.set(true);
+      },
     });
-    this.uploadError.set(false);
-    this.uploadDocId.set(null);
   }
 
   protected clearUploadedDocument(): void {
@@ -268,8 +307,18 @@ export class Profile implements OnInit, OnDestroy {
       return;
     }
 
-    this.setDocumentState(docId, emptyDocumentState());
-    this.uploadError.set(false);
+    const apiType = DOCUMENT_API_TYPE[docId as Exclude<ProfileDocumentId, 'creditCard'>];
+    if (!apiType) {
+      return;
+    }
+
+    this.documentsService.remove(apiType).subscribe({
+      next: () => {
+        this.setDocumentState(docId, emptyDocumentState());
+        this.uploadError.set(false);
+      },
+      error: () => this.uploadError.set(true),
+    });
   }
 
   private setDocumentState(id: ProfileDocumentId, next: ProfileDocumentState): void {
@@ -283,6 +332,26 @@ export class Profile implements OnInit, OnDestroy {
         ...current,
         [id]: next,
       };
+    });
+  }
+
+  private loadDocuments(): void {
+    this.documentsService.list().subscribe({
+      next: (response) => {
+        for (const item of response.data) {
+          const id = API_TYPE_TO_ID[item.document_type as UserDocumentType];
+          if (!id) {
+            continue;
+          }
+
+          this.setDocumentState(
+            id,
+            item.uploaded
+              ? { status: 'uploaded', fileName: null, previewUrl: null }
+              : emptyDocumentState(),
+          );
+        }
+      },
     });
   }
 }

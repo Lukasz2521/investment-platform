@@ -453,6 +453,18 @@
   text-align: center;
 }
 
+.market-detail-start-profile {
+  color: inherit;
+  display: inline-block;
+  font-weight: 700;
+  margin-left: 0.35rem;
+  text-decoration: underline;
+}
+
+.market-detail-start-profile:hover {
+  color: #fecaca;
+}
+
 .market-detail-missing p {
   color: var(--detail-muted);
   font-size: 0.975rem;

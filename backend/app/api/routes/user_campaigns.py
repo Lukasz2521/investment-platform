@@ -53,6 +53,11 @@ def start_user_campaign(
             status_code=400, detail="Budget is below the campaign minimum"
         )
 
+    try:
+        crud.ensure_user_can_start_campaign(session=session, user=current_user)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
     account = session.exec(
         select(Account).where(Account.user_id == current_user.id)
     ).first()

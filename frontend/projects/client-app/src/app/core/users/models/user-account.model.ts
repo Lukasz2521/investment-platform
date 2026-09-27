@@ -33,6 +33,8 @@ export type UserPublicWithAccount = {
   address_line_two?: string;
   timezone?: string;
   created_at?: string | null;
+  profile_complete?: boolean;
+  documents_complete?: boolean;
   account: AccountPublicForUser | null;
 };
 

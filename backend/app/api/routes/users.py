@@ -2,7 +2,7 @@ import uuid
 from datetime import timedelta
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import selectinload
 from sqlmodel import col, delete, func, select
 
@@ -15,6 +15,10 @@ from app.api.deps import (
 from app.core import security
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
+from app.core.storage import (
+    delete_user_document_file,
+    save_user_document_from_upload,
+)
 from app.models import (
     Account,
     AccountBank,
@@ -28,6 +32,10 @@ from app.models import (
     UpdatePassword,
     User,
     UserCreate,
+    UserDocument,
+    UserDocumentPublic,
+    UserDocumentsPublic,
+    UserDocumentType,
     UserLogin,
     UserPublic,
     UserPublicWithAccount,
@@ -105,7 +113,7 @@ def update_user_me(
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
-    return current_user
+    return crud.to_user_public(session=session, user=current_user)
 
 
 @router.patch("/me/password", response_model=Message)
@@ -130,11 +138,81 @@ def update_password_me(
 
 
 @router.get("/me", response_model=UserPublic)
-def read_user_me(current_user: CurrentUser) -> Any:
+def read_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     """
     Get current user.
     """
-    return current_user
+    return crud.to_user_public(session=session, user=current_user)
+
+
+@router.get("/me/documents", response_model=UserDocumentsPublic)
+def read_my_documents(session: SessionDep, current_user: CurrentUser) -> UserDocumentsPublic:
+    """
+    List required verification documents and their upload status.
+    """
+    return UserDocumentsPublic(
+        data=crud.list_user_documents(session=session, user_id=current_user.id)
+    )
+
+
+def _parse_document_type(document_type: str) -> UserDocumentType:
+    try:
+        return UserDocumentType(document_type)
+    except ValueError as exc:
+        raise HTTPException(status_code=404, detail="Document type not found") from exc
+
+
+@router.post("/me/documents/{document_type}", response_model=UserDocumentPublic)
+def upload_my_document(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    document_type: str,
+    file: UploadFile = File(...),
+) -> UserDocumentPublic:
+    """
+    Upload a required verification document for the current user.
+    """
+    parsed_type = _parse_document_type(document_type)
+    current = session.exec(
+        select(UserDocument).where(
+            UserDocument.user_id == current_user.id,
+            UserDocument.document_type == parsed_type.value,
+        )
+    ).first()
+    previous = current.filename if current else ""
+
+    try:
+        filename = save_user_document_from_upload(file, previous=previous)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    crud.upsert_user_document(
+        session=session,
+        user_id=current_user.id,
+        document_type=parsed_type,
+        filename=filename,
+    )
+    return UserDocumentPublic(document_type=parsed_type.value, uploaded=True)
+
+
+@router.delete("/me/documents/{document_type}", response_model=Message)
+def delete_my_document(
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    document_type: str,
+) -> Message:
+    """
+    Remove an uploaded verification document.
+    """
+    parsed_type = _parse_document_type(document_type)
+    filename = crud.delete_user_document(
+        session=session, user_id=current_user.id, document_type=parsed_type
+    )
+    if filename:
+        delete_user_document_file(filename)
+    return Message(message="Document deleted successfully")
 
 
 @router.delete("/me", response_model=Message)
@@ -270,7 +348,7 @@ def read_user_by_id(
         )
     ).first()
     return UserPublicWithAccount(
-        **UserPublic.model_validate(user).model_dump(),
+        **crud.to_user_public(session=session, user=user).model_dump(),
         account=AccountPublicForUser.from_account(account) if account else None,
     )
 

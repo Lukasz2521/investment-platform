@@ -96,6 +96,9 @@ class User(UserBase, table=True):
     transactions: list["Transaction"] = Relationship(
         back_populates="user", cascade_delete=True
     )
+    documents: list["UserDocument"] = Relationship(
+        back_populates="user", cascade_delete=True
+    )
     account: "Account" = Relationship(
         back_populates="user",
         sa_relationship_kwargs={"uselist": False},
@@ -120,11 +123,50 @@ class UserPublic(UserBase):
     address_line_one: str = Field(default="", max_length=255)
     address_line_two: str = Field(default="", max_length=255)
     timezone: str = Field(default="", max_length=255)
+    profile_complete: bool = False
+    documents_complete: bool = False
 
 
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
+
+
+class UserDocumentType(str, Enum):
+    ID_FRONT = "id_front"
+    ID_BACK = "id_back"
+    ADDRESS_PROOF = "address_proof"
+    IBAN = "iban"
+    FUNDS_SOURCE = "funds_source"
+
+
+REQUIRED_USER_DOCUMENT_TYPES = tuple(UserDocumentType)
+
+
+class UserDocument(SQLModel, table=True):
+    __tablename__ = "user_document"
+    __table_args__ = (UniqueConstraint("user_id", "document_type"),)
+
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE", index=True
+    )
+    document_type: str = Field(max_length=64, index=True)
+    filename: str = Field(max_length=255)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    user: User | None = Relationship(back_populates="documents")
+
+
+class UserDocumentPublic(SQLModel):
+    document_type: str
+    uploaded: bool
+
+
+class UserDocumentsPublic(SQLModel):
+    data: list[UserDocumentPublic]
 
 
 # Shared properties

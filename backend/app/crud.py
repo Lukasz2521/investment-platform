@@ -49,8 +49,13 @@ from app.models import (
     UserCampaignStatus,
     UserCampaignsPublic,
     UserCreate,
+    UserDocument,
+    UserDocumentPublic,
+    UserDocumentType,
+    UserPublic,
     UserRegister,
     UserUpdate,
+    REQUIRED_USER_DOCUMENT_TYPES,
     validate_campaign_metric_ranges,
 )
 
@@ -775,3 +780,110 @@ def get_user_campaigns_by_user_id(
     )
     rows = session.exec(statement).all()
     return list(rows), count
+
+
+PROFILE_INCOMPLETE_DETAIL = "Profile data incomplete"
+DOCUMENTS_MISSING_DETAIL = "Required documents missing"
+
+
+def is_profile_complete(user: User) -> bool:
+    values = (
+        user.name,
+        user.last_name,
+        user.phone,
+        user.country,
+        user.city,
+        user.address_line_one,
+        user.address_line_two,
+        user.timezone,
+    )
+    return all(str(value or "").strip() for value in values)
+
+
+def has_required_documents(*, session: Session, user_id: uuid.UUID) -> bool:
+    rows = session.exec(
+        select(UserDocument.document_type).where(UserDocument.user_id == user_id)
+    ).all()
+    present = {str(item) for item in rows}
+    return all(item.value in present for item in REQUIRED_USER_DOCUMENT_TYPES)
+
+
+def to_user_public(*, session: Session, user: User) -> UserPublic:
+    payload = UserPublic.model_validate(user).model_dump()
+    payload["profile_complete"] = is_profile_complete(user)
+    payload["documents_complete"] = has_required_documents(
+        session=session, user_id=user.id
+    )
+    return UserPublic.model_validate(payload)
+
+
+def ensure_user_can_start_campaign(*, session: Session, user: User) -> None:
+    if not is_profile_complete(user):
+        raise ValueError(PROFILE_INCOMPLETE_DETAIL)
+    if not has_required_documents(session=session, user_id=user.id):
+        raise ValueError(DOCUMENTS_MISSING_DETAIL)
+
+
+def list_user_documents(*, session: Session, user_id: uuid.UUID) -> list[UserDocumentPublic]:
+    rows = session.exec(
+        select(UserDocument).where(UserDocument.user_id == user_id)
+    ).all()
+    uploaded = {row.document_type for row in rows}
+    return [
+        UserDocumentPublic(
+            document_type=item.value,
+            uploaded=item.value in uploaded,
+        )
+        for item in REQUIRED_USER_DOCUMENT_TYPES
+    ]
+
+
+def upsert_user_document(
+    *,
+    session: Session,
+    user_id: uuid.UUID,
+    document_type: UserDocumentType,
+    filename: str,
+) -> UserDocument:
+    existing = session.exec(
+        select(UserDocument).where(
+            UserDocument.user_id == user_id,
+            UserDocument.document_type == document_type.value,
+        )
+    ).first()
+    if existing:
+        existing.filename = filename
+        session.add(existing)
+        session.commit()
+        session.refresh(existing)
+        return existing
+
+    row = UserDocument(
+        user_id=user_id,
+        document_type=document_type.value,
+        filename=filename,
+    )
+    session.add(row)
+    session.commit()
+    session.refresh(row)
+    return row
+
+
+def delete_user_document(
+    *,
+    session: Session,
+    user_id: uuid.UUID,
+    document_type: UserDocumentType,
+) -> str | None:
+    existing = session.exec(
+        select(UserDocument).where(
+            UserDocument.user_id == user_id,
+            UserDocument.document_type == document_type.value,
+        )
+    ).first()
+    if existing is None:
+        return None
+    filename = existing.filename
+    session.delete(existing)
+    session.commit()
+    return filename

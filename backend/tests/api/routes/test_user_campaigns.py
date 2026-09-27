@@ -7,7 +7,15 @@ from sqlmodel import Session, select
 
 from app import crud
 from app.core.config import settings
-from app.models import Account, AccountType, Category, CategoryCreate, UserCampaign
+from app.models import (
+    Account,
+    AccountType,
+    Category,
+    CategoryCreate,
+    UserCampaign,
+    UserDocument,
+    REQUIRED_USER_DOCUMENT_TYPES,
+)
 
 
 def _campaign_payload(category_id: str, title: str = "User campaign source") -> dict[str, object]:
@@ -52,6 +60,36 @@ def _set_user_available_balance(db: Session, email: str, amount: Decimal) -> Acc
     return account
 
 
+def _prepare_user_for_campaigns(db: Session, email: str) -> None:
+    user = crud.get_user_by_email(session=db, email=email)
+    assert user is not None
+    user.name = user.name or "Test"
+    user.last_name = user.last_name or "User"
+    user.phone = user.phone or "123456789"
+    user.country = user.country or "Poland"
+    user.city = user.city or "Warsaw"
+    user.address_line_one = user.address_line_one or "Main 1"
+    user.address_line_two = user.address_line_two or "00-001"
+    user.timezone = user.timezone or "Europe/Warsaw"
+    db.add(user)
+    for document_type in REQUIRED_USER_DOCUMENT_TYPES:
+        existing = db.exec(
+            select(UserDocument).where(
+                UserDocument.user_id == user.id,
+                UserDocument.document_type == document_type.value,
+            )
+        ).first()
+        if existing is None:
+            db.add(
+                UserDocument(
+                    user_id=user.id,
+                    document_type=document_type.value,
+                    filename=f"{document_type.value}.pdf",
+                )
+            )
+    db.commit()
+
+
 def test_user_can_start_and_list_campaigns(
     client: TestClient,
     superuser_token_headers: dict[str, str],
@@ -72,6 +110,7 @@ def test_user_can_start_and_list_campaigns(
     account = _set_user_available_balance(
         db, settings.EMAIL_TEST_USER, Decimal("1000")
     )
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
 
     today = datetime.now(timezone.utc).date()
     start_payload = {
@@ -166,6 +205,7 @@ def test_user_cannot_start_campaign_without_sufficient_funds(
     assert create_response.status_code == 200
     campaign_id = create_response.json()["id"]
     _set_user_available_balance(db, settings.EMAIL_TEST_USER, Decimal("100"))
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
 
     today = datetime.now(timezone.utc).date()
     start_response = client.post(
@@ -217,6 +257,7 @@ def test_user_campaign_freezes_metrics_and_settles_profit(
     db.add(account)
     db.commit()
     db.refresh(account)
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
 
     today = datetime.now(timezone.utc).date()
     start_response = client.post(
@@ -304,3 +345,84 @@ def test_user_campaign_freezes_metrics_and_settles_profit(
     if db_category is not None:
         db.delete(db_category)
         db.commit()
+
+
+def _start_payload(campaign_id: str) -> dict[str, object]:
+    today = datetime.now(timezone.utc).date()
+    return {
+        "campaign_id": campaign_id,
+        "start_date": today.isoformat(),
+        "end_date": (today + timedelta(days=30)).isoformat(),
+        "budget": 250,
+    }
+
+
+def test_user_cannot_start_campaign_with_incomplete_profile(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    category = crud.create_category(
+        session=db,
+        category_in=CategoryCreate(name=f"user-campaigns-{uuid4().hex[:8]}"),
+    )
+    create_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=superuser_token_headers,
+        json=_campaign_payload(str(category.id)),
+    )
+    campaign_id = create_response.json()["id"]
+    _set_user_available_balance(db, settings.EMAIL_TEST_USER, Decimal("1000"))
+
+    user = crud.get_user_by_email(session=db, email=settings.EMAIL_TEST_USER)
+    assert user is not None
+    user.city = ""
+    user.address_line_one = ""
+    db.add(user)
+    db.commit()
+
+    start_response = client.post(
+        f"{settings.API_V1_STR}/user-campaigns/",
+        headers=normal_user_token_headers,
+        json=_start_payload(campaign_id),
+    )
+    assert start_response.status_code == 400
+    assert start_response.json()["detail"] == crud.PROFILE_INCOMPLETE_DETAIL
+
+
+def test_user_cannot_start_campaign_without_documents(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    category = crud.create_category(
+        session=db,
+        category_in=CategoryCreate(name=f"user-campaigns-{uuid4().hex[:8]}"),
+    )
+    create_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=superuser_token_headers,
+        json=_campaign_payload(str(category.id)),
+    )
+    campaign_id = create_response.json()["id"]
+    _set_user_available_balance(db, settings.EMAIL_TEST_USER, Decimal("1000"))
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
+
+    user = crud.get_user_by_email(session=db, email=settings.EMAIL_TEST_USER)
+    assert user is not None
+    documents = db.exec(
+        select(UserDocument).where(UserDocument.user_id == user.id)
+    ).all()
+    for document in documents:
+        db.delete(document)
+    db.commit()
+
+    start_response = client.post(
+        f"{settings.API_V1_STR}/user-campaigns/",
+        headers=normal_user_token_headers,
+        json=_start_payload(campaign_id),
+    )
+    assert start_response.status_code == 400
+    assert start_response.json()["detail"] == crud.DOCUMENTS_MISSING_DETAIL

@@ -139,6 +139,8 @@ export class MarketCampaignDetail {
   protected readonly campaign = signal<MarketCampaign | undefined>(undefined);
   protected readonly availableBalance = signal(0);
   protected readonly participation = signal(0);
+  protected readonly profileComplete = signal(false);
+  protected readonly documentsComplete = signal(false);
 
   private readonly campaignId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id'))),
@@ -198,14 +200,30 @@ export class MarketCampaignDetail {
     () => this.availableBalance() + this.estimatedNetProfit(),
   );
 
-  protected readonly canStartCampaign = computed(() => {
+  protected readonly canStartCampaign = computed(
+    () => this.campaign() != null && this.startBlockReason() === null,
+  );
+
+  protected readonly startBlockReason = computed(() => {
     const campaign = this.campaign();
     if (!campaign) {
-      return false;
+      return null;
+    }
+
+    if (!this.profileComplete()) {
+      return 'app.markets.detail.profileIncomplete';
+    }
+
+    if (!this.documentsComplete()) {
+      return 'app.markets.detail.documentsIncomplete';
     }
 
     const launchBudget = Math.max(this.budgetAmount(), campaign.minBudget);
-    return this.availableBalance() >= launchBudget;
+    if (this.availableBalance() < launchBudget) {
+      return 'app.markets.detail.insufficientFunds';
+    }
+
+    return null;
   });
 
   protected readonly cpmChart = computed(() => {
@@ -248,6 +266,8 @@ export class MarketCampaignDetail {
             categories.find((category) => category.id === campaign.category_id)?.name ?? '';
           this.availableBalance.set(availableBalanceFromUser(user));
           this.participation.set(user?.account?.participation ?? 0);
+          this.profileComplete.set(user?.profile_complete === true);
+          this.documentsComplete.set(user?.documents_complete === true);
           this.campaign.set(toMarketCampaign(campaign, categoryName, this.participation()));
           this.loading.set(false);
         },
@@ -361,17 +381,19 @@ export class MarketCampaignDetail {
         },
         error: (error: unknown) => {
           this.launching.set(false);
-          const insufficient =
-            error instanceof HttpErrorResponse &&
-            error.status === 400 &&
-            error.error?.detail === 'Insufficient funds';
-          this.launchError.set(
-            this.translationService.translate(
-              insufficient
-                ? 'app.markets.detail.insufficientFunds'
-                : 'app.markets.detail.launchError',
-            ),
-          );
+          const detail =
+            error instanceof HttpErrorResponse && typeof error.error?.detail === 'string'
+              ? error.error.detail
+              : '';
+          const key =
+            detail === 'Insufficient funds'
+              ? 'app.markets.detail.insufficientFunds'
+              : detail === 'Profile data incomplete'
+                ? 'app.markets.detail.profileIncomplete'
+                : detail === 'Required documents missing'
+                  ? 'app.markets.detail.documentsIncomplete'
+                  : 'app.markets.detail.launchError';
+          this.launchError.set(this.translationService.translate(key));
         },
       });
   }

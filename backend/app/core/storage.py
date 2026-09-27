@@ -5,12 +5,14 @@ from fastapi import UploadFile
 
 MAX_BANK_LOGO_BYTES = 2 * 1024 * 1024
 MAX_CAMPAIGN_VIDEO_BYTES = 15 * 1024 * 1024
+MAX_USER_DOCUMENT_BYTES = 10 * 1024 * 1024
 
 _CONTENT_TYPE_TO_EXT = {
     "image/png": ".png",
     "image/jpeg": ".jpg",
     "image/webp": ".webp",
     "image/gif": ".gif",
+    "application/pdf": ".pdf",
 }
 
 
@@ -26,10 +28,15 @@ def get_campaign_videos_dir() -> Path:
     return get_uploads_root() / "campaigns"
 
 
+def get_user_documents_dir() -> Path:
+    return get_uploads_root() / "user-documents"
+
+
 def ensure_upload_dirs() -> Path:
     logos_dir = get_bank_logos_dir()
     logos_dir.mkdir(parents=True, exist_ok=True)
     get_campaign_videos_dir().mkdir(parents=True, exist_ok=True)
+    get_user_documents_dir().mkdir(parents=True, exist_ok=True)
     return logos_dir
 
 
@@ -156,6 +163,52 @@ def delete_campaign_video(stored: str) -> None:
     path = get_campaign_videos_dir() / filename
     try:
         path.relative_to(get_campaign_videos_dir())
+    except ValueError:
+        return
+    path.unlink(missing_ok=True)
+
+
+def sniff_document_content_type(data: bytes) -> str | None:
+    if data.startswith(b"%PDF"):
+        return "application/pdf"
+    return sniff_image_content_type(data)
+
+
+def save_user_document_from_bytes(raw: bytes) -> str:
+    if len(raw) > MAX_USER_DOCUMENT_BYTES:
+        raise ValueError("Document is too large (max 10 MB)")
+
+    sniffed = sniff_document_content_type(raw)
+    if sniffed is None or sniffed not in _CONTENT_TYPE_TO_EXT:
+        raise ValueError("Unsupported document format")
+
+    filename = f"{uuid.uuid4()}{_CONTENT_TYPE_TO_EXT[sniffed]}"
+    target_dir = get_user_documents_dir()
+    target_dir.mkdir(parents=True, exist_ok=True)
+    (target_dir / filename).write_bytes(raw)
+    return filename
+
+
+def save_user_document_from_upload(upload: UploadFile, *, previous: str = "") -> str:
+    raw = upload.file.read()
+    if not raw:
+        raise ValueError("Empty document")
+
+    filename = save_user_document_from_bytes(raw)
+    if previous and previous != filename:
+        delete_user_document_file(previous)
+    return filename
+
+
+def delete_user_document_file(stored: str) -> None:
+    filename = logo_filename(stored)
+    if not filename or "/" in filename or "\\" in filename or filename.startswith("."):
+        return
+
+    directory = get_user_documents_dir()
+    path = directory / filename
+    try:
+        path.relative_to(directory)
     except ValueError:
         return
     path.unlink(missing_ok=True)
