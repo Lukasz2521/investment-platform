@@ -6,6 +6,7 @@ export type MyCampaign = MarketCampaign & {
   status: MyCampaignStatus;
   startDate: string;
   endDate: string;
+  createdAt: string | null;
   impressions?: number;
   clicks?: number;
   grossRevenue?: number;
@@ -45,6 +46,7 @@ export const MY_CAMPAIGNS: MyCampaign[] = MARKET_CAMPAIGNS.filter(
   status: STATUS_BY_ID[campaign.id],
   startDate: '',
   endDate: '',
+  createdAt: null,
 }));
 
 export function getMyCampaignsByStatus(

@@ -6,44 +6,12 @@ import { catchError, forkJoin, interval, map, of, switchMap } from 'rxjs';
 
 import { CategoriesService } from '../../../core/campaigns/services/categories.service';
 import { UserCampaignsService } from '../../../core/campaigns/services/user-campaigns.service';
-import { estimateCampaignEconomics } from '../../../core/campaigns/utils/campaign-economics';
 import { TranslatePipe } from '../../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../../core/i18n/services/translation.service';
 import { APP_ROUTE_PATHS } from '../../../core/routing/app-route-paths';
-import { campaignGuidelinesDurationDays } from '../../campaign-creator/campaign-guidelines';
-import { MarketMetricChart } from '../../markets/market-metric-chart/market-metric-chart';
 import { MyCampaign, MyCampaignStatus } from '../my-campaigns-data';
 import { toMyCampaign } from '../to-my-campaign';
-
-function buildMetricSeries(base: number, seed: number, points = 25): number[] {
-  return Array.from({ length: points }, (_, index) => {
-    const wave =
-      Math.sin((index + seed) / 3.1) * 0.11 + Math.cos((index + seed * 1.7) / 4.8) * 0.07;
-    const drift = ((index % 7) - 3) * 0.008;
-    return Math.max(0, Number((base * (0.88 + wave + drift)).toFixed(4)));
-  });
-}
-
-function niceCeiling(value: number): number {
-  if (value <= 0) {
-    return 1;
-  }
-
-  const magnitude = 10 ** Math.floor(Math.log10(value));
-  const normalized = value / magnitude;
-
-  if (normalized <= 1) {
-    return magnitude;
-  }
-  if (normalized <= 2) {
-    return 2 * magnitude;
-  }
-  if (normalized <= 5) {
-    return 5 * magnitude;
-  }
-
-  return 10 * magnitude;
-}
+import { userCampaignLiveSnapshot, UserCampaignLiveSnapshot } from '../user-campaign-progress';
 
 function localeForLanguage(language: string): string {
   switch (language) {
@@ -62,21 +30,11 @@ function localeForLanguage(language: string): string {
   }
 }
 
-type MetricChartView = {
-  heroValue: string;
-  yLabels: string[];
-  yMax: number;
-  currentValues: number[];
-  previousValues: number[];
-  currentLegend: string;
-  previousLegend: string;
-};
-
 const STATS_POLL_MS = 10_000;
 
 @Component({
   selector: 'app-my-campaign-detail',
-  imports: [RouterLink, TranslatePipe, MarketMetricChart],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './my-campaign-detail.html',
   styleUrl: './my-campaign-detail.scss',
 })
@@ -90,54 +48,40 @@ export class MyCampaignDetail {
   protected readonly loading = signal(true);
   protected readonly loadError = signal(false);
   protected readonly campaign = signal<MyCampaign | undefined>(undefined);
+  private readonly now = signal(Date.now());
 
   private readonly campaignId = toSignal(
     this.route.paramMap.pipe(map((params) => params.get('id'))),
     { initialValue: null },
   );
 
-  protected readonly overview = computed(() => {
+  protected readonly live = computed((): UserCampaignLiveSnapshot | null => {
     const campaign = this.campaign();
-    if (!campaign || !campaign.startDate || !campaign.endDate) {
+    if (!campaign) {
       return null;
     }
 
-    const days =
-      campaignGuidelinesDurationDays(campaign.startDate, campaign.endDate) ?? campaign.days;
-    const budget = campaign.minBudget;
-    const economics = estimateCampaignEconomics({
-      budget,
-      cpm: campaign.cpm,
-      epc: campaign.epc,
-      ctr: campaign.ctr,
-      participation: campaign.participation ?? 0,
-    });
-
-    return {
-      startDate: campaign.startDate,
-      endDate: campaign.endDate,
-      days,
-      budget,
-      impressions: campaign.impressions ?? economics.impressions,
-      grossProfit: campaign.grossProfit ?? economics.grossProfit,
-      grossRevenue: campaign.grossRevenue ?? economics.grossRevenue,
-      netProfit: campaign.netProfit ?? economics.netProfit,
-      profitPercent: economics.profitPercent,
-      netProfitPercent: economics.netProfitPercent,
-    };
-  });
-
-  protected readonly cpmChart = computed(() => {
-    const campaign = this.campaign();
-    return campaign ? this.buildMetricChart(campaign.cpm, campaign.currency, 1) : null;
-  });
-
-  protected readonly ctrChart = computed(() => {
-    const campaign = this.campaign();
-    return campaign ? this.buildMetricChart(campaign.ctr, campaign.currency, 3, 'percent') : null;
+    return userCampaignLiveSnapshot(
+      {
+        createdAt: campaign.createdAt,
+        endDate: campaign.endDate,
+        status: campaign.status,
+        budget: campaign.minBudget,
+        cpm: campaign.cpm,
+        epc: campaign.epc,
+        ctr: campaign.ctr,
+        participation: campaign.participation ?? 0,
+      },
+      this.now(),
+    );
   });
 
   constructor() {
+    effect((onCleanup) => {
+      const clock = interval(1000).subscribe(() => this.now.set(Date.now()));
+      onCleanup(() => clock.unsubscribe());
+    });
+
     effect((onCleanup) => {
       const id = this.campaignId();
       if (!id) {
@@ -226,68 +170,19 @@ export class MyCampaignDetail {
     return new Intl.NumberFormat(undefined).format(value);
   }
 
-  protected formatDate(dateInput: string): string {
+  protected formatDateTime(date: Date | null): string {
     this.translationService.activeLanguage();
-    const locale = localeForLanguage(this.translationService.activeLanguage());
-    const [year, month, day] = dateInput.split('-').map(Number);
-    if (!year || !month || !day) {
-      return dateInput;
+    if (!date) {
+      return '—';
     }
 
+    const locale = localeForLanguage(this.translationService.activeLanguage());
     return new Intl.DateTimeFormat(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-    }).format(new Date(year, month - 1, day));
-  }
-
-  private buildMetricChart(
-    base: number,
-    currency: string,
-    seed: number,
-    format: 'money' | 'percent' = 'money',
-  ): MetricChartView {
-    const currentValues = buildMetricSeries(base, seed);
-    const previousValues = buildMetricSeries(base * 0.92, seed + 11);
-    const peak = Math.max(...currentValues, ...previousValues, base);
-    const yMax = niceCeiling(peak * 1.15);
-    const mid = yMax / 2;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-
-    const formatAxis = (value: number) =>
-      format === 'percent' ? this.formatPercent(value) : this.formatAxisMoney(value, currency);
-
-    return {
-      heroValue: format === 'percent' ? this.formatPercent(base) : this.formatMoney(base, currency),
-      yLabels: [formatAxis(yMax), formatAxis(mid), formatAxis(0)],
-      yMax,
-      currentValues,
-      previousValues,
-      currentLegend: this.formatLegendDate(today),
-      previousLegend: this.formatLegendDate(yesterday),
-    };
-  }
-
-  private formatAxisMoney(amount: number, currency: string): string {
-    return new Intl.NumberFormat(undefined, {
-      style: 'currency',
-      currency,
-      minimumFractionDigits: 0,
-      maximumFractionDigits: amount < 1 ? 2 : 0,
-    }).format(amount);
-  }
-
-  private formatLegendDate(date: Date): string {
-    this.translationService.activeLanguage();
-    const locale = localeForLanguage(this.translationService.activeLanguage());
-    return new Intl.DateTimeFormat(locale, {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     }).format(date);
   }
 }

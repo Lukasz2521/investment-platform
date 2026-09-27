@@ -3,16 +3,7 @@ import { estimateCampaignEconomics } from '../../core/campaigns/utils/campaign-e
 import { campaignGuidelinesDurationDays } from '../campaign-creator/campaign-guidelines';
 import { toMarketCampaign } from '../markets/to-market-campaign';
 import { MyCampaign, MyCampaignStatus } from './my-campaigns-data';
-
-function todayInputValue(): string {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-const USER_CAMPAIGN_TEST_DURATION_MS = 5 * 60 * 1000;
+import { isUserCampaignWindowComplete } from './user-campaign-progress';
 
 function resolveStatus(
   status: UserCampaignStatus,
@@ -23,18 +14,7 @@ function resolveStatus(
     return 'cancelled';
   }
 
-  if (status === 'completed') {
-    return 'completed';
-  }
-
-  if (createdAt) {
-    const startedAt = new Date(createdAt).getTime();
-    if (Number.isFinite(startedAt) && Date.now() >= startedAt + USER_CAMPAIGN_TEST_DURATION_MS) {
-      return 'completed';
-    }
-  }
-
-  if (endDate < todayInputValue()) {
+  if (status === 'completed' || isUserCampaignWindowComplete(createdAt, endDate)) {
     return 'completed';
   }
 
@@ -73,6 +53,7 @@ export function toMyCampaign(enrollment: UserCampaignPublic, categoryName: strin
     status: resolveStatus(enrollment.status, enrollment.end_date, enrollment.created_at),
     startDate: enrollment.start_date,
     endDate: enrollment.end_date,
+    createdAt: enrollment.created_at,
     impressions: enrollment.impressions ?? economics.impressions,
     clicks: enrollment.clicks ?? economics.clicks,
     grossRevenue: Number(enrollment.gross_revenue) || economics.grossRevenue,

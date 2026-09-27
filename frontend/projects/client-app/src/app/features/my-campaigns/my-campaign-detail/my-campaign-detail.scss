@@ -16,6 +16,7 @@
   --detail-duration-bg: #22c55e;
   --detail-duration-text: #ffffff;
   --detail-growth: #22c55e;
+  --detail-loss: #f87171;
   --detail-status-active-bg: rgb(34 197 94 / 18%);
   --detail-status-active-text: #4ade80;
   --detail-status-cancelled-bg: rgb(239 68 68 / 18%);
@@ -45,6 +46,7 @@
   --detail-duration-bg: #22c55e;
   --detail-duration-text: #ffffff;
   --detail-growth: #16a34a;
+  --detail-loss: #dc2626;
   --detail-status-active-bg: #dcfce7;
   --detail-status-active-text: #15803d;
   --detail-status-cancelled-bg: #fee2e2;
@@ -103,19 +105,19 @@
   top: 0;
 }
 
-.my-detail-tile--epc::before {
+.my-detail-tile--time::before {
   background: #a78bfa;
 }
 
-.my-detail-tile--cpm::before {
-  background: #34d399;
-}
-
-.my-detail-tile--ctr::before {
+.my-detail-tile--used::before {
   background: #fb923c;
 }
 
-.my-detail-tile--profit::before {
+.my-detail-tile--left::before {
+  background: #34d399;
+}
+
+.my-detail-tile--progress::before {
   background: #818cf8;
 }
 
@@ -362,6 +364,27 @@
 .my-detail-summary-growth,
 .my-detail-summary-profit {
   color: var(--detail-growth);
+}
+
+.my-detail-summary-loss {
+  color: var(--detail-loss);
+}
+
+.my-detail-progress {
+  background: rgb(129 140 248 / 22%);
+  border-radius: 999px;
+  display: block;
+  height: 0.45rem;
+  margin-top: 0.45rem;
+  overflow: hidden;
+  width: 100%;
+}
+
+.my-detail-progress-bar {
+  background: #818cf8;
+  border-radius: inherit;
+  display: block;
+  height: 100%;
 }
 
 .my-detail-summary-growth {
