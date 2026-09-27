@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { catchError, forkJoin, interval, of, switchMap } from 'rxjs';
 
 import { AuthService } from '../../core/auth/services/auth.service';
+import { UserCampaignPublic } from '../../core/campaigns/models/user-campaign.model';
 import { UserCampaignsService } from '../../core/campaigns/services/user-campaigns.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
 import { TranslationService } from '../../core/i18n/services/translation.service';
@@ -22,7 +23,13 @@ import {
   parseAccountMoney,
 } from '../../core/users/models/user-account.model';
 import { UsersService } from '../../core/users/services/users.service';
+import { resolveUserCampaignWindow } from '../my-campaigns/user-campaign-progress';
 import { DASHBOARD_TILES, DashboardTileId } from './dashboard-tiles';
+
+type ActiveCampaignDeadline = {
+  name: string;
+  endsAt: number;
+};
 
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * 46;
 const HISTORY_PAGE_SIZE = 20;
@@ -63,11 +70,13 @@ export class Dashboard implements OnInit {
 
   protected readonly routes = APP_ROUTE_PATHS;
 
-  protected readonly campaignName = 'Lays';
+  protected readonly nearestCampaignName = signal('');
   protected readonly countdownLabel = signal('');
+  private readonly activeCampaignDeadlines = signal<ActiveCampaignDeadline[]>([]);
   protected readonly username = signal('');
   protected readonly account = signal<AccountPublicForUser | null>(null);
   protected readonly realizedProfit = signal(0);
+  protected readonly assetsInCirculation = signal(0);
 
   protected readonly profitSharePercent = computed(() => {
     const participation = this.account()?.participation;
@@ -93,10 +102,11 @@ export class Dashboard implements OnInit {
     this.translationService.activeLanguage();
     const account = this.account();
     const realizedProfit = this.realizedProfit();
+    const assetsInCirculation = this.assetsInCirculation();
     return DASHBOARD_TILES.map((tile) => ({
       id: tile.id,
       titleKey: tile.titleKey,
-      value: this.tileValue(tile.id, account, realizedProfit),
+      value: this.tileValue(tile.id, account, realizedProfit, assetsInCirculation),
     }));
   });
 
@@ -104,8 +114,6 @@ export class Dashboard implements OnInit {
   protected readonly transactionsCount = signal(0);
   protected readonly historyLoading = signal(true);
   protected readonly historyError = signal(false);
-
-  private readonly campaignEndsAt = Date.now() + ((10 * 24 + 14) * 60 * 60 + 10 * 60 + 33) * 1000;
 
   ngOnInit(): void {
     this.updateCountdown();
@@ -174,6 +182,13 @@ export class Dashboard implements OnInit {
               .filter((enrollment) => enrollment.status === 'completed')
               .reduce((sum, enrollment) => sum + parseAccountMoney(enrollment.net_profit), 0),
           );
+          this.assetsInCirculation.set(
+            campaigns.data
+              .filter((enrollment) => enrollment.status === 'active')
+              .reduce((sum, enrollment) => sum + parseAccountMoney(enrollment.budget), 0),
+          );
+          this.activeCampaignDeadlines.set(activeCampaignDeadlines(campaigns.data));
+          this.updateCountdown();
           if (history) {
             this.transactions.set(history.data);
             this.transactionsCount.set(history.count);
@@ -189,6 +204,9 @@ export class Dashboard implements OnInit {
           this.username.set('');
           this.account.set(null);
           this.realizedProfit.set(0);
+          this.assetsInCirculation.set(0);
+          this.activeCampaignDeadlines.set([]);
+          this.updateCountdown();
           if (showHistoryLoading) {
             this.transactions.set([]);
             this.transactionsCount.set(0);
@@ -203,12 +221,11 @@ export class Dashboard implements OnInit {
     id: DashboardTileId,
     account: AccountPublicForUser | null,
     realizedProfit: number,
+    assetsInCirculation: number,
   ): string {
-    const available = parseAccountMoney(account?.available_balance);
-    const balance = parseAccountMoney(account?.balance);
     const amounts: Record<DashboardTileId, number> = {
-      availableBalance: available,
-      assetsInCirculation: Math.max(0, balance - available),
+      availableBalance: parseAccountMoney(account?.available_balance),
+      assetsInCirculation,
       currentProfit: realizedProfit,
       totalDeposits: parseAccountMoney(account?.total_deposit),
       withdrawals: parseAccountMoney(account?.total_withdraw),
@@ -228,7 +245,19 @@ export class Dashboard implements OnInit {
   }
 
   private updateCountdown(): void {
-    const remainingMs = Math.max(0, this.campaignEndsAt - Date.now());
+    const now = Date.now();
+    const nearest = this.activeCampaignDeadlines()
+      .filter((campaign) => campaign.endsAt > now)
+      .sort((left, right) => left.endsAt - right.endsAt)[0];
+
+    if (!nearest) {
+      this.nearestCampaignName.set('');
+      this.countdownLabel.set('');
+      return;
+    }
+
+    this.nearestCampaignName.set(nearest.name);
+    const remainingMs = nearest.endsAt - now;
     const totalSeconds = Math.floor(remainingMs / 1000);
     const days = Math.floor(totalSeconds / 86400);
     const hours = Math.floor((totalSeconds % 86400) / 3600);
@@ -244,4 +273,20 @@ export class Dashboard implements OnInit {
       }),
     );
   }
+}
+
+function activeCampaignDeadlines(enrollments: UserCampaignPublic[]): ActiveCampaignDeadline[] {
+  return enrollments.flatMap((enrollment) => {
+    if (enrollment.status !== 'active') {
+      return [];
+    }
+
+    const window = resolveUserCampaignWindow(enrollment.created_at, enrollment.end_date);
+    const name = enrollment.campaign.title.trim();
+    if (!window || !name) {
+      return [];
+    }
+
+    return [{ name, endsAt: window.endsAt }];
+  });
 }

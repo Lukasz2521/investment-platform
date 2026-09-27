@@ -84,14 +84,16 @@
           </div>
         </div>
 
-        <footer class="dashboard-profit-footer">
-          <p class="dashboard-profit-campaign">
-            {{ 'app.dashboard.profitShare.campaignPrefix' | translate }}
-            <strong>{{ campaignName }}</strong>
-            {{ 'app.dashboard.profitShare.campaignSuffix' | translate }}
-          </p>
-          <p class="dashboard-profit-countdown">{{ countdownLabel() }}</p>
-        </footer>
+        @if (nearestCampaignName()) {
+          <footer class="dashboard-profit-footer">
+            <p class="dashboard-profit-campaign">
+              {{ 'app.dashboard.profitShare.campaignPrefix' | translate }}
+              <strong>{{ nearestCampaignName() }}</strong>
+              {{ 'app.dashboard.profitShare.campaignSuffix' | translate }}
+            </p>
+            <p class="dashboard-profit-countdown">{{ countdownLabel() }}</p>
+          </footer>
+        }
       </article>
     </section>
   </div>
