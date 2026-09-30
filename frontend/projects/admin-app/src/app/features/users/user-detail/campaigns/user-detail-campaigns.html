@@ -1,0 +1,124 @@
+<section class="user-detail-campaigns">
+  <p-table
+    #campaignsTable
+    [value]="campaigns()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['title', 'status', 'currency']"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first}-{last} of {totalRecords}"
+  >
+    <ng-template #caption>
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          pInputText
+          type="text"
+          placeholder="Title, Status"
+          (input)="onSearch($event)"
+        />
+      </p-iconfield>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="title">
+          Title
+          <p-sortIcon field="title" />
+        </th>
+        <th pSortableColumn="status">
+          Status
+          <p-sortIcon field="status" />
+        </th>
+        <th pSortableColumn="start_date">
+          Start
+          <p-sortIcon field="start_date" />
+        </th>
+        <th pSortableColumn="end_date">
+          End
+          <p-sortIcon field="end_date" />
+        </th>
+        <th pSortableColumn="budget">
+          Budget
+          <p-sortIcon field="budget" />
+        </th>
+        <th>Currency</th>
+        <th pSortableColumn="cpm">
+          CPM
+          <p-sortIcon field="cpm" />
+        </th>
+        <th pSortableColumn="epc">
+          EPC
+          <p-sortIcon field="epc" />
+        </th>
+        <th pSortableColumn="ctr">
+          CTR
+          <p-sortIcon field="ctr" />
+        </th>
+        <th pSortableColumn="participation">
+          Participation
+          <p-sortIcon field="participation" />
+        </th>
+        <th pSortableColumn="impressions">
+          Impressions
+          <p-sortIcon field="impressions" />
+        </th>
+        <th pSortableColumn="clicks">
+          Clicks
+          <p-sortIcon field="clicks" />
+        </th>
+        <th pSortableColumn="gross_revenue">
+          Gross revenue
+          <p-sortIcon field="gross_revenue" />
+        </th>
+        <th pSortableColumn="gross_profit">
+          Gross profit
+          <p-sortIcon field="gross_profit" />
+        </th>
+        <th pSortableColumn="net_profit">
+          Net profit
+          <p-sortIcon field="net_profit" />
+        </th>
+        <th pSortableColumn="created_at">
+          Created At
+          <p-sortIcon field="created_at" />
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-campaign>
+      <tr>
+        <td>{{ campaign.title }}</td>
+        <td>
+          <span class="user-detail-campaigns-status" [attr.data-status]="campaign.status">
+            {{ campaign.status }}
+          </span>
+        </td>
+        <td>{{ campaign.start_date | date: 'dd.MM.yyyy' }}</td>
+        <td>{{ campaign.end_date | date: 'dd.MM.yyyy' }}</td>
+        <td>{{ campaign.budget | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ campaign.currency }}</td>
+        <td>{{ campaign.cpm | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ campaign.epc | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ campaign.ctr | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ campaign.participation | number: '1.0-0' : 'pl' }}</td>
+        <td>{{ campaign.impressions | number: '1.0-0' : 'pl' }}</td>
+        <td>{{ campaign.clicks | number: '1.0-0' : 'pl' }}</td>
+        <td>{{ campaign.gross_revenue | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ campaign.gross_profit | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ campaign.net_profit | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ campaign.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="16">No campaigns found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>

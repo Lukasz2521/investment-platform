@@ -426,3 +426,58 @@ def test_user_cannot_start_campaign_without_documents(
     )
     assert start_response.status_code == 400
     assert start_response.json()["detail"] == crud.DOCUMENTS_MISSING_DETAIL
+
+
+def test_superuser_lists_campaigns_for_user(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    category = crud.create_category(
+        session=db,
+        category_in=CategoryCreate(name=f"user-campaigns-{uuid4().hex[:8]}"),
+    )
+    create_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=superuser_token_headers,
+        json=_campaign_payload(str(category.id), title="Client campaign"),
+    )
+    assert create_response.status_code == 200
+    campaign_id = create_response.json()["id"]
+    _set_user_available_balance(db, settings.EMAIL_TEST_USER, Decimal("1000"))
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
+
+    start_response = client.post(
+        f"{settings.API_V1_STR}/user-campaigns/",
+        headers=normal_user_token_headers,
+        json=_start_payload(campaign_id),
+    )
+    assert start_response.status_code == 200
+    started_id = start_response.json()["id"]
+
+    user = crud.get_user_by_email(session=db, email=settings.EMAIL_TEST_USER)
+    assert user is not None
+
+    forbidden = client.get(
+        f"{settings.API_V1_STR}/user-campaigns/user/{user.id}",
+        headers=normal_user_token_headers,
+    )
+    assert forbidden.status_code == 403
+
+    missing = client.get(
+        f"{settings.API_V1_STR}/user-campaigns/user/{uuid4()}",
+        headers=superuser_token_headers,
+    )
+    assert missing.status_code == 404
+
+    listed = client.get(
+        f"{settings.API_V1_STR}/user-campaigns/user/{user.id}",
+        headers=superuser_token_headers,
+    )
+    assert listed.status_code == 200
+    body = listed.json()
+    assert body["count"] >= 1
+    match = next(item for item in body["data"] if item["id"] == started_id)
+    assert match["campaign"]["title"] == "Client campaign"
+    assert match["user_id"] == str(user.id)

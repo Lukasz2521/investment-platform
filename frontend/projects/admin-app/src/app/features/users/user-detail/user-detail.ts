@@ -10,6 +10,7 @@ import { Tab, TabList, TabPanel, TabPanels, Tabs } from 'primeng/tabs';
 import { getUserDisplayName } from '../../../core/users/utils/user-display.utils';
 import { AppRoutingService } from '../../../core/routing/app-routing.service';
 import { UserDetailAccountDetails } from './account-details/user-detail-account-details';
+import { UserDetailCampaigns } from './campaigns/user-detail-campaigns';
 import { UserDetailDeleteDialog } from './delete-dialog/user-detail-delete-dialog';
 import { UserDetailMakeAdminDialog } from './make-admin-dialog/user-detail-make-admin-dialog';
 import { UserDetailProfile } from './profile/user-detail-profile';
@@ -30,6 +31,7 @@ import { UserDetailsService } from './user-details.service';
     TabPanels,
     Tabs,
     UserDetailAccountDetails,
+    UserDetailCampaigns,
     UserDetailDeleteDialog,
     UserDetailMakeAdminDialog,
     UserDetailProfile,

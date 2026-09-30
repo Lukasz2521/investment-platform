@@ -1,16 +1,17 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
 
 from app import crud
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.models import (
     Account,
     Transaction,
     TransactionStatus,
     TransactionType,
+    User,
     UserCampaignCreate,
     UserCampaignPublic,
     UserCampaignsPublic,
@@ -103,6 +104,34 @@ def read_my_user_campaigns(
     crud.settle_completed_user_campaigns(session=session, user_id=current_user.id)
     rows, total = crud.get_user_campaigns_by_user_id(
         session=session, user_id=current_user.id, skip=skip, limit=limit
+    )
+    return UserCampaignsPublic(
+        data=[crud.to_user_campaign_public(row) for row in rows],
+        count=total,
+    )
+
+
+@router.get(
+    "/user/{user_id}",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=UserCampaignsPublic,
+)
+def read_user_campaigns(
+    session: SessionDep,
+    user_id: uuid.UUID,
+    skip: int = 0,
+    limit: int = 100,
+) -> UserCampaignsPublic:
+    """
+    List campaigns started by a specific user.
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    crud.settle_completed_user_campaigns(session=session, user_id=user_id)
+    rows, total = crud.get_user_campaigns_by_user_id(
+        session=session, user_id=user_id, skip=skip, limit=limit
     )
     return UserCampaignsPublic(
         data=[crud.to_user_campaign_public(row) for row in rows],

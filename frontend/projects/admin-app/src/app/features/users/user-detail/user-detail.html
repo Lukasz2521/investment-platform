@@ -72,7 +72,9 @@
             [account]="currentUser.account"
           />
         </p-tabpanel>
-        <p-tabpanel value="campaigns" />
+        <p-tabpanel value="campaigns">
+          <admin-app-user-detail-campaigns [userId]="currentUser.id" />
+        </p-tabpanel>
         <p-tabpanel value="transactions" />
         <p-tabpanel value="withdraws" />
         <p-tabpanel value="documents" />

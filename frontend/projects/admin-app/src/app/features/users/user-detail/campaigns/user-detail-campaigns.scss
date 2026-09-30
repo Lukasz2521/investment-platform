@@ -1,0 +1,29 @@
+:host {
+  display: block;
+}
+
+.user-detail-campaigns {
+  overflow-x: auto;
+}
+
+.user-detail-campaigns th,
+.user-detail-campaigns td {
+  white-space: nowrap;
+}
+
+.user-detail-campaigns-status {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.user-detail-campaigns-status[data-status='active'] {
+  color: #22c55e;
+}
+
+.user-detail-campaigns-status[data-status='completed'] {
+  color: #64748b;
+}
+
+.user-detail-campaigns-status[data-status='cancelled'] {
+  color: #dc2626;
+}
