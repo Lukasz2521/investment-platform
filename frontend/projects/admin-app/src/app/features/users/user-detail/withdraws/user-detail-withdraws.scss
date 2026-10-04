@@ -1,0 +1,25 @@
+:host {
+  display: block;
+}
+
+.user-detail-withdraws th,
+.user-detail-withdraws td {
+  white-space: nowrap;
+}
+
+.user-detail-withdraws-status {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.user-detail-withdraws-status[data-status='pending'] {
+  color: #d97706;
+}
+
+.user-detail-withdraws-status[data-status='done'] {
+  color: #22c55e;
+}
+
+.user-detail-withdraws-status[data-status='failed'] {
+  color: #dc2626;
+}

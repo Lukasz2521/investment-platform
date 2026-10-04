@@ -390,3 +390,40 @@ def test_admin_completing_pending_withdraw_keeps_funds_deducted(
     db.refresh(account)
     assert account.available_balance == after_deposit - Decimal("30")
     assert account.total_withdraw == before_withdraw + Decimal("30")
+
+
+def test_superuser_lists_user_withdrawals(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+) -> None:
+    me = client.get(f"{settings.API_V1_STR}/users/me", headers=normal_user_token_headers)
+    user_id = me.json()["id"]
+    _create_deposit(
+        client,
+        superuser_token_headers,
+        user_id=user_id,
+        amount="80",
+        status="done",
+    )
+    created = _request_withdraw(client, normal_user_token_headers, amount="25")
+    assert created.status_code == 200
+    withdraw_id = created.json()["id"]
+
+    listed = client.get(
+        f"{settings.API_V1_STR}/transactions/user/{user_id}",
+        headers=superuser_token_headers,
+        params={"transaction_type": "withdraw"},
+    )
+    assert listed.status_code == 200
+    body = listed.json()
+    assert body["count"] >= 1
+    assert all(item["transaction_type"] == "withdraw" for item in body["data"])
+    assert any(item["id"] == withdraw_id for item in body["data"])
+
+    forbidden = client.get(
+        f"{settings.API_V1_STR}/transactions/user/{user_id}",
+        headers=normal_user_token_headers,
+        params={"transaction_type": "withdraw"},
+    )
+    assert forbidden.status_code == 403

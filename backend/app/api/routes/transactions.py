@@ -122,6 +122,7 @@ def get_user_transactions(
     user_id: uuid.UUID,
     skip: int = 0,
     limit: int = 100,
+    transaction_type: TransactionType | None = None,
 ) -> TransactionsPublic:
     """
     Get transactions for a specific user.
@@ -131,7 +132,11 @@ def get_user_transactions(
         raise HTTPException(status_code=404, detail="User not found")
 
     transactions, count = crud.get_transactions_by_user_id(
-        session=session, user_id=user_id, skip=skip, limit=limit
+        session=session,
+        user_id=user_id,
+        skip=skip,
+        limit=limit,
+        transaction_type=transaction_type.value if transaction_type else None,
     )
     data = [TransactionPublic.model_validate(tx) for tx in transactions]
     return TransactionsPublic(data=data, count=count)

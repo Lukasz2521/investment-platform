@@ -1,0 +1,89 @@
+<section class="user-detail-withdraws">
+  <p-table
+    #withdrawsTable
+    [value]="withdraws()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['status', 'transfer', 'holder', 'purpose', 'iban', 'bank', 'description']"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first}-{last} of {totalRecords}"
+  >
+    <ng-template #caption>
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input
+          pInputText
+          type="text"
+          placeholder="Status, Holder, IBAN, Bank"
+          (input)="onSearch($event)"
+        />
+      </p-iconfield>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="amount">
+          Amount
+          <p-sortIcon field="amount" />
+        </th>
+        <th>Currency</th>
+        <th pSortableColumn="status">
+          Status
+          <p-sortIcon field="status" />
+        </th>
+        <th pSortableColumn="transfer">
+          Transfer
+          <p-sortIcon field="transfer" />
+        </th>
+        <th pSortableColumn="holder">
+          Holder
+          <p-sortIcon field="holder" />
+        </th>
+        <th pSortableColumn="purpose">
+          Purpose
+          <p-sortIcon field="purpose" />
+        </th>
+        <th pSortableColumn="iban">
+          IBAN
+          <p-sortIcon field="iban" />
+        </th>
+        <th pSortableColumn="bank">
+          Bank
+          <p-sortIcon field="bank" />
+        </th>
+        <th pSortableColumn="created_at">
+          Created At
+          <p-sortIcon field="created_at" />
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-withdraw>
+      <tr>
+        <td>{{ withdraw.amount | number: '1.2-2' : 'pl' }}</td>
+        <td>€</td>
+        <td>
+          <span class="user-detail-withdraws-status" [attr.data-status]="withdraw.status">
+            {{ withdraw.status }}
+          </span>
+        </td>
+        <td>{{ withdraw.transfer }}</td>
+        <td>{{ withdraw.holder }}</td>
+        <td>{{ withdraw.purpose }}</td>
+        <td>{{ withdraw.iban }}</td>
+        <td>{{ withdraw.bank }}</td>
+        <td>{{ withdraw.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="9">No withdraws found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>

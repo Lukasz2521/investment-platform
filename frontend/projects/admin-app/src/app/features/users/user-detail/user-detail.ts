@@ -15,6 +15,7 @@ import { UserDetailDeleteDialog } from './delete-dialog/user-detail-delete-dialo
 import { UserDetailMakeAdminDialog } from './make-admin-dialog/user-detail-make-admin-dialog';
 import { UserDetailProfile } from './profile/user-detail-profile';
 import { UserDetailProfileBanks } from './profile-banks/user-detail-profile-banks';
+import { UserDetailWithdraws } from './withdraws/user-detail-withdraws';
 import { UserDetailsService } from './user-details.service';
 
 @Component({
@@ -36,6 +37,7 @@ import { UserDetailsService } from './user-details.service';
     UserDetailMakeAdminDialog,
     UserDetailProfile,
     UserDetailProfileBanks,
+    UserDetailWithdraws,
   ],
   providers: [UserDetailsService],
   templateUrl: './user-detail.html',

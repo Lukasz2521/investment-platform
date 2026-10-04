@@ -461,16 +461,16 @@ def get_transactions_by_user_id(
     user_id: uuid.UUID,
     skip: int = 0,
     limit: int = 100,
+    transaction_type: str | None = None,
 ) -> tuple[list[Transaction], int]:
-    count_statement = (
-        select(func.count())
-        .select_from(Transaction)
-        .where(Transaction.user_id == user_id)
-    )
+    filters = [Transaction.user_id == user_id]
+    if transaction_type is not None:
+        filters.append(Transaction.transaction_type == transaction_type)
+    count_statement = select(func.count()).select_from(Transaction).where(*filters)
     count = session.exec(count_statement).one()
     statement = (
         select(Transaction)
-        .where(Transaction.user_id == user_id)
+        .where(*filters)
         .order_by(col(Transaction.created_at).desc())
         .offset(skip)
         .limit(limit)
