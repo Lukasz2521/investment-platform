@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.user-detail-transactions-status {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.user-detail-transactions-status[data-status='pending'] {
+  color: #d97706;
+}
+
+.user-detail-transactions-status[data-status='done'] {
+  color: #22c55e;
+}
+
+.user-detail-transactions-status[data-status='failed'] {
+  color: #dc2626;
+}

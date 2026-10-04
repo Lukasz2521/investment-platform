@@ -15,6 +15,7 @@ import { UserDetailDeleteDialog } from './delete-dialog/user-detail-delete-dialo
 import { UserDetailMakeAdminDialog } from './make-admin-dialog/user-detail-make-admin-dialog';
 import { UserDetailProfile } from './profile/user-detail-profile';
 import { UserDetailProfileBanks } from './profile-banks/user-detail-profile-banks';
+import { UserDetailTransactions } from './transactions/user-detail-transactions';
 import { UserDetailWithdraws } from './withdraws/user-detail-withdraws';
 import { UserDetailsService } from './user-details.service';
 
@@ -37,6 +38,7 @@ import { UserDetailsService } from './user-details.service';
     UserDetailMakeAdminDialog,
     UserDetailProfile,
     UserDetailProfileBanks,
+    UserDetailTransactions,
     UserDetailWithdraws,
   ],
   providers: [UserDetailsService],
@@ -50,14 +52,9 @@ export class UserDetail {
   private readonly userDetailsService = inject(UserDetailsService);
 
   protected readonly user = this.userDetailsService.user;
-  protected readonly transactions = this.userDetailsService.transactions;
 
   protected readonly userDetailsIsLoading = computed(
     () => this.userDetailsService.userIsLoading()
-  );
-
-  protected readonly transactionsIsLoading = computed(
-    () => this.userDetailsService.transactionsIsLoading()
   );
 
   protected readonly pageTitle = computed(() => {
@@ -83,7 +80,6 @@ export class UserDetail {
       }
 
       this.userDetailsService.loadUserDetails(userId);
-      this.userDetailsService.loadUserTransactions(userId);
     });
   }
 
