@@ -17,7 +17,7 @@ import { UsersService } from '../../core/users/services/users.service';
 import { WithdrawDialog } from './withdraw-dialog/withdraw-dialog';
 
 const PAGE_SIZE_OPTIONS = [5, 10, 25] as const;
-const DEFAULT_CURRENCY = 'PLN';
+const DEFAULT_CURRENCY = 'EUR';
 
 function localeForLanguage(language: string): string {
   switch (language) {

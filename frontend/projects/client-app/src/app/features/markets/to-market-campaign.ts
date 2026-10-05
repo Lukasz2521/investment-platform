@@ -55,7 +55,7 @@ export function toMarketCampaign(
     days: campaign.days_count,
     minDays: Math.max(1, Math.floor(toNumber(campaign.min_days, campaign.days_count))),
     minBudget,
-    currency: campaign.currency || 'EUR',
+    currency: 'EUR',
     profitMonthly: economics.netProfitPercent,
     epc,
     cpm,

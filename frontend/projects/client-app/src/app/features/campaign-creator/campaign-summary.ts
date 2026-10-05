@@ -52,7 +52,7 @@ export function buildCampaignSummary(
     endDate: guidelines.endDate,
     durationDays,
     budget,
-    currency: campaign.currency,
+    currency: 'EUR',
     ageMin: guidelines.ageMin,
     ageMax: guidelines.ageMax,
     male: guidelines.male,

@@ -225,7 +225,7 @@ export class CampaignsFormDialog {
       min_days: Number(value.min_days),
       days_count: Number(value.days_count),
       budget: this.parseDecimal(value.budget),
-      currency: value.currency.trim(),
+      currency: 'EUR',
       min_account: value.min_account,
       location,
       cpm_base: this.parseDecimal(value.cpm_base),

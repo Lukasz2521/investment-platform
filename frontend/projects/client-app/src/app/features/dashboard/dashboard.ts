@@ -33,7 +33,7 @@ type ActiveCampaignDeadline = {
 
 const DONUT_CIRCUMFERENCE = 2 * Math.PI * 46;
 const HISTORY_PAGE_SIZE = 20;
-const DASHBOARD_CURRENCY = 'PLN';
+const DASHBOARD_CURRENCY = 'EUR';
 const DASHBOARD_POLL_MS = 10_000;
 
 function localeForLanguage(language: string): string {
