@@ -56,7 +56,7 @@
     </div>
   }
 
-    <p-tabs class="user-detail-tabs" value="profile">
+    <p-tabs class="user-detail-tabs" [value]="activeTab()" (valueChange)="onTabChange($event)">
       <p-tablist>
         <p-tab value="profile">Profile</p-tab>
         <p-tab value="campaigns">Campaigns</p-tab>
@@ -81,7 +81,12 @@
         <p-tabpanel value="withdraws">
           <admin-app-user-detail-withdraws [userId]="currentUser.id" />
         </p-tabpanel>
-        <p-tabpanel value="documents" />
+        <p-tabpanel value="documents">
+          <admin-app-user-detail-documents
+            [userId]="currentUser.id"
+            [tabActive]="activeTab() === 'documents'"
+          />
+        </p-tabpanel>
       </p-tabpanels>
     </p-tabs>
   </p-card>

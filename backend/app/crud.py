@@ -52,6 +52,7 @@ from app.models import (
     UserDocument,
     UserDocumentPublic,
     UserDocumentType,
+    get_datetime_utc,
     UserPublic,
     UserRegister,
     UserUpdate,
@@ -824,18 +825,46 @@ def ensure_user_can_start_campaign(*, session: Session, user: User) -> None:
         raise ValueError(DOCUMENTS_MISSING_DETAIL)
 
 
+def list_uploaded_user_documents(
+    *, session: Session, user_id: uuid.UUID
+) -> list[UserDocument]:
+    rows = session.exec(
+        select(UserDocument).where(UserDocument.user_id == user_id)
+    ).all()
+    order = {item.value: index for index, item in enumerate(REQUIRED_USER_DOCUMENT_TYPES)}
+    return sorted(rows, key=lambda row: order.get(row.document_type, len(order)))
+
+
+def get_user_document(
+    *, session: Session, user_id: uuid.UUID, document_type: UserDocumentType
+) -> UserDocument | None:
+    return session.exec(
+        select(UserDocument).where(
+            UserDocument.user_id == user_id,
+            UserDocument.document_type == document_type.value,
+        )
+    ).first()
+
+
 def list_user_documents(*, session: Session, user_id: uuid.UUID) -> list[UserDocumentPublic]:
     rows = session.exec(
         select(UserDocument).where(UserDocument.user_id == user_id)
     ).all()
-    uploaded = {row.document_type for row in rows}
-    return [
-        UserDocumentPublic(
-            document_type=item.value,
-            uploaded=item.value in uploaded,
+    by_type = {row.document_type: row for row in rows}
+    documents: list[UserDocumentPublic] = []
+    for item in REQUIRED_USER_DOCUMENT_TYPES:
+        row = by_type.get(item.value)
+        display_name = ""
+        if row is not None:
+            display_name = row.original_filename.strip() or row.filename.rsplit("/", 1)[-1]
+        documents.append(
+            UserDocumentPublic(
+                document_type=item.value,
+                uploaded=row is not None,
+                filename=display_name,
+            )
         )
-        for item in REQUIRED_USER_DOCUMENT_TYPES
-    ]
+    return documents
 
 
 def upsert_user_document(
@@ -844,6 +873,7 @@ def upsert_user_document(
     user_id: uuid.UUID,
     document_type: UserDocumentType,
     filename: str,
+    original_filename: str = "",
 ) -> UserDocument:
     existing = session.exec(
         select(UserDocument).where(
@@ -853,6 +883,8 @@ def upsert_user_document(
     ).first()
     if existing:
         existing.filename = filename
+        existing.original_filename = original_filename
+        existing.created_at = get_datetime_utc()
         session.add(existing)
         session.commit()
         session.refresh(existing)
@@ -862,6 +894,7 @@ def upsert_user_document(
         user_id=user_id,
         document_type=document_type.value,
         filename=filename,
+        original_filename=original_filename,
     )
     session.add(row)
     session.commit()

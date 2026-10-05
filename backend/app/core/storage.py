@@ -212,3 +212,30 @@ def delete_user_document_file(stored: str) -> None:
     except ValueError:
         return
     path.unlink(missing_ok=True)
+
+
+def resolve_user_document_path(stored: str) -> Path | None:
+    filename = logo_filename(stored)
+    if not filename or "/" in filename or "\\" in filename or filename.startswith("."):
+        return None
+
+    directory = get_user_documents_dir()
+    path = directory / filename
+    try:
+        path.relative_to(directory)
+    except ValueError:
+        return None
+    if not path.is_file():
+        return None
+    return path
+
+
+def user_document_content_type(filename: str) -> str:
+    return {
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".webp": "image/webp",
+        ".gif": "image/gif",
+        ".pdf": "application/pdf",
+    }.get(Path(filename).suffix.lower(), "application/octet-stream")

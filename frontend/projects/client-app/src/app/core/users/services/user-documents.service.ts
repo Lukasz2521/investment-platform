@@ -14,6 +14,7 @@ export type UserDocumentType =
 export type UserDocumentPublic = {
   document_type: UserDocumentType | string;
   uploaded: boolean;
+  filename?: string;
 };
 
 export type UserDocumentsPublic = {

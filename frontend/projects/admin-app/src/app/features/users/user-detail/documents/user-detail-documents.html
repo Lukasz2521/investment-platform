@@ -1,0 +1,90 @@
+<section class="user-detail-documents">
+  <p-table
+    #documentsTable
+    [value]="documents()"
+    [loading]="loading()"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [globalFilterFields]="['label', 'filename', 'document_type']"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="{first}-{last} of {totalRecords}"
+  >
+    <ng-template #caption>
+      <p-iconfield iconPosition="left">
+        <p-inputicon>
+          <i class="pi pi-search"></i>
+        </p-inputicon>
+        <input pInputText type="text" placeholder="Document" (input)="onSearch($event)" />
+      </p-iconfield>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="label">
+          Document
+          <p-sortIcon field="label" />
+        </th>
+        <th pSortableColumn="filename">
+          File
+          <p-sortIcon field="filename" />
+        </th>
+        <th pSortableColumn="created_at">
+          Added
+          <p-sortIcon field="created_at" />
+        </th>
+        <th>Preview</th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-document>
+      <tr>
+        <td>{{ document.label }}</td>
+        <td>{{ document.filename }}</td>
+        <td>{{ document.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
+        <td>
+          <p-button
+            icon="pi pi-eye"
+            [rounded]="true"
+            [outlined]="true"
+            ariaLabel="Preview document"
+            (onClick)="openPreview(document)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4">No documents found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</section>
+
+<p-dialog
+  [header]="previewTitle()"
+  [visible]="previewVisible()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [dismissableMask]="true"
+  [style]="{ width: '48rem', maxWidth: '95vw' }"
+  (visibleChange)="onPreviewVisibleChange($event)"
+>
+  @if (previewLoading()) {
+    <p class="user-detail-documents-preview-status">Loading document...</p>
+  } @else if (previewError()) {
+    <p class="user-detail-documents-preview-status">Could not load this document.</p>
+  } @else if (previewUrl(); as imageUrl) {
+    <div class="user-detail-documents-preview">
+      @if (previewKind() === 'image') {
+        <img [src]="imageUrl" [alt]="previewTitle()" />
+      } @else if (previewKind() === 'pdf' && previewSrc(); as pdfUrl) {
+        <iframe [src]="pdfUrl" [title]="previewTitle()"></iframe>
+      } @else {
+        <p class="user-detail-documents-preview-status">Preview is not available for this file.</p>
+      }
+    </div>
+  }
+</p-dialog>

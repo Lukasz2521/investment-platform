@@ -153,6 +153,7 @@ class UserDocument(SQLModel, table=True):
     )
     document_type: str = Field(max_length=64, index=True)
     filename: str = Field(max_length=255)
+    original_filename: str = Field(default="", max_length=255)
     created_at: datetime | None = Field(
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
@@ -163,10 +164,22 @@ class UserDocument(SQLModel, table=True):
 class UserDocumentPublic(SQLModel):
     document_type: str
     uploaded: bool
+    filename: str = ""
 
 
 class UserDocumentsPublic(SQLModel):
     data: list[UserDocumentPublic]
+
+
+class AdminUserDocumentPublic(SQLModel):
+    document_type: str
+    filename: str = ""
+    content_type: str
+    created_at: datetime | None = None
+
+
+class AdminUserDocumentsPublic(SQLModel):
+    data: list[AdminUserDocumentPublic]
 
 
 # Shared properties

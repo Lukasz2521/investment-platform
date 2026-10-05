@@ -96,6 +96,7 @@
                 }
               </div>
 
+              <div class="profile-documents-meta">
               <button
                 type="button"
                 class="profile-documents-action"
@@ -152,6 +153,14 @@
                   aria-hidden="true"
                 ></span>
               </button>
+              @if (documentState(doc.id); as state) {
+                @if (state.status === 'uploaded' && state.fileName) {
+                  <span class="profile-documents-filename" [attr.title]="state.fileName">
+                    {{ state.fileName }}
+                  </span>
+                }
+              }
+              </div>
             </li>
           }
         </ul>

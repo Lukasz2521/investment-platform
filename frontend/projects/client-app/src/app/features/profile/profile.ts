@@ -347,7 +347,11 @@ export class Profile implements OnInit, OnDestroy {
           this.setDocumentState(
             id,
             item.uploaded
-              ? { status: 'uploaded', fileName: null, previewUrl: null }
+              ? {
+                  status: 'uploaded',
+                  fileName: item.filename?.trim() || null,
+                  previewUrl: null,
+                }
               : emptyDocumentState(),
           );
         }

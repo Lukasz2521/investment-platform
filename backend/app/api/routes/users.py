@@ -2,7 +2,10 @@ import uuid
 from datetime import timedelta
 from typing import Any
 
+from pathlib import Path
+
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
+from fastapi.responses import FileResponse
 from sqlalchemy.orm import selectinload
 from sqlmodel import col, delete, func, select
 
@@ -17,7 +20,9 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
 from app.core.storage import (
     delete_user_document_file,
+    resolve_user_document_path,
     save_user_document_from_upload,
+    user_document_content_type,
 )
 from app.models import (
     Account,
@@ -36,6 +41,8 @@ from app.models import (
     UserDocumentPublic,
     UserDocumentsPublic,
     UserDocumentType,
+    AdminUserDocumentPublic,
+    AdminUserDocumentsPublic,
     UserLogin,
     UserPublic,
     UserPublicWithAccount,
@@ -187,13 +194,19 @@ def upload_my_document(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    original_filename = Path(file.filename or "").name.replace("\x00", "").strip()[:255]
     crud.upsert_user_document(
         session=session,
         user_id=current_user.id,
         document_type=parsed_type,
         filename=filename,
+        original_filename=original_filename,
     )
-    return UserDocumentPublic(document_type=parsed_type.value, uploaded=True)
+    return UserDocumentPublic(
+        document_type=parsed_type.value,
+        uploaded=True,
+        filename=original_filename,
+    )
 
 
 @router.delete("/me/documents/{document_type}", response_model=Message)
@@ -213,6 +226,70 @@ def delete_my_document(
     if filename:
         delete_user_document_file(filename)
     return Message(message="Document deleted successfully")
+
+
+@router.get(
+    "/{user_id}/documents",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=AdminUserDocumentsPublic,
+)
+def read_user_documents(
+    session: SessionDep,
+    user_id: uuid.UUID,
+) -> AdminUserDocumentsPublic:
+    """
+    List verification documents uploaded by a user.
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    rows = crud.list_uploaded_user_documents(session=session, user_id=user_id)
+    return AdminUserDocumentsPublic(
+        data=[
+            AdminUserDocumentPublic(
+                document_type=row.document_type,
+                filename=row.original_filename.strip() or row.filename.rsplit("/", 1)[-1],
+                content_type=user_document_content_type(row.filename),
+                created_at=row.created_at,
+            )
+            for row in rows
+        ]
+    )
+
+
+@router.get(
+    "/{user_id}/documents/{document_type}/file",
+    dependencies=[Depends(get_current_active_superuser)],
+)
+def read_user_document_file(
+    session: SessionDep,
+    user_id: uuid.UUID,
+    document_type: str,
+) -> FileResponse:
+    """
+    Preview a verification document uploaded by a user.
+    """
+    user = session.get(User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    parsed_type = _parse_document_type(document_type)
+    row = crud.get_user_document(
+        session=session, user_id=user_id, document_type=parsed_type
+    )
+    if not row:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    path = resolve_user_document_path(row.filename)
+    if path is None:
+        raise HTTPException(status_code=404, detail="Document file not found")
+
+    return FileResponse(
+        path,
+        media_type=user_document_content_type(row.filename),
+        content_disposition_type="inline",
+    )
 
 
 @router.delete("/me", response_model=Message)

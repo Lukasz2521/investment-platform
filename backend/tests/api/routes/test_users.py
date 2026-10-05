@@ -550,3 +550,64 @@ def test_delete_user_without_privileges(
     )
     assert r.status_code == 403
     assert r.json()["detail"] == "The user doesn't have enough privileges"
+
+
+MINIMAL_PNG = (
+    b"\x89PNG\r\n\x1a\n"
+    b"\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89"
+    b"\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4"
+    b"\x00\x00\x00\x00IEND\xaeB`\x82"
+)
+
+
+def test_superuser_can_list_and_preview_user_document(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    from app.core.storage import delete_user_document_file, save_user_document_from_bytes
+    from app.models import UserDocumentType
+
+    user = create_random_user(db)
+    filename = save_user_document_from_bytes(MINIMAL_PNG)
+    crud.upsert_user_document(
+        session=db,
+        user_id=user.id,
+        document_type=UserDocumentType.ID_FRONT,
+        filename=filename,
+        original_filename="id-front.png",
+    )
+    try:
+        forbidden = client.get(
+            f"{settings.API_V1_STR}/users/{user.id}/documents",
+            headers=normal_user_token_headers,
+        )
+        assert forbidden.status_code == 403
+
+        listed = client.get(
+            f"{settings.API_V1_STR}/users/{user.id}/documents",
+            headers=superuser_token_headers,
+        )
+        assert listed.status_code == 200
+        body = listed.json()
+        assert len(body["data"]) == 1
+        assert body["data"][0]["document_type"] == "id_front"
+        assert body["data"][0]["filename"] == "id-front.png"
+        assert body["data"][0]["content_type"] == "image/png"
+
+        preview = client.get(
+            f"{settings.API_V1_STR}/users/{user.id}/documents/id_front/file",
+            headers=superuser_token_headers,
+        )
+        assert preview.status_code == 200
+        assert preview.headers["content-type"].startswith("image/png")
+        assert preview.content.startswith(b"\x89PNG")
+
+        missing = client.get(
+            f"{settings.API_V1_STR}/users/{user.id}/documents/id_back/file",
+            headers=superuser_token_headers,
+        )
+        assert missing.status_code == 404
+    finally:
+        delete_user_document_file(filename)

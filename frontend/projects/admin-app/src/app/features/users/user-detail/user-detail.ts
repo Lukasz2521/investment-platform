@@ -12,6 +12,7 @@ import { AppRoutingService } from '../../../core/routing/app-routing.service';
 import { UserDetailAccountDetails } from './account-details/user-detail-account-details';
 import { UserDetailCampaigns } from './campaigns/user-detail-campaigns';
 import { UserDetailDeleteDialog } from './delete-dialog/user-detail-delete-dialog';
+import { UserDetailDocuments } from './documents/user-detail-documents';
 import { UserDetailMakeAdminDialog } from './make-admin-dialog/user-detail-make-admin-dialog';
 import { UserDetailProfile } from './profile/user-detail-profile';
 import { UserDetailProfileBanks } from './profile-banks/user-detail-profile-banks';
@@ -35,6 +36,7 @@ import { UserDetailsService } from './user-details.service';
     UserDetailAccountDetails,
     UserDetailCampaigns,
     UserDetailDeleteDialog,
+    UserDetailDocuments,
     UserDetailMakeAdminDialog,
     UserDetailProfile,
     UserDetailProfileBanks,
@@ -67,6 +69,11 @@ export class UserDetail {
   protected readonly makeAdminSubmitting = signal(false);
   protected readonly deleteDialogVisible = signal(false);
   protected readonly deleteSubmitting = signal(false);
+  protected readonly activeTab = signal('profile');
+
+  protected onTabChange(value: string | number | undefined): void {
+    this.activeTab.set(String(value ?? 'profile'));
+  }
 
   constructor() {
     afterNextRender(() => {

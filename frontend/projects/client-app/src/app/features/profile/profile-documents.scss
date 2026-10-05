@@ -106,8 +106,18 @@
   border-top: 1px solid var(--profile-docs-row-border);
   display: grid;
   gap: 1rem;
-  grid-template-columns: minmax(0, 1.4fr) minmax(11rem, 0.8fr);
+  grid-template-columns: minmax(0, 1.4fr) minmax(14rem, 0.9fr);
   padding: 1rem 0.15rem;
+}
+
+.profile-documents-meta {
+  align-items: flex-end;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  justify-self: end;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .profile-documents-row--disabled {
@@ -150,7 +160,6 @@
   font-weight: 700;
   gap: 0.55rem;
   justify-content: center;
-  justify-self: end;
   letter-spacing: 0.01em;
   min-height: 2.35rem;
   padding: 0.45rem 0.85rem 0.45rem 0.75rem;
@@ -206,6 +215,18 @@
 
 .profile-documents-action-label {
   line-height: 1;
+  white-space: nowrap;
+}
+
+.profile-documents-filename {
+  color: var(--profile-value);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -294,8 +315,13 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .profile-documents-action {
+  .profile-documents-meta {
+    align-items: flex-start;
     justify-self: start;
+  }
+
+  .profile-documents-filename {
+    text-align: left;
   }
 }
 
