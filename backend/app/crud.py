@@ -8,6 +8,12 @@ from sqlmodel import Session, col, func, select
 
 from app.campaigns.economics import estimate_campaign_economics
 from app.campaigns.engine import midpoint
+from app.campaigns.risk import (
+    RiskBaseline,
+    delivery_fraction,
+    natural_baseline,
+    project_risk,
+)
 from app.campaigns.tick import (
     USER_CAMPAIGN_DURATION,
     clamp_campaign_stats,
@@ -622,17 +628,42 @@ def user_campaign_snapshot_metrics(
     return cpm, epc, ctr, row.participation
 
 
-def to_user_campaign_public(row: UserCampaign) -> UserCampaignPublic:
-    if row.campaign is None:
-        raise ValueError("Campaign is required")
+def _risk_baseline(row: UserCampaign) -> RiskBaseline:
+    return RiskBaseline(
+        spent=row.risk_spent or Decimal("0"),
+        impressions=row.risk_impressions or 0,
+        clicks=row.risk_clicks or 0,
+        revenue=row.risk_revenue or Decimal("0"),
+    )
+
+
+def user_campaign_final_economics(row: UserCampaign):
     cpm, epc, ctr, participation = user_campaign_snapshot_metrics(row)
-    economics = estimate_campaign_economics(
+    if row.risk_mode <= 0:
+        return estimate_campaign_economics(
+            budget=row.budget,
+            cpm=cpm,
+            epc=epc,
+            ctr=ctr,
+            participation=participation,
+        )
+    return project_risk(
         budget=row.budget,
         cpm=cpm,
         epc=epc,
         ctr=ctr,
         participation=participation,
+        fraction=Decimal(1),
+        risk_mode=row.risk_mode,
+        baseline=_risk_baseline(row),
     )
+
+
+def to_user_campaign_public(row: UserCampaign) -> UserCampaignPublic:
+    if row.campaign is None:
+        raise ValueError("Campaign is required")
+    cpm, epc, ctr, participation = user_campaign_snapshot_metrics(row)
+    economics = user_campaign_final_economics(row)
     campaign_public = to_campaign_public(row.campaign)
     campaign_public.stats = CampaignStatsPublic(
         cpm=cpm,
@@ -651,6 +682,11 @@ def to_user_campaign_public(row: UserCampaign) -> UserCampaignPublic:
         epc=epc,
         ctr=ctr,
         participation=participation,
+        risk_mode=row.risk_mode,
+        risk_spent=row.risk_spent or Decimal("0"),
+        risk_impressions=row.risk_impressions or 0,
+        risk_clicks=row.risk_clicks or 0,
+        risk_revenue=row.risk_revenue or Decimal("0"),
         impressions=economics.impressions,
         clicks=economics.clicks,
         gross_revenue=economics.gross_revenue,
@@ -698,6 +734,67 @@ def create_user_campaign(
     return loaded
 
 
+def set_user_campaign_risk(
+    *,
+    session: Session,
+    row: UserCampaign,
+    risk_mode: int,
+    now: datetime | None = None,
+) -> UserCampaign:
+    now = now or datetime.now(timezone.utc)
+    if resolve_user_campaign_status(row, now=now) != UserCampaignStatus.ACTIVE:
+        raise ValueError("Risk mode can only be set on an active campaign")
+
+    cpm, epc, ctr, participation = user_campaign_snapshot_metrics(row)
+    fraction = delivery_fraction(row.created_at, row.end_date, now)
+    if risk_mode <= 0:
+        baseline = RiskBaseline(
+            spent=Decimal("0"),
+            impressions=0,
+            clicks=0,
+            revenue=Decimal("0"),
+        )
+        row.risk_mode = 0
+    elif row.risk_mode <= 0:
+        baseline = natural_baseline(
+            budget=row.budget,
+            fraction=fraction,
+            cpm=cpm,
+            epc=epc,
+            ctr=ctr,
+            participation=participation,
+        )
+        row.risk_mode = risk_mode
+    else:
+        current = project_risk(
+            budget=row.budget,
+            cpm=cpm,
+            epc=epc,
+            ctr=ctr,
+            participation=participation,
+            fraction=fraction,
+            risk_mode=row.risk_mode,
+            baseline=_risk_baseline(row),
+        )
+        baseline = RiskBaseline(
+            spent=current.budget,
+            impressions=current.impressions,
+            clicks=current.clicks,
+            revenue=current.gross_revenue,
+        )
+        row.risk_mode = risk_mode
+
+    row.risk_spent = baseline.spent
+    row.risk_impressions = baseline.impressions
+    row.risk_clicks = baseline.clicks
+    row.risk_revenue = baseline.revenue
+    session.add(row)
+    session.commit()
+    loaded = get_user_campaign(session=session, user_campaign_id=row.id)
+    assert loaded is not None
+    return loaded
+
+
 def settle_completed_user_campaigns(
     session: Session,
     *,
@@ -720,14 +817,7 @@ def settle_completed_user_campaigns(
         campaign = row.campaign or session.get(Campaign, row.campaign_id)
         if campaign is not None and row.campaign is None:
             row.campaign = campaign
-        cpm, epc, ctr, participation = user_campaign_snapshot_metrics(row)
-        economics = estimate_campaign_economics(
-            budget=row.budget,
-            cpm=cpm,
-            epc=epc,
-            ctr=ctr,
-            participation=participation,
-        )
+        economics = user_campaign_final_economics(row)
         account = session.exec(
             select(Account)
             .where(Account.user_id == row.user_id)

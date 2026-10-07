@@ -3,7 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { UserCampaignsPublic } from '../models/user-campaign.model';
+import { UserCampaignPublic, UserCampaignsPublic } from '../models/user-campaign.model';
 
 @Injectable({ providedIn: 'root' })
 export class UserCampaignsService {
@@ -15,6 +15,13 @@ export class UserCampaignsService {
     return this.http.get<UserCampaignsPublic>(
       `${environment.apiUrl}/user-campaigns/user/${userId}`,
       { params },
+    );
+  }
+
+  setRiskMode(userCampaignId: string, riskMode: number): Observable<UserCampaignPublic> {
+    return this.http.patch<UserCampaignPublic>(
+      `${environment.apiUrl}/user-campaigns/${userCampaignId}/risk-mode`,
+      { risk_mode: riskMode },
     );
   }
 }

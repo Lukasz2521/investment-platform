@@ -22,6 +22,13 @@
           (input)="onSearch($event)"
         />
       </p-iconfield>
+      <p class="user-detail-campaigns-risk-hint">
+        Risk mode steers the final result. 1 ends at 99% of the budget, 100 at 0, 101 at 101%.
+        Revenue already earned stays.
+      </p>
+      @if (riskError()) {
+        <p class="user-detail-campaigns-risk-error">{{ riskError() }}</p>
+      }
     </ng-template>
 
     <ng-template #header>
@@ -34,6 +41,7 @@
           Status
           <p-sortIcon field="status" />
         </th>
+        <th>Risk mode</th>
         <th pSortableColumn="start_date">
           Start
           <p-sortIcon field="start_date" />
@@ -98,6 +106,29 @@
             {{ campaign.status }}
           </span>
         </td>
+        <td>
+          <div class="user-detail-campaigns-risk">
+            <input
+              pInputText
+              type="number"
+              min="0"
+              max="10000"
+              step="1"
+              [value]="riskDrafts()[campaign.id]"
+              [disabled]="campaign.status !== 'active' || savingId() === campaign.id"
+              [attr.aria-label]="'Risk mode for ' + campaign.title"
+              (input)="onRiskInput(campaign.id, $event)"
+            />
+            <p-button
+              label="Save"
+              size="small"
+              [outlined]="true"
+              [disabled]="campaign.status !== 'active' || savingId() === campaign.id"
+              (onClick)="saveRisk(campaign)"
+            />
+            <span class="user-detail-campaigns-risk-target">{{ campaign.riskTarget }}</span>
+          </div>
+        </td>
         <td>{{ campaign.start_date | date: 'dd.MM.yyyy' }}</td>
         <td>{{ campaign.end_date | date: 'dd.MM.yyyy' }}</td>
         <td>{{ campaign.budget | number: '1.2-2' : 'pl' }}</td>
@@ -106,18 +137,18 @@
         <td>{{ campaign.epc | number: '1.2-2' : 'pl' }}</td>
         <td>{{ campaign.ctr | number: '1.2-2' : 'pl' }}</td>
         <td>{{ campaign.participation | number: '1.0-0' : 'pl' }}</td>
-        <td>{{ campaign.impressions | number: '1.0-0' : 'pl' }}</td>
-        <td>{{ campaign.clicks | number: '1.0-0' : 'pl' }}</td>
-        <td>{{ campaign.gross_revenue | number: '1.2-2' : 'pl' }}</td>
-        <td>{{ campaign.gross_profit | number: '1.2-2' : 'pl' }}</td>
-        <td>{{ campaign.net_profit | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ liveById()[campaign.id]?.impressions | number: '1.0-0' : 'pl' }}</td>
+        <td>{{ liveById()[campaign.id]?.clicks | number: '1.0-0' : 'pl' }}</td>
+        <td>{{ liveById()[campaign.id]?.revenue | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ liveById()[campaign.id]?.grossProfit | number: '1.2-2' : 'pl' }}</td>
+        <td>{{ liveById()[campaign.id]?.netProfit | number: '1.2-2' : 'pl' }}</td>
         <td>{{ campaign.created_at | date: 'dd.MM.yyyy, HH:mm:ss' }}</td>
       </tr>
     </ng-template>
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="16">No campaigns found.</td>
+        <td colspan="17">No campaigns found.</td>
       </tr>
     </ng-template>
   </p-table>

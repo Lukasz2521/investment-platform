@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Optional
 
 from pydantic import ConfigDict, EmailStr, field_validator, model_validator
-from sqlalchemy import Column, Date, DateTime, Numeric, UniqueConstraint
+from sqlalchemy import Column, Date, DateTime, Integer, Numeric, UniqueConstraint
 from sqlalchemy import Enum as SAEnum
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
@@ -652,6 +652,26 @@ class UserCampaign(SQLModel, table=True):
         default=None, sa_column=Column(Numeric(18, 4), nullable=True)
     )
     participation: int = Field(default=18, ge=0, le=100)
+    risk_mode: int = Field(
+        default=0,
+        sa_column=Column(Integer, nullable=False, server_default="0"),
+    )
+    risk_spent: Decimal = Field(
+        default=Decimal("0"),
+        sa_column=Column(Numeric(18, 4), nullable=False, server_default="0"),
+    )
+    risk_impressions: int = Field(
+        default=0,
+        sa_column=Column(Integer, nullable=False, server_default="0"),
+    )
+    risk_clicks: int = Field(
+        default=0,
+        sa_column=Column(Integer, nullable=False, server_default="0"),
+    )
+    risk_revenue: Decimal = Field(
+        default=Decimal("0"),
+        sa_column=Column(Numeric(18, 4), nullable=False, server_default="0"),
+    )
     settled_at: datetime | None = Field(
         default=None,
         sa_type=DateTime(timezone=True),  # type: ignore
@@ -678,6 +698,10 @@ class UserCampaignCreate(SQLModel):
     budget: Decimal = Field(gt=0)
 
 
+class UserCampaignRiskUpdate(SQLModel):
+    risk_mode: int = Field(ge=0, le=10_000)
+
+
 class UserCampaignPublic(SQLModel):
     id: uuid.UUID
     user_id: uuid.UUID
@@ -689,6 +713,11 @@ class UserCampaignPublic(SQLModel):
     epc: Decimal
     ctr: Decimal
     participation: int
+    risk_mode: int = 0
+    risk_spent: Decimal = Decimal("0")
+    risk_impressions: int = 0
+    risk_clicks: int = 0
+    risk_revenue: Decimal = Decimal("0")
     impressions: int
     clicks: int
     gross_revenue: Decimal

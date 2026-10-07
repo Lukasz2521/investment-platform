@@ -13,6 +13,11 @@ export type MyCampaign = MarketCampaign & {
   grossProfit?: number;
   netProfit?: number;
   participation?: number;
+  riskMode?: number;
+  riskSpent?: number;
+  riskImpressions?: number;
+  riskClicks?: number;
+  riskRevenue?: number;
 };
 
 export type MyCampaignTab = {

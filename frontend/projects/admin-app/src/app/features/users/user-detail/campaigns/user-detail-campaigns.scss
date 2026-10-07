@@ -27,3 +27,27 @@
 .user-detail-campaigns-status[data-status='cancelled'] {
   color: #dc2626;
 }
+
+.user-detail-campaigns-risk-hint,
+.user-detail-campaigns-risk-error {
+  margin: 0.75rem 0 0;
+}
+
+.user-detail-campaigns-risk-error {
+  color: #dc2626;
+}
+
+.user-detail-campaigns-risk {
+  align-items: center;
+  display: flex;
+  gap: 0.4rem;
+}
+
+.user-detail-campaigns-risk input {
+  width: 5.5rem;
+}
+
+.user-detail-campaigns-risk-target {
+  color: #64748b;
+  font-size: 0.75rem;
+}

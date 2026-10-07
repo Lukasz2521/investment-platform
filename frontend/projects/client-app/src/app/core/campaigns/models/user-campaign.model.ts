@@ -13,6 +13,11 @@ export type UserCampaignPublic = {
   epc: string;
   ctr: string;
   participation: number;
+  risk_mode: number;
+  risk_spent: string;
+  risk_impressions: number;
+  risk_clicks: number;
+  risk_revenue: string;
   impressions: number;
   clicks: number;
   gross_revenue: string;

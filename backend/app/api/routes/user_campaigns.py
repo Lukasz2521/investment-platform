@@ -14,6 +14,7 @@ from app.models import (
     User,
     UserCampaignCreate,
     UserCampaignPublic,
+    UserCampaignRiskUpdate,
     UserCampaignsPublic,
 )
 
@@ -154,3 +155,31 @@ def read_my_user_campaign(
     if not row or row.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Campaign not found")
     return crud.to_user_campaign_public(row)
+
+
+@router.patch(
+    "/{user_campaign_id}/risk-mode",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=UserCampaignPublic,
+)
+def update_user_campaign_risk_mode(
+    *,
+    session: SessionDep,
+    user_campaign_id: uuid.UUID,
+    body: UserCampaignRiskUpdate,
+) -> UserCampaignPublic:
+    """
+    Steer the final result of a client's active campaign.
+    """
+    row = crud.get_user_campaign(session=session, user_campaign_id=user_campaign_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Campaign not found")
+    try:
+        updated = crud.set_user_campaign_risk(
+            session=session,
+            row=row,
+            risk_mode=body.risk_mode,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return crud.to_user_campaign_public(updated)

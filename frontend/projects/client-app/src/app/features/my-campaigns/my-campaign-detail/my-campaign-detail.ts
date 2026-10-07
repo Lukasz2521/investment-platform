@@ -71,6 +71,11 @@ export class MyCampaignDetail {
         epc: campaign.epc,
         ctr: campaign.ctr,
         participation: campaign.participation ?? 0,
+        riskMode: campaign.riskMode ?? 0,
+        riskSpent: campaign.riskSpent ?? 0,
+        riskImpressions: campaign.riskImpressions ?? 0,
+        riskClicks: campaign.riskClicks ?? 0,
+        riskRevenue: campaign.riskRevenue ?? 0,
       },
       this.now(),
     );

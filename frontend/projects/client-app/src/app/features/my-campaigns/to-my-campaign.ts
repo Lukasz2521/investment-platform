@@ -60,5 +60,10 @@ export function toMyCampaign(enrollment: UserCampaignPublic, categoryName: strin
     grossProfit: Number(enrollment.gross_profit) || economics.grossProfit,
     netProfit: Number(enrollment.net_profit) || economics.netProfit,
     participation: enrollment.participation,
+    riskMode: enrollment.risk_mode ?? 0,
+    riskSpent: Number(enrollment.risk_spent) || 0,
+    riskImpressions: enrollment.risk_impressions ?? 0,
+    riskClicks: enrollment.risk_clicks ?? 0,
+    riskRevenue: Number(enrollment.risk_revenue) || 0,
   };
 }
