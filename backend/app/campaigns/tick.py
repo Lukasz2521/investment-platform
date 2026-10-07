@@ -74,6 +74,7 @@ def run_tick(session: Session, *, now: datetime | None = None) -> int:
     campaigns = session.exec(
         select(Campaign)
         .options(selectinload(Campaign.stats))
+        .where(col(Campaign.deleted_at).is_(None))
         .order_by(col(Campaign.created_at).asc(), col(Campaign.id).asc())
     ).all()
 

@@ -450,6 +450,10 @@ class Campaign(SQLModel, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
+    deleted_at: datetime | None = Field(
+        default=None,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
     location: list[str] = Field(
         default_factory=list,
         sa_column=Column(JSONB, nullable=False),

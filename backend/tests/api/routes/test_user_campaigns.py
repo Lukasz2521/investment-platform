@@ -10,12 +10,20 @@ from app.core.config import settings
 from app.models import (
     Account,
     AccountType,
+    Campaign,
     Category,
     CategoryCreate,
     UserCampaign,
     UserDocument,
     REQUIRED_USER_DOCUMENT_TYPES,
 )
+
+
+def _purge_campaign(db: Session, campaign_id: str) -> None:
+    campaign = db.get(Campaign, UUID(campaign_id))
+    if campaign is not None:
+        db.delete(campaign)
+        db.commit()
 
 
 def _campaign_payload(category_id: str, title: str = "User campaign source") -> dict[str, object]:
@@ -181,6 +189,38 @@ def test_user_can_start_and_list_campaigns(
         headers=superuser_token_headers,
     )
     assert delete_response.status_code == 200
+
+    market_response = client.get(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=normal_user_token_headers,
+    )
+    assert market_response.status_code == 200
+    assert all(item["id"] != campaign_id for item in market_response.json()["data"])
+
+    hidden_response = client.get(
+        f"{settings.API_V1_STR}/campaigns/{campaign_id}",
+        headers=normal_user_token_headers,
+    )
+    assert hidden_response.status_code == 404
+
+    restart_response = client.post(
+        f"{settings.API_V1_STR}/user-campaigns/",
+        headers=normal_user_token_headers,
+        json=start_payload,
+    )
+    assert restart_response.status_code == 404
+
+    history_response = client.get(
+        f"{settings.API_V1_STR}/user-campaigns/",
+        headers=normal_user_token_headers,
+    )
+    assert history_response.status_code == 200
+    history = next(
+        item for item in history_response.json()["data"] if item["id"] == started["id"]
+    )
+    assert history["campaign"]["title"] == "User campaign source"
+
+    _purge_campaign(db, campaign_id)
     db_category = db.get(Category, category.id)
     if db_category is not None:
         db.delete(db_category)
@@ -226,6 +266,7 @@ def test_user_cannot_start_campaign_without_sufficient_funds(
         headers=superuser_token_headers,
     )
     assert delete_response.status_code == 200
+    _purge_campaign(db, campaign_id)
     db_category = db.get(Category, category.id)
     if db_category is not None:
         db.delete(db_category)
@@ -341,6 +382,7 @@ def test_user_campaign_freezes_metrics_and_settles_profit(
         headers=superuser_token_headers,
     )
     assert delete_response.status_code == 200
+    _purge_campaign(db, campaign_id)
     db_category = db.get(Category, category.id)
     if db_category is not None:
         db.delete(db_category)

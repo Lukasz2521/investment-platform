@@ -1,12 +1,19 @@
 from decimal import Decimal
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 from fastapi.testclient import TestClient
 from sqlmodel import Session
 
 from app import crud
 from app.core.config import settings
-from app.models import AccountType, Category, CategoryCreate
+from app.models import AccountType, Campaign, Category, CategoryCreate
+
+
+def _purge_campaign(db: Session, campaign_id: str) -> None:
+    campaign = db.get(Campaign, UUID(campaign_id))
+    if campaign is not None:
+        db.delete(campaign)
+        db.commit()
 
 
 def test_read_campaign_metric_ticks(
@@ -60,6 +67,7 @@ def test_read_campaign_metric_ticks(
         headers=superuser_token_headers,
     )
     assert delete_response.status_code == 200
+    _purge_campaign(db, campaign_id)
     db_category = db.get(Category, category.id)
     if db_category is not None:
         db.delete(db_category)
@@ -142,6 +150,17 @@ def test_normal_user_can_read_campaigns(
         headers=superuser_token_headers,
     )
     assert delete_response.status_code == 200
+    hidden = client.get(
+        f"{settings.API_V1_STR}/campaigns/{campaign_id}",
+        headers=normal_user_token_headers,
+    )
+    assert hidden.status_code == 404
+    listed = client.get(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=normal_user_token_headers,
+    )
+    assert all(item["id"] != campaign_id for item in listed.json()["data"])
+    _purge_campaign(db, campaign_id)
     db_category = db.get(Category, category.id)
     if db_category is not None:
         db.delete(db_category)
@@ -192,7 +211,9 @@ def test_superuser_can_upload_and_delete_campaign_mp4(
         headers=superuser_token_headers,
     )
     assert delete_response.status_code == 200
-    assert not video_path.exists()
+    assert video_path.is_file()
+    video_path.unlink()
+    _purge_campaign(db, campaign_id)
     db_category = db.get(Category, category.id)
     if db_category is not None:
         db.delete(db_category)

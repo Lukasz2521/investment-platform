@@ -18,6 +18,7 @@ from app.models import (
     CampaignUpdate,
     Category,
     Message,
+    get_datetime_utc,
 )
 
 router = APIRouter(prefix="/campaigns", tags=["campaigns"])
@@ -175,10 +176,9 @@ def delete_campaign(
     Delete a campaign. Superuser only.
     """
     campaign = session.get(Campaign, campaign_id)
-    if not campaign:
+    if not campaign or campaign.deleted_at is not None:
         raise HTTPException(status_code=404, detail="Campaign not found")
-    video_filename = campaign.video_url
-    session.delete(campaign)
+    campaign.deleted_at = get_datetime_utc()
+    session.add(campaign)
     session.commit()
-    delete_campaign_video(video_filename)
     return Message(message="Campaign deleted successfully")

@@ -174,11 +174,13 @@ def create_campaign(*, session: Session, campaign_in: CampaignCreate) -> Campaig
 def get_campaigns(
     *, session: Session, skip: int = 0, limit: int = 100
 ) -> tuple[list[Campaign], int]:
-    count_statement = select(func.count()).select_from(Campaign)
+    visible = col(Campaign.deleted_at).is_(None)
+    count_statement = select(func.count()).select_from(Campaign).where(visible)
     count = session.exec(count_statement).one()
     statement = (
         select(Campaign)
         .options(selectinload(Campaign.stats))
+        .where(visible)
         .order_by(col(Campaign.created_at).desc())
         .offset(skip)
         .limit(limit)
@@ -191,7 +193,7 @@ def get_campaign(*, session: Session, campaign_id: uuid.UUID) -> Campaign | None
     statement = (
         select(Campaign)
         .options(selectinload(Campaign.stats))
-        .where(Campaign.id == campaign_id)
+        .where(Campaign.id == campaign_id, col(Campaign.deleted_at).is_(None))
     )
     return session.exec(statement).first()
 
