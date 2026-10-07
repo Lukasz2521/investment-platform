@@ -22,10 +22,6 @@
           (input)="onSearch($event)"
         />
       </p-iconfield>
-      <p class="user-detail-campaigns-risk-hint">
-        Risk mode steers the final result. 1 ends at 99% of the budget, 100 at 0, 101 at 101%.
-        Revenue already earned stays.
-      </p>
       @if (riskError()) {
         <p class="user-detail-campaigns-risk-error">{{ riskError() }}</p>
       }
