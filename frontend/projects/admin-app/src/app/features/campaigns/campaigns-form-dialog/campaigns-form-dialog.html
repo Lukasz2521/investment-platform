@@ -76,12 +76,41 @@
           />
         </label>
 
-        <label class="campaigns-form-dialog-field">
+        <div class="campaigns-form-dialog-field">
           <span class="campaigns-form-dialog-label"
             >Location<span class="campaigns-form-dialog-required">*</span></span
           >
-          <input pInputText type="text" formControlName="location" placeholder="PL, DE, FR" />
-        </label>
+          <p-autocomplete
+            formControlName="location"
+            inputId="campaign-location"
+            [multiple]="true"
+            [dropdown]="true"
+            [forceSelection]="true"
+            [completeOnFocus]="true"
+            [minLength]="0"
+            [suggestions]="locationSuggestions()"
+            (completeMethod)="filterCountries($event)"
+            optionLabel="name"
+            dataKey="code"
+            placeholder="Search country"
+            scrollHeight="16rem"
+            appendTo="body"
+            styleClass="campaigns-form-dialog-location"
+            [unique]="true"
+          >
+            <ng-template #item let-country>
+              <span class="campaigns-form-dialog-location-option">
+                <span>{{ country.name }}</span>
+                <span>{{ country.code }}</span>
+              </span>
+            </ng-template>
+          </p-autocomplete>
+          @if (form.controls.location.value.length) {
+            <span class="campaigns-form-dialog-location-codes">{{
+              form.controls.location.value.map((country) => country.code).join(', ')
+            }}</span>
+          }
+        </div>
       </div>
 
       <div class="campaigns-form-dialog-column">

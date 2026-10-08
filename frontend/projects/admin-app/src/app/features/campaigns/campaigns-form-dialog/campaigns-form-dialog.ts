@@ -1,12 +1,18 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { Observable, of, switchMap } from 'rxjs';
 
+import {
+  CAMPAIGN_COUNTRIES,
+  CampaignCountry,
+  campaignCountryFromCode,
+} from '../../../core/campaigns/campaign-countries';
 import { CampaignCreate, CampaignPublic } from '../../../core/campaigns/models/campaign.model';
 import { CategoryPublic } from '../../../core/campaigns/models/category.model';
 import { CampaignsService } from '../../../core/campaigns/services/campaigns.service';
@@ -20,7 +26,7 @@ const MAX_VIDEO_BYTES = 15 * 1024 * 1024;
 
 @Component({
   selector: 'admin-app-campaigns-form-dialog',
-  imports: [ReactiveFormsModule, Dialog, Button, InputText, Select],
+  imports: [ReactiveFormsModule, Dialog, Button, InputText, Select, AutoComplete],
   templateUrl: './campaigns-form-dialog.html',
   styleUrl: './campaigns-form-dialog.scss',
 })
@@ -37,6 +43,8 @@ export class CampaignsFormDialog {
   protected readonly submitting = signal(false);
   protected readonly submitError = signal<string | null>(null);
   protected readonly accountTypeOptions = [...ACCOUNT_TYPE_OPTIONS];
+  protected readonly countryOptions = CAMPAIGN_COUNTRIES;
+  protected readonly locationSuggestions = signal<CampaignCountry[]>(CAMPAIGN_COUNTRIES);
   protected readonly videoPreviewUrl = signal<string | null>(null);
   protected readonly videoRemoved = signal(false);
   protected readonly videoFileName = signal<string | null>(null);
@@ -73,7 +81,7 @@ export class CampaignsFormDialog {
     budget: ['200', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(200)]],
     currency: ['EUR', [Validators.required, Validators.pattern(/\S+/)]],
     min_account: [AccountType.Fundamental, Validators.required],
-    location: ['', [Validators.required, Validators.pattern(/\S+/)]],
+    location: [[] as CampaignCountry[], Validators.required],
     cpm_base: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN)]],
     cpm_min: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN)]],
     cpm_max: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN)]],
@@ -209,10 +217,7 @@ export class CampaignsFormDialog {
       return null;
     }
 
-    const location = value.location
-      .split(',')
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0);
+    const location = value.location.map((country) => country.code).filter((code) => code.length > 0);
 
     if (!location.length) {
       this.submitError.set('Add at least one location.');
@@ -282,6 +287,18 @@ export class CampaignsFormDialog {
     return file.name.toLowerCase().endsWith('.mp4');
   }
 
+  protected filterCountries(event: AutoCompleteCompleteEvent): void {
+    const query = event.query.trim().toLowerCase();
+    this.locationSuggestions.set(
+      this.countryOptions.filter(
+        (country) =>
+          !query ||
+          country.name.toLowerCase().includes(query) ||
+          country.code.toLowerCase().includes(query),
+      ),
+    );
+  }
+
   private patchFormFromCampaign(campaign: CampaignPublic): void {
     this.form.reset({
       title: campaign.title,
@@ -291,7 +308,7 @@ export class CampaignsFormDialog {
       budget: this.toFormNumber(campaign.budget),
       currency: campaign.currency,
       min_account: campaign.min_account,
-      location: campaign.location.join(', '),
+      location: campaign.location.map((code) => campaignCountryFromCode(code)),
       cpm_base: this.toFormNumber(campaign.cpm_base),
       cpm_min: this.toFormNumber(campaign.cpm_min),
       cpm_max: this.toFormNumber(campaign.cpm_max),
@@ -314,7 +331,7 @@ export class CampaignsFormDialog {
       budget: '200',
       currency: 'EUR',
       min_account: AccountType.Fundamental,
-      location: '',
+      location: [],
       cpm_base: '0',
       cpm_min: '0',
       cpm_max: '0',

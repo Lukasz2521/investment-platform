@@ -2,8 +2,27 @@
   border: 1px solid var(--p-primary-color, #0b2d52);
 }
 
-:host ::ng-deep .campaigns-form-dialog .p-select {
+:host ::ng-deep .campaigns-form-dialog .p-select,
+:host ::ng-deep .campaigns-form-dialog-location {
   width: 100%;
+}
+
+.campaigns-form-dialog-location-option {
+  align-items: center;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.campaigns-form-dialog-location-option span:last-child,
+.campaigns-form-dialog-location-codes {
+  color: var(--p-text-muted-color, #6c757d);
+  font-size: 0.8125rem;
+}
+
+.campaigns-form-dialog-location-codes {
+  margin: 0;
 }
 
 .campaigns-form-dialog-form {
