@@ -1,4 +1,6 @@
+import { DecimalPipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { Component, computed, effect, inject, input, model, output, signal, untracked } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
@@ -6,7 +8,7 @@ import { Button } from 'primeng/button';
 import { Dialog } from 'primeng/dialog';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, of, startWith, switchMap } from 'rxjs';
 
 import {
   CAMPAIGN_COUNTRIES,
@@ -26,7 +28,7 @@ const MAX_VIDEO_BYTES = 15 * 1024 * 1024;
 
 @Component({
   selector: 'admin-app-campaigns-form-dialog',
-  imports: [ReactiveFormsModule, Dialog, Button, InputText, Select, AutoComplete],
+  imports: [DecimalPipe, ReactiveFormsModule, Dialog, Button, InputText, Select, AutoComplete],
   templateUrl: './campaigns-form-dialog.html',
   styleUrl: './campaigns-form-dialog.scss',
 })
@@ -91,6 +93,12 @@ export class CampaignsFormDialog {
     ctr_max: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
     video_url: [''],
   });
+
+  private readonly formSnapshot = toSignal(this.form.valueChanges.pipe(startWith(this.form.getRawValue())), {
+    initialValue: this.form.getRawValue(),
+  });
+
+  protected readonly profitPreview = computed(() => previewCampaignProfit(this.formSnapshot()));
 
   constructor() {
     effect(() => {
@@ -364,4 +372,98 @@ export class CampaignsFormDialog {
   private toFormNumber(value: string | number): string {
     return String(value);
   }
+}
+
+type CampaignProfitFields = {
+  budget: string;
+  min_days: string;
+  cpm_base: string;
+  cpm_min: string;
+  cpm_max: string;
+  epc_min: string;
+  epc_max: string;
+  ctr_min: string;
+  ctr_max: string;
+};
+
+export type CampaignProfitPreview = {
+  minDays: number;
+  grossProfit: number;
+  roiPercent: number;
+  perDay: number;
+  lowProfit: number;
+  highProfit: number;
+};
+
+function previewCampaignProfit(
+  value: Partial<CampaignProfitFields> | null | undefined,
+): CampaignProfitPreview | null {
+  if (!value) {
+    return null;
+  }
+
+  const budget = readDecimal(value.budget);
+  const minDays = readDecimal(value.min_days);
+  const cpmBase = readDecimal(value.cpm_base);
+  const cpmMin = readDecimal(value.cpm_min);
+  const cpmMax = readDecimal(value.cpm_max);
+  const epcMin = readDecimal(value.epc_min);
+  const epcMax = readDecimal(value.epc_max);
+  const ctrMin = readDecimal(value.ctr_min);
+  const ctrMax = readDecimal(value.ctr_max);
+
+  if (
+    budget === null ||
+    minDays === null ||
+    cpmBase === null ||
+    cpmMin === null ||
+    cpmMax === null ||
+    epcMin === null ||
+    epcMax === null ||
+    ctrMin === null ||
+    ctrMax === null ||
+    budget <= 0 ||
+    minDays < 1 ||
+    cpmBase <= 0 ||
+    cpmMin <= 0 ||
+    cpmMax <= 0
+  ) {
+    return null;
+  }
+
+  const grossProfit = campaignGrossProfit(budget, cpmBase, (epcMin + epcMax) / 2, (ctrMin + ctrMax) / 2);
+  const low = campaignGrossProfit(budget, cpmMax, epcMin, ctrMin);
+  const high = campaignGrossProfit(budget, cpmMin, epcMax, ctrMax);
+  if (grossProfit === null || low === null || high === null) {
+    return null;
+  }
+
+  return {
+    minDays,
+    grossProfit,
+    roiPercent: roundMoney((grossProfit / budget) * 100),
+    perDay: roundMoney(grossProfit / minDays),
+    lowProfit: Math.min(low, high),
+    highProfit: Math.max(low, high),
+  };
+}
+
+function campaignGrossProfit(budget: number, cpm: number, epc: number, ctr: number): number | null {
+  if (cpm <= 0) {
+    return null;
+  }
+
+  const impressions = Math.trunc(roundMoney(budget / cpm) * 1000);
+  const clicks = Math.trunc(impressions * (ctr / 100));
+  const revenue = roundMoney(clicks * epc);
+  return roundMoney(revenue - budget);
+}
+
+function readDecimal(value: string | null | undefined): number | null {
+  const parsed = Number(String(value ?? '').trim().replace(',', '.'));
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function roundMoney(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
 }

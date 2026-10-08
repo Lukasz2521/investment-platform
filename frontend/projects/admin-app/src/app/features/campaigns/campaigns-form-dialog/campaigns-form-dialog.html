@@ -203,6 +203,37 @@
       </div>
     </div>
 
+    <aside class="campaigns-form-dialog-profit" aria-live="polite">
+      <h3>Estimated profit</h3>
+      @if (profitPreview(); as preview) {
+        <p>
+          Minimum budget spent over {{ preview.minDays }} days. Uses CPM base and the middle of the
+          CTR and EPC ranges.
+        </p>
+        <dl>
+          <div>
+            <dt>Gross profit</dt>
+            <dd>{{ preview.grossProfit | number: '1.2-2' : 'pl' }} €</dd>
+          </div>
+          <div>
+            <dt>ROI</dt>
+            <dd>{{ preview.roiPercent | number: '1.2-2' : 'pl' }}%</dd>
+          </div>
+          <div>
+            <dt>Per day</dt>
+            <dd>{{ preview.perDay | number: '1.2-2' : 'pl' }} €</dd>
+          </div>
+        </dl>
+        <p>
+          Across CPM, CTR and EPC limits:
+          {{ preview.lowProfit | number: '1.2-2' : 'pl' }} € to
+          {{ preview.highProfit | number: '1.2-2' : 'pl' }} €.
+        </p>
+      } @else {
+        <p>Enter the budget, minimum days, CPM, CTR and EPC to see the profit.</p>
+      }
+    </aside>
+
     @if (submitError(); as error) {
       <p class="campaigns-form-dialog-error" role="alert">{{ error }}</p>
     }

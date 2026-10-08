@@ -64,6 +64,45 @@
   margin: 0;
 }
 
+.campaigns-form-dialog-profit {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+}
+
+.campaigns-form-dialog-profit h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.campaigns-form-dialog-profit p {
+  color: var(--p-text-muted-color, #64748b);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.campaigns-form-dialog-profit dl {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+}
+
+.campaigns-form-dialog-profit dt {
+  color: var(--p-text-muted-color, #64748b);
+  font-size: 0.75rem;
+}
+
+.campaigns-form-dialog-profit dd {
+  font-size: 1.125rem;
+  font-weight: 650;
+  margin: 0.15rem 0 0;
+}
+
 .campaigns-form-dialog-footer {
   display: flex;
   gap: 0.75rem;
