@@ -3,7 +3,7 @@ import { catchError, EMPTY, finalize, take, tap } from 'rxjs';
 
 import { TransactionPublic } from '../../../core/transactions/models/transaction.model';
 import { TransactionsService } from '../../../core/transactions/services/transactions.service';
-import { UserPublic } from '../../../core/users/models/user.model';
+import { AccountUpdate, UserPublic } from '../../../core/users/models/user.model';
 import { UsersService } from '../../../core/users/services/users.service';
 
 const DEFAULT_USER: UserPublic = {
@@ -66,6 +66,27 @@ export class UserDetailsService {
           return EMPTY;
         }),
         finalize(() => this.transactionsIsLoading.set(false)),
+      )
+      .subscribe();
+  }
+
+  updateAccount(
+    userId: string,
+    account: AccountUpdate,
+    callbacks: { onSuccess: () => void; onError: () => void },
+  ): void {
+    this.usersService
+      .updateAccount(userId, account)
+      .pipe(
+        take(1),
+        tap((updated) => {
+          this.user.update((current) => ({ ...current, account: updated }));
+          callbacks.onSuccess();
+        }),
+        catchError(() => {
+          callbacks.onError();
+          return EMPTY;
+        }),
       )
       .subscribe();
   }

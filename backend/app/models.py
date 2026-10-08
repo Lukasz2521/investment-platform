@@ -405,6 +405,20 @@ class AccountType(str, Enum):
     DOMINION = "dominion"
 
 
+ACCOUNT_TYPE_PARTICIPATION: dict[AccountType, int] = {
+    AccountType.FUNDAMENT: 18,
+    AccountType.ACCELERATOR: 23,
+    AccountType.STRATEGY: 28,
+    AccountType.ALPHA: 33,
+    AccountType.PROTECTOR: 40,
+    AccountType.DOMINION: 49,
+}
+
+
+def participation_for_account_type(account_type: AccountType) -> int:
+    return ACCOUNT_TYPE_PARTICIPATION[account_type]
+
+
 def validate_campaign_metric_ranges(
     *,
     cpm_min: Decimal,

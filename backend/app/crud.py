@@ -22,8 +22,10 @@ from app.campaigns.tick import (
 )
 from app.core.security import get_password_hash, verify_password
 from app.models import (
+    REQUIRED_USER_DOCUMENT_TYPES,
     Account,
     AccountBank,
+    AccountUpdate,
     Bank,
     BankCreate,
     BankUpdate,
@@ -53,16 +55,15 @@ from app.models import (
     UserCampaignCreate,
     UserCampaignPublic,
     UserCampaignStatus,
-    UserCampaignsPublic,
     UserCreate,
     UserDocument,
     UserDocumentPublic,
     UserDocumentType,
-    get_datetime_utc,
     UserPublic,
     UserRegister,
     UserUpdate,
-    REQUIRED_USER_DOCUMENT_TYPES,
+    get_datetime_utc,
+    participation_for_account_type,
     validate_campaign_metric_ranges,
 )
 
@@ -86,6 +87,39 @@ def create_user(*, session: Session, user_create: UserCreate | UserRegister) -> 
     session.commit()
     session.refresh(db_obj)
     return db_obj
+
+
+def sync_active_campaign_participation(
+    *, session: Session, user_id: uuid.UUID, participation: int
+) -> None:
+    rows = session.exec(select(UserCampaign).where(UserCampaign.user_id == user_id)).all()
+    for row in rows:
+        if resolve_user_campaign_status(row) != UserCampaignStatus.ACTIVE:
+            continue
+        if row.participation == participation:
+            continue
+        row.participation = participation
+        session.add(row)
+
+
+def update_account(
+    *, session: Session, account: Account, account_in: AccountUpdate
+) -> Account:
+    data = account_in.model_dump(exclude_unset=True)
+    if "account_type" in data and "participation" not in data:
+        data["participation"] = participation_for_account_type(data["account_type"])
+    previous_participation = account.participation
+    account.sqlmodel_update(data)
+    if account.participation != previous_participation:
+        sync_active_campaign_participation(
+            session=session,
+            user_id=account.user_id,
+            participation=account.participation,
+        )
+    session.add(account)
+    session.commit()
+    session.refresh(account)
+    return account
 
 
 def update_user(*, session: Session, db_user: User, user_in: UserUpdate) -> Any:

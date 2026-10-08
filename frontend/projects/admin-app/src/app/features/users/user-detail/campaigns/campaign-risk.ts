@@ -81,9 +81,9 @@ export function riskTargetText(riskMode: number): string {
     return 'Natural result';
   }
   if (riskMode <= 100) {
-    return `Ends at ${100 - riskMode}% of budget`;
+    return `−${riskMode}% of the budget left`;
   }
-  return `Ends at ${riskMode}% of budget`;
+  return `+${riskMode - 100}% of the budget left`;
 }
 
 export function liveRiskSnapshot(input: RiskCampaignInput, now = Date.now()): RiskCampaignSnapshot {
@@ -107,13 +107,12 @@ export function liveRiskSnapshot(input: RiskCampaignInput, now = Date.now()): Ri
   }
 
   const ratio = input.riskMode <= 100 ? (100 - input.riskMode) / 100 : input.riskMode / 100;
-  const targetRevenue = roundMoney(budget * ratio);
   const lockedSpent = roundMoney(Math.min(budget, Math.max(0, input.riskSpent)));
   const lockedRevenue = roundMoney(Math.max(0, input.riskRevenue));
   const lockedImpressions = Math.max(0, Math.trunc(input.riskImpressions));
   const lockedClicks = Math.max(0, Math.trunc(input.riskClicks));
   const remainingBudget = roundMoney(budget - lockedSpent);
-  const needed = roundMoney(targetRevenue - lockedRevenue);
+  const needed = roundMoney(remainingBudget * ratio);
 
   if (remainingBudget <= 0) {
     return economics({

@@ -20,3 +20,12 @@ export const ACCOUNT_TYPE_OPTIONS = (Object.values(AccountType) as AccountType[]
   label: ACCOUNT_TYPE_LABELS[value],
   value,
 }));
+
+export const ACCOUNT_TYPE_PARTICIPATION: Record<AccountType, number> = {
+  [AccountType.Fundamental]: 18,
+  [AccountType.Accelerator]: 23,
+  [AccountType.Strategy]: 28,
+  [AccountType.Alpha]: 33,
+  [AccountType.Protector]: 40,
+  [AccountType.Dominion]: 49,
+};

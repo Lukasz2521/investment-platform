@@ -3,7 +3,14 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { environment } from '../../../../environments/environment';
-import { UsersPublic, UserPublic, AccountBankPublic, UserUpdate } from '../models/user.model';
+import {
+  AccountPublicForUser,
+  AccountUpdate,
+  UsersPublic,
+  UserPublic,
+  AccountBankPublic,
+  UserUpdate,
+} from '../models/user.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsersService {
@@ -27,6 +34,13 @@ export class UsersService {
 
   delete(userId: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${environment.apiUrl}/users/${userId}`);
+  }
+
+  updateAccount(userId: string, account: AccountUpdate): Observable<AccountPublicForUser> {
+    return this.http.patch<AccountPublicForUser>(
+      `${environment.apiUrl}/users/${userId}/account`,
+      account,
+    );
   }
 
   setAccountBankEnabled(

@@ -153,13 +153,12 @@ function projectRisk(input: {
   const progress = Math.min(1, Math.max(0, input.fraction));
   const budget = roundMoney(Math.max(0, input.budget));
   const ratio = input.riskMode <= 100 ? (100 - input.riskMode) / 100 : input.riskMode / 100;
-  const targetRevenue = roundMoney(budget * ratio);
   const lockedSpent = roundMoney(Math.min(budget, Math.max(0, input.baselineSpent)));
   const lockedRevenue = roundMoney(Math.max(0, input.baselineRevenue));
   const lockedImpressions = Math.max(0, Math.trunc(input.baselineImpressions));
   const lockedClicks = Math.max(0, Math.trunc(input.baselineClicks));
   const remainingBudget = roundMoney(budget - lockedSpent);
-  const needed = roundMoney(targetRevenue - lockedRevenue);
+  const needed = roundMoney(remainingBudget * ratio);
   const spentNow = progress >= 1 ? budget : roundMoney(budget * progress);
 
   if (remainingBudget <= 0) {

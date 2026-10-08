@@ -3,11 +3,13 @@ import {
   afterNextRender,
   Component,
   computed,
+  effect,
   inject,
   input,
   OnDestroy,
   PLATFORM_ID,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { Button } from 'primeng/button';
@@ -18,6 +20,7 @@ import { Table, TableModule } from 'primeng/table';
 
 import { UserCampaignPublic, UserCampaignStatus } from '../../../../core/campaigns/models/user-campaign.model';
 import { UserCampaignsService } from '../../../../core/campaigns/services/user-campaigns.service';
+import { UserDetailsService } from '../user-details.service';
 import { liveRiskSnapshot, riskTargetText } from './campaign-risk';
 
 type UserCampaignTableRow = {
@@ -45,9 +48,11 @@ type UserCampaignTableRow = {
 })
 export class UserDetailCampaigns implements OnDestroy {
   private readonly userCampaignsService = inject(UserCampaignsService);
+  private readonly userDetailsService = inject(UserDetailsService);
   private readonly platformId = inject(PLATFORM_ID);
   private readonly campaignsTable = viewChild<Table>('campaignsTable');
   private readonly sources = signal<UserCampaignPublic[]>([]);
+  private seenParticipation: number | null | undefined = undefined;
   private readonly now = signal(Date.now());
   private clock: ReturnType<typeof setInterval> | null = null;
 
@@ -66,6 +71,20 @@ export class UserDetailCampaigns implements OnDestroy {
   });
 
   constructor() {
+    effect(() => {
+      const participation = this.userDetailsService.user().account?.participation ?? null;
+      const userId = this.userId();
+      if (this.seenParticipation === undefined) {
+        this.seenParticipation = participation;
+        return;
+      }
+      if (!userId || this.seenParticipation === participation) {
+        return;
+      }
+      this.seenParticipation = participation;
+      untracked(() => this.loadCampaigns(userId));
+    });
+
     afterNextRender(() => {
       if (!isPlatformBrowser(this.platformId)) {
         this.loading.set(false);

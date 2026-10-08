@@ -10,7 +10,10 @@
       <admin-app-user-detail-profile [user]="currentUser" />
 
       <div class="user-detail-account-column">
-        <admin-app-user-detail-account-details [account]="currentUser.account" />
+        <admin-app-user-detail-account-details
+          [userId]="currentUser.id"
+          [account]="currentUser.account"
+        />
 
         <div class="user-detail-account-actions">
           @if (!currentUser.is_superuser) {

@@ -77,6 +77,44 @@ def test_risk_keeps_revenue_already_earned() -> None:
     assert finished.gross_profit == finished.gross_revenue - budget
 
 
+def test_risk_percent_applies_only_to_the_budget_left() -> None:
+    """Halfway through, mode 20 takes 20% off the remaining 500, not off 1000."""
+    rates = dict(
+        cpm=Decimal("3.14"),
+        epc=Decimal("0.30"),
+        ctr=Decimal("1.15"),
+        participation=18,
+    )
+    baseline = RiskBaseline(
+        spent=Decimal("500.00"),
+        impressions=1000,
+        clicks=100,
+        revenue=Decimal("550.00"),
+    )
+    loss = project_risk(
+        budget=Decimal("1000"),
+        fraction=Decimal(1),
+        risk_mode=20,
+        baseline=baseline,
+        **rates,
+    )
+    assert loss.gross_revenue == Decimal("950.00")
+    assert loss.gross_profit == Decimal("-50.00")
+    assert loss.payout == Decimal("950.00")
+
+    gain = project_risk(
+        budget=Decimal("1000"),
+        fraction=Decimal(1),
+        risk_mode=120,
+        baseline=baseline,
+        **rates,
+    )
+    assert gain.gross_revenue == Decimal("1150.00")
+    assert gain.gross_profit == Decimal("150.00")
+    assert gain.net_profit == Decimal("27.00")
+    assert gain.payout == Decimal("1027.00")
+
+
 def test_documented_partial_loss_cannot_reach_zero() -> None:
     """Spent 500, earned 550, risk 100 burns the rest and keeps 550."""
     rates = dict(

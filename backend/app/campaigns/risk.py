@@ -17,9 +17,10 @@ class RiskBaseline:
 
 
 def risk_revenue_ratio(risk_mode: int) -> Decimal | None:
-    """Target gross revenue as a fraction of the full budget.
+    """Revenue multiplier for the budget still left when risk mode was set.
 
-    1 ends at 99% of the budget, 100 at 0, 101 at 101%.
+    1 returns 99% of that remainder, 100 returns 0, 101 returns 101%.
+    Money already spent keeps the revenue it had already earned.
     Zero and below leave the natural campaign path unchanged.
     """
     if risk_mode <= 0:
@@ -118,13 +119,12 @@ def project_risk(
         )
 
     ratio = risk_revenue_ratio(risk_mode) or Decimal(0)
-    target_revenue = _money(full_budget * ratio)
     locked_spent = _money(min(full_budget, max(ZERO, baseline.spent)))
     locked_revenue = _money(max(ZERO, baseline.revenue))
     locked_impressions = max(0, baseline.impressions)
     locked_clicks = max(0, baseline.clicks)
     remaining_budget = _money(full_budget - locked_spent)
-    needed = _money(target_revenue - locked_revenue)
+    needed = _money(remaining_budget * ratio)
     spent_now = full_budget if progress >= 1 else _money(full_budget * progress)
 
     if remaining_budget <= 0:

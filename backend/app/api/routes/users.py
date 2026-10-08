@@ -1,8 +1,7 @@
 import uuid
 from datetime import timedelta
-from typing import Any
-
 from pathlib import Path
+from typing import Any
 
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
@@ -30,6 +29,9 @@ from app.models import (
     AccountBankPublic,
     AccountBankUpdate,
     AccountPublicForUser,
+    AccountUpdate,
+    AdminUserDocumentPublic,
+    AdminUserDocumentsPublic,
     BankPublic,
     Item,
     Message,
@@ -41,8 +43,6 @@ from app.models import (
     UserDocumentPublic,
     UserDocumentsPublic,
     UserDocumentType,
-    AdminUserDocumentPublic,
-    AdminUserDocumentsPublic,
     UserLogin,
     UserPublic,
     UserPublicWithAccount,
@@ -428,6 +428,37 @@ def read_user_by_id(
         **crud.to_user_public(session=session, user=user).model_dump(),
         account=AccountPublicForUser.from_account(account) if account else None,
     )
+
+
+@router.patch(
+    "/{user_id}/account",
+    dependencies=[Depends(get_current_active_superuser)],
+    response_model=AccountPublicForUser,
+)
+def update_user_account(
+    *,
+    session: SessionDep,
+    user_id: uuid.UUID,
+    account_in: AccountUpdate,
+) -> AccountPublicForUser:
+    """
+    Update account type, participation, and account flags.
+    Changing the type without a participation value applies that type's default share.
+    The new share is used by campaigns that are still running.
+    """
+    if session.get(User, user_id) is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    account = session.exec(select(Account).where(Account.user_id == user_id)).first()
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found")
+
+    crud.update_account(session=session, account=account, account_in=account_in)
+    loaded = session.exec(
+        select(Account)
+        .where(Account.user_id == user_id)
+        .options(selectinload(Account.banks).selectinload(AccountBank.bank))
+    ).one()
+    return AccountPublicForUser.from_account(loaded)
 
 
 @router.patch(

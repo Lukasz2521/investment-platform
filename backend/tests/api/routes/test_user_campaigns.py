@@ -8,6 +8,7 @@ from sqlmodel import Session, select
 from app import crud
 from app.core.config import settings
 from app.models import (
+    REQUIRED_USER_DOCUMENT_TYPES,
     Account,
     AccountType,
     Campaign,
@@ -15,7 +16,6 @@ from app.models import (
     CategoryCreate,
     UserCampaign,
     UserDocument,
-    REQUIRED_USER_DOCUMENT_TYPES,
 )
 
 
@@ -523,3 +523,116 @@ def test_superuser_lists_campaigns_for_user(
     match = next(item for item in body["data"] if item["id"] == started_id)
     assert match["campaign"]["title"] == "Client campaign"
     assert match["user_id"] == str(user.id)
+
+
+def test_account_participation_follows_type_and_updates_running_campaigns(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    user = crud.get_user_by_email(session=db, email=settings.EMAIL_TEST_USER)
+    assert user is not None
+    account = db.exec(select(Account).where(Account.user_id == user.id)).one()
+    original_type = account.account_type
+    original_participation = account.participation
+
+    category = crud.create_category(
+        session=db,
+        category_in=CategoryCreate(name=f"participation-{uuid4().hex[:8]}"),
+    )
+    create_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=superuser_token_headers,
+        json=_campaign_payload(str(category.id), title="Participation source"),
+    )
+    assert create_response.status_code == 200
+    campaign_id = create_response.json()["id"]
+    _set_user_available_balance(db, settings.EMAIL_TEST_USER, Decimal("1000"))
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
+
+    today = datetime.now(timezone.utc).date()
+    start_response = client.post(
+        f"{settings.API_V1_STR}/user-campaigns/",
+        headers=normal_user_token_headers,
+        json={
+            "campaign_id": campaign_id,
+            "start_date": today.isoformat(),
+            "end_date": (today + timedelta(days=30)).isoformat(),
+            "budget": 250,
+        },
+    )
+    assert start_response.status_code == 200
+    started_id = start_response.json()["id"]
+
+    try:
+        typed = client.patch(
+            f"{settings.API_V1_STR}/users/{user.id}/account",
+            headers=superuser_token_headers,
+            json={"account_type": AccountType.ACCELERATOR.value},
+        )
+        assert typed.status_code == 200
+        assert typed.json()["account_type"] == AccountType.ACCELERATOR.value
+        assert typed.json()["participation"] == 23
+
+        running = client.get(
+            f"{settings.API_V1_STR}/user-campaigns/{started_id}",
+            headers=normal_user_token_headers,
+        )
+        assert running.status_code == 200
+        assert running.json()["participation"] == 23
+        assert running.json()["status"] == "active"
+
+        custom = client.patch(
+            f"{settings.API_V1_STR}/users/{user.id}/account",
+            headers=superuser_token_headers,
+            json={"participation": 15},
+        )
+        assert custom.status_code == 200
+        assert custom.json()["account_type"] == AccountType.ACCELERATOR.value
+        assert custom.json()["participation"] == 15
+
+        running = client.get(
+            f"{settings.API_V1_STR}/user-campaigns/{started_id}",
+            headers=normal_user_token_headers,
+        )
+        assert running.json()["participation"] == 15
+
+        row = db.get(UserCampaign, UUID(started_id))
+        assert row is not None
+        row.created_at = datetime.now(timezone.utc) - timedelta(minutes=6)
+        db.add(row)
+        db.commit()
+        settled = client.get(
+            f"{settings.API_V1_STR}/user-campaigns/{started_id}",
+            headers=normal_user_token_headers,
+        )
+        assert settled.status_code == 200
+        assert settled.json()["status"] == "completed"
+        assert settled.json()["participation"] == 15
+
+        after = client.patch(
+            f"{settings.API_V1_STR}/users/{user.id}/account",
+            headers=superuser_token_headers,
+            json={"participation": 40},
+        )
+        assert after.status_code == 200
+        finished = client.get(
+            f"{settings.API_V1_STR}/user-campaigns/{started_id}",
+            headers=normal_user_token_headers,
+        )
+        assert finished.json()["participation"] == 15
+    finally:
+        client.patch(
+            f"{settings.API_V1_STR}/users/{user.id}/account",
+            headers=superuser_token_headers,
+            json={
+                "account_type": original_type.value,
+                "participation": original_participation,
+            },
+        )
+        _purge_campaign(db, campaign_id)
+        db_category = db.get(Category, category.id)
+        if db_category is not None:
+            db.delete(db_category)
+            db.commit()

@@ -47,3 +47,10 @@ export type UsersPublic = {
 export type UserUpdate = {
   is_superuser?: boolean;
 };
+
+export type AccountUpdate = {
+  account_type?: AccountType;
+  participation?: number;
+  custom_campaigns?: boolean;
+  card_payments?: boolean;
+};
