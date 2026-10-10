@@ -88,7 +88,6 @@ export class CampaignsFormDialog {
     cpm_min: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN)]],
     cpm_max: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN)]],
     epc_min: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
-    epc_max: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
     ctr_min: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
     ctr_max: ['0', [Validators.required, Validators.pattern(DECIMAL_PATTERN), Validators.min(0), Validators.max(100)]],
     video_url: [''],
@@ -245,7 +244,7 @@ export class CampaignsFormDialog {
       cpm_min: this.parseDecimal(value.cpm_min),
       cpm_max: this.parseDecimal(value.cpm_max),
       epc_min: this.parseDecimal(value.epc_min),
-      epc_max: this.parseDecimal(value.epc_max),
+      epc_max: this.parseDecimal(value.epc_min),
       ctr_min: this.parseDecimal(value.ctr_min),
       ctr_max: this.parseDecimal(value.ctr_max),
       image_url: '',
@@ -259,9 +258,6 @@ export class CampaignsFormDialog {
     }
     if (payload.cpm_base > payload.cpm_max) {
       return 'CPM base cannot be greater than CPM max.';
-    }
-    if (payload.epc_min > payload.epc_max) {
-      return 'EPC min cannot be greater than EPC max.';
     }
     if (payload.ctr_min > payload.ctr_max) {
       return 'CTR min cannot be greater than CTR max.';
@@ -321,7 +317,6 @@ export class CampaignsFormDialog {
       cpm_min: this.toFormNumber(campaign.cpm_min),
       cpm_max: this.toFormNumber(campaign.cpm_max),
       epc_min: this.toFormNumber(campaign.epc_min),
-      epc_max: this.toFormNumber(campaign.epc_max),
       ctr_min: this.toFormNumber(campaign.ctr_min),
       ctr_max: this.toFormNumber(campaign.ctr_max),
       video_url: campaign.video_url,
@@ -344,7 +339,6 @@ export class CampaignsFormDialog {
       cpm_min: '0',
       cpm_max: '0',
       epc_min: '0',
-      epc_max: '0',
       ctr_min: '0',
       ctr_max: '0',
       video_url: '',
@@ -381,7 +375,6 @@ type CampaignProfitFields = {
   cpm_min: string;
   cpm_max: string;
   epc_min: string;
-  epc_max: string;
   ctr_min: string;
   ctr_max: string;
 };
@@ -391,8 +384,8 @@ export type CampaignProfitPreview = {
   grossProfit: number;
   roiPercent: number;
   perDay: number;
-  lowProfit: number;
-  highProfit: number;
+  lowProfitPercent: number;
+  highProfitPercent: number;
 };
 
 function previewCampaignProfit(
@@ -407,8 +400,7 @@ function previewCampaignProfit(
   const cpmBase = readDecimal(value.cpm_base);
   const cpmMin = readDecimal(value.cpm_min);
   const cpmMax = readDecimal(value.cpm_max);
-  const epcMin = readDecimal(value.epc_min);
-  const epcMax = readDecimal(value.epc_max);
+  const epc = readDecimal(value.epc_min);
   const ctrMin = readDecimal(value.ctr_min);
   const ctrMax = readDecimal(value.ctr_max);
 
@@ -418,8 +410,7 @@ function previewCampaignProfit(
     cpmBase === null ||
     cpmMin === null ||
     cpmMax === null ||
-    epcMin === null ||
-    epcMax === null ||
+    epc === null ||
     ctrMin === null ||
     ctrMax === null ||
     budget <= 0 ||
@@ -431,20 +422,23 @@ function previewCampaignProfit(
     return null;
   }
 
-  const grossProfit = campaignGrossProfit(budget, cpmBase, (epcMin + epcMax) / 2, (ctrMin + ctrMax) / 2);
-  const low = campaignGrossProfit(budget, cpmMax, epcMin, ctrMin);
-  const high = campaignGrossProfit(budget, cpmMin, epcMax, ctrMax);
+  const grossProfit = campaignGrossProfit(budget, cpmBase, epc, (ctrMin + ctrMax) / 2);
+  const low = campaignGrossProfit(budget, cpmMax, epc, ctrMin);
+  const high = campaignGrossProfit(budget, cpmMin, epc, ctrMax);
   if (grossProfit === null || low === null || high === null) {
     return null;
   }
+
+  const lowProfitPercent = roundMoney((low / budget) * 100);
+  const highProfitPercent = roundMoney((high / budget) * 100);
 
   return {
     minDays,
     grossProfit,
     roiPercent: roundMoney((grossProfit / budget) * 100),
     perDay: roundMoney(grossProfit / minDays),
-    lowProfit: Math.min(low, high),
-    highProfit: Math.max(low, high),
+    lowProfitPercent: Math.min(lowProfitPercent, highProfitPercent),
+    highProfitPercent: Math.max(lowProfitPercent, highProfitPercent),
   };
 }
 

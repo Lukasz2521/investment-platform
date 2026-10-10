@@ -137,17 +137,27 @@
 
         <label class="campaigns-form-dialog-field">
           <span class="campaigns-form-dialog-label"
-            >EPC Min<span class="campaigns-form-dialog-required">*</span></span
+            >EPC<span class="campaigns-form-dialog-required">*</span></span
           >
           <input pInputText type="text" formControlName="epc_min" inputmode="decimal" />
         </label>
 
-        <label class="campaigns-form-dialog-field">
-          <span class="campaigns-form-dialog-label"
-            >EPC Max<span class="campaigns-form-dialog-required">*</span></span
-          >
-          <input pInputText type="text" formControlName="epc_max" inputmode="decimal" />
-        </label>
+        <div class="campaigns-form-dialog-field">
+          <span class="campaigns-form-dialog-label">Gross profit</span>
+          @if (profitPreview(); as preview) {
+            <p class="campaigns-form-dialog-percent-range">
+              {{ preview.lowProfitPercent | number: '1.2-2' : 'pl' }}% –
+              {{ preview.highProfitPercent | number: '1.2-2' : 'pl' }}%
+            </p>
+          } @else {
+            <p class="campaigns-form-dialog-percent-range campaigns-form-dialog-percent-range--empty">
+              Enter budget, CPM, CTR and EPC.
+            </p>
+          }
+          <span class="campaigns-form-dialog-percent-hint">
+            From max CPM and min CTR to min CPM and max CTR.
+          </span>
+        </div>
 
         <label class="campaigns-form-dialog-field">
           <span class="campaigns-form-dialog-label"
@@ -207,8 +217,8 @@
       <h3>Estimated profit</h3>
       @if (profitPreview(); as preview) {
         <p>
-          Minimum budget spent over {{ preview.minDays }} days. Uses CPM base and the middle of the
-          CTR and EPC ranges.
+          Minimum budget spent over {{ preview.minDays }} days. Uses CPM base, the EPC value and the
+          middle of the CTR range.
         </p>
         <dl>
           <div>
@@ -225,9 +235,9 @@
           </div>
         </dl>
         <p>
-          Across CPM, CTR and EPC limits:
-          {{ preview.lowProfit | number: '1.2-2' : 'pl' }} € to
-          {{ preview.highProfit | number: '1.2-2' : 'pl' }} €.
+          Gross profit range:
+          {{ preview.lowProfitPercent | number: '1.2-2' : 'pl' }}% to
+          {{ preview.highProfitPercent | number: '1.2-2' : 'pl' }}%.
         </p>
       } @else {
         <p>Enter the budget, minimum days, CPM, CTR and EPC to see the profit.</p>

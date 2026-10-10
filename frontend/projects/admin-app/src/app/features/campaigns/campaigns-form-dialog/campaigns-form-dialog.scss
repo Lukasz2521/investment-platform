@@ -64,6 +64,27 @@
   margin: 0;
 }
 
+.campaigns-form-dialog-percent-range {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 650;
+  margin: 0;
+  padding: 0.55rem 0.75rem;
+}
+
+.campaigns-form-dialog-percent-range--empty {
+  color: var(--p-text-muted-color, #64748b);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.campaigns-form-dialog-percent-hint {
+  color: var(--p-text-muted-color, #64748b);
+  font-size: 0.75rem;
+}
+
 .campaigns-form-dialog-profit {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
