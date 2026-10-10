@@ -16,7 +16,6 @@
   @if (currentStep() === 2) {
     <app-campaign-creator-guidelines
       [value]="guidelines()"
-      [minimumDays]="minimumCampaignDays()"
       (valueChange)="onGuidelinesChange($event)"
     />
   }

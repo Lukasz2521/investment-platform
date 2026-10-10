@@ -289,6 +289,74 @@ def test_creator_can_start_from_200_when_crm_budget_is_higher(
             db.commit()
 
 
+def test_creator_can_start_from_3_days_when_crm_minimum_is_higher(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    category = crud.create_category(
+        session=db,
+        category_in=CategoryCreate(name=f"creator-days-{uuid4().hex[:8]}"),
+    )
+    payload = _campaign_payload(str(category.id), title="Creator duration source")
+    payload["min_days"] = 30
+    create_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=superuser_token_headers,
+        json=payload,
+    )
+    assert create_response.status_code == 200
+    campaign_id = create_response.json()["id"]
+    _set_user_available_balance(db, settings.EMAIL_TEST_USER, Decimal("1000"))
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
+
+    today = datetime.now(timezone.utc).date()
+    start_payload = {
+        "campaign_id": campaign_id,
+        "start_date": today.isoformat(),
+        "end_date": (today + timedelta(days=3)).isoformat(),
+        "budget": 200,
+    }
+
+    try:
+        market_response = client.post(
+            f"{settings.API_V1_STR}/user-campaigns/",
+            headers=normal_user_token_headers,
+            json=start_payload,
+        )
+        assert market_response.status_code == 400
+        assert market_response.json()["detail"] == "Campaign duration must be at least 30 days"
+
+        short_creator_response = client.post(
+            f"{settings.API_V1_STR}/user-campaigns/",
+            headers=normal_user_token_headers,
+            json={
+                **start_payload,
+                "end_date": (today + timedelta(days=2)).isoformat(),
+                "creator": True,
+            },
+        )
+        assert short_creator_response.status_code == 400
+        assert short_creator_response.json()["detail"] == "Campaign duration must be at least 3 days"
+
+        creator_response = client.post(
+            f"{settings.API_V1_STR}/user-campaigns/",
+            headers=normal_user_token_headers,
+            json={**start_payload, "creator": True},
+        )
+        assert creator_response.status_code == 200
+        created = creator_response.json()
+        assert created["start_date"] == today.isoformat()
+        assert created["end_date"] == (today + timedelta(days=3)).isoformat()
+    finally:
+        _purge_campaign(db, campaign_id)
+        db_category = db.get(Category, category.id)
+        if db_category is not None:
+            db.delete(db_category)
+            db.commit()
+
+
 def test_user_cannot_start_campaign_without_sufficient_funds(
     client: TestClient,
     superuser_token_headers: dict[str, str],

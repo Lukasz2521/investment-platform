@@ -23,6 +23,7 @@ router = APIRouter(prefix="/user-campaigns", tags=["user-campaigns"])
 
 INSUFFICIENT_FUNDS_DETAIL = "Insufficient funds"
 CREATOR_MIN_BUDGET = Decimal("200")
+CREATOR_MIN_DAYS = 3
 
 
 @router.post("/", response_model=UserCampaignPublic)
@@ -47,7 +48,13 @@ def start_user_campaign(
             status_code=400, detail="End date cannot be before start date"
         )
     duration_days = (campaign_in.end_date - campaign_in.start_date).days
-    if duration_days < campaign.min_days:
+    if campaign_in.creator:
+        if duration_days < CREATOR_MIN_DAYS:
+            raise HTTPException(
+                status_code=400,
+                detail="Campaign duration must be at least 3 days",
+            )
+    elif duration_days < campaign.min_days:
         raise HTTPException(
             status_code=400,
             detail=f"Campaign duration must be at least {campaign.min_days} days",

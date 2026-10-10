@@ -77,15 +77,6 @@ export class CampaignCreator implements OnDestroy {
   protected readonly launchError = signal<string | null>(null);
   protected readonly submitted = signal(false);
 
-  protected readonly minimumCampaignDays = computed(() => {
-    const campaign = this.selectedCampaign();
-    const fromCampaign = campaign?.minDays ?? campaign?.days ?? CAMPAIGN_GUIDELINES_MIN_DAYS;
-    return Math.min(
-      CAMPAIGN_GUIDELINES_MAX_DAYS,
-      Math.max(CAMPAIGN_GUIDELINES_MIN_DAYS, Math.floor(fromCampaign)),
-    );
-  });
-
   protected readonly canGoBack = computed(() => this.currentStep() > FIRST_STEP);
 
   protected readonly isLastStep = computed(() => this.currentStep() === LAST_STEP);
@@ -98,9 +89,7 @@ export class CampaignCreator implements OnDestroy {
     }
 
     if (step === 2) {
-      return isCampaignGuidelinesValid(this.guidelines(), {
-        minDays: this.minimumCampaignDays(),
-      });
+      return isCampaignGuidelinesValid(this.guidelines());
     }
 
     if (step === 3) {
@@ -125,7 +114,7 @@ export class CampaignCreator implements OnDestroy {
   protected onCampaignSelected(campaign: MarketCampaign): void {
     this.selectedCampaign.set(campaign);
     const form = this.guidelines();
-    const minEnd = addDaysToDateInput(form.startDate, this.minimumCampaignDays());
+    const minEnd = addDaysToDateInput(form.startDate, CAMPAIGN_GUIDELINES_MIN_DAYS);
     const maxEnd = addDaysToDateInput(form.startDate, CAMPAIGN_GUIDELINES_MAX_DAYS);
     let endDate = form.endDate;
     if (!endDate || endDate < minEnd) {
@@ -192,7 +181,7 @@ export class CampaignCreator implements OnDestroy {
     const duration = campaignGuidelinesDurationDays(guidelines.startDate, guidelines.endDate);
     const days = Math.min(
       CAMPAIGN_GUIDELINES_MAX_DAYS,
-      Math.max(this.minimumCampaignDays(), duration ?? this.minimumCampaignDays()),
+      Math.max(CAMPAIGN_GUIDELINES_MIN_DAYS, duration ?? CAMPAIGN_GUIDELINES_MIN_DAYS),
     );
     const startDate = todayInput();
     const endDate = addDaysToDateInput(startDate, days);
