@@ -6,13 +6,21 @@
     <h2 class="campaign-select-title">{{ 'app.campaignCreator.select.title' | translate }}</h2>
   </header>
 
-  <app-campaign-card-row [visibleCount]="3">
-    @for (campaign of campaigns; track campaign.id) {
-      <app-campaign-card
-        [campaign]="campaign"
-        [selected]="selectedCampaignId() === campaign.id"
-        (select)="selectCampaign($event)"
-      />
-    }
-  </app-campaign-card-row>
+  @if (loading()) {
+    <p class="campaign-select-status">{{ 'app.campaignCreator.select.loading' | translate }}</p>
+  } @else if (loadError()) {
+    <p class="campaign-select-status">{{ 'app.campaignCreator.select.error' | translate }}</p>
+  } @else if (campaigns().length === 0) {
+    <p class="campaign-select-status">{{ 'app.campaignCreator.select.empty' | translate }}</p>
+  } @else {
+    <app-campaign-card-row [visibleCount]="3">
+      @for (campaign of campaigns(); track campaign.id) {
+        <app-campaign-card
+          [campaign]="campaign"
+          [selected]="selectedCampaignId() === campaign.id"
+          (select)="selectCampaign($event)"
+        />
+      }
+    </app-campaign-card-row>
+  }
 </section>

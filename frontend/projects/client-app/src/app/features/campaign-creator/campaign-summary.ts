@@ -62,16 +62,16 @@ export function buildCampaignSummary(
     epc: campaign.epc,
     estimatedImpressions,
     estimatedGrossProfit,
-    risk: resolveRisk(budget, durationDays),
+    risk: resolveRisk(durationDays),
   };
 }
 
-function resolveRisk(budget: number, durationDays: number): CampaignSummaryRisk {
-  if (budget >= 5000 || durationDays >= 90) {
+function resolveRisk(durationDays: number): CampaignSummaryRisk {
+  if (durationDays <= 7) {
     return 'high';
   }
 
-  if (budget >= 1000 || durationDays >= 30) {
+  if (durationDays < 60) {
     return 'medium';
   }
 

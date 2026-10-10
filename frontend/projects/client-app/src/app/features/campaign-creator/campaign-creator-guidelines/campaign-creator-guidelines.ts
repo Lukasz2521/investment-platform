@@ -20,12 +20,12 @@ import {
 })
 export class CampaignCreatorGuidelines {
   readonly value = input.required<CampaignGuidelinesForm>();
+  readonly minimumDays = input(CAMPAIGN_GUIDELINES_MIN_DAYS);
+  readonly minimumBudget = input(CAMPAIGN_GUIDELINES_MIN_BUDGET);
   readonly valueChange = output<CampaignGuidelinesForm>();
 
   protected readonly ageFloor = CAMPAIGN_GUIDELINES_AGE_MIN;
   protected readonly ageCeil = CAMPAIGN_GUIDELINES_AGE_MAX;
-  protected readonly minBudget = CAMPAIGN_GUIDELINES_MIN_BUDGET;
-  protected readonly minDays = CAMPAIGN_GUIDELINES_MIN_DAYS;
   protected readonly maxDays = CAMPAIGN_GUIDELINES_MAX_DAYS;
   protected readonly ageTicks = [0, 20, 40, 60, 80, 100];
 
@@ -35,8 +35,18 @@ export class CampaignCreatorGuidelines {
   });
 
   protected readonly minEndDate = computed(() =>
-    addDaysToDateInput(this.value().startDate, this.minDays),
+    addDaysToDateInput(this.value().startDate, this.minimumDays()),
   );
+
+  protected readonly budgetBelowMinimum = computed(() => {
+    const raw = this.value().budget.trim().replace(',', '.');
+    if (!raw) {
+      return false;
+    }
+
+    const parsed = Number(raw);
+    return Number.isFinite(parsed) && parsed < this.minimumBudget();
+  });
 
   protected readonly maxEndDate = computed(() =>
     addDaysToDateInput(this.value().startDate, this.maxDays),
@@ -55,7 +65,20 @@ export class CampaignCreatorGuidelines {
   }
 
   protected onEndDateInput(event: Event): void {
-    const next = (event.target as HTMLInputElement).value;
+    const input = event.target as HTMLInputElement;
+    let next = input.value;
+    const minEnd = this.minEndDate();
+    const maxEnd = this.maxEndDate();
+
+    if (next && next < minEnd) {
+      next = minEnd;
+    }
+
+    if (next && next > maxEnd) {
+      next = maxEnd;
+    }
+
+    input.value = next;
     this.patch({ endDate: next });
   }
 
@@ -67,15 +90,6 @@ export class CampaignCreatorGuidelines {
   protected onBudgetInput(event: Event): void {
     const next = (event.target as HTMLInputElement).value;
     this.patch({ budget: next });
-  }
-
-  protected onBudgetBlur(event: Event): void {
-    const raw = (event.target as HTMLInputElement).value.replace(',', '.');
-    const parsed = Number(raw);
-
-    if (!Number.isFinite(parsed) || parsed < this.minBudget) {
-      this.patch({ budget: String(this.minBudget) });
-    }
   }
 
   protected onAgeMinInput(event: Event): void {

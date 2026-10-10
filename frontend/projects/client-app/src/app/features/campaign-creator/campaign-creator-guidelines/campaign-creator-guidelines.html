@@ -41,7 +41,7 @@
 
         <label class="guidelines-field">
           <span class="guidelines-label">
-            {{ 'app.campaignCreator.guidelines.startDate' | translate: { min: '' + minDays } }}
+            {{ 'app.campaignCreator.guidelines.startDate' | translate: { min: '' + minimumDays() } }}
           </span>
           <input
             class="guidelines-input guidelines-input--locked"
@@ -63,6 +63,7 @@
             [value]="value().endDate"
             (click)="openEndDatePicker($event)"
             (input)="onEndDateInput($event)"
+            (change)="onEndDateInput($event)"
           />
         </label>
 
@@ -77,7 +78,7 @@
 
         <label class="guidelines-field">
           <span class="guidelines-label">
-            {{ 'app.campaignCreator.guidelines.budgetLabel' | translate: { min: '' + minBudget } }}
+            {{ 'app.campaignCreator.guidelines.budgetLabel' | translate: { min: '' + minimumBudget() } }}
           </span>
           <span class="guidelines-budget">
             <span class="guidelines-budget-float">
@@ -85,14 +86,23 @@
             </span>
             <input
               class="guidelines-input guidelines-input--budget"
+              [class.guidelines-input--invalid]="budgetBelowMinimum()"
               type="number"
               inputmode="decimal"
-              [min]="minBudget"
+              min="0"
+              step="1"
               [value]="value().budget"
               (input)="onBudgetInput($event)"
-              (blur)="onBudgetBlur($event)"
             />
           </span>
+          @if (budgetBelowMinimum()) {
+            <p class="guidelines-budget-error" role="alert">
+              {{
+                'app.campaignCreator.guidelines.budgetMinimum'
+                  | translate: { min: '' + minimumBudget() }
+              }}
+            </p>
+          }
         </label>
       </div>
 

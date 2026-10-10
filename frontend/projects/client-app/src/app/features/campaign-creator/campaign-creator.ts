@@ -1,6 +1,13 @@
-import { Component, computed, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 
+import { UserCampaignsService } from '../../core/campaigns/services/user-campaigns.service';
 import { TranslatePipe } from '../../core/i18n/pipes/translate.pipe';
+import { TranslationService } from '../../core/i18n/services/translation.service';
+import { APP_ROUTE_PATHS } from '../../core/routing/app-route-paths';
+import type { MarketCampaign } from '../markets/market-campaigns';
 import {
   CampaignConsentsForm,
   createDefaultCampaignConsentsForm,
@@ -16,15 +23,27 @@ import {
 } from './campaign-creator-stepper/campaign-creator-stepper';
 import { CampaignCreatorSummary } from './campaign-creator-summary/campaign-creator-summary';
 import {
+  addDaysToDateInput,
+  CAMPAIGN_GUIDELINES_MAX_DAYS,
+  CAMPAIGN_GUIDELINES_MIN_BUDGET,
+  CAMPAIGN_GUIDELINES_MIN_DAYS,
   CampaignGuidelinesForm,
+  campaignGuidelinesDurationDays,
   createDefaultCampaignGuidelinesForm,
   isCampaignGuidelinesValid,
 } from './campaign-guidelines';
 import { CampaignLaunchDialog } from './campaign-launch-dialog/campaign-launch-dialog';
-import { CampaignOption } from './campaign-options';
 
 const FIRST_STEP: CampaignCreatorStepId = 1;
 const LAST_STEP: CampaignCreatorStepId = 5;
+
+function todayInput(): string {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
 
 @Component({
   selector: 'app-campaign-creator',
@@ -41,16 +60,37 @@ const LAST_STEP: CampaignCreatorStepId = 5;
   templateUrl: './campaign-creator.html',
   styleUrl: './campaign-creator.scss',
 })
-export class CampaignCreator {
+export class CampaignCreator implements OnDestroy {
+  private readonly userCampaignsService = inject(UserCampaignsService);
+  private readonly translationService = inject(TranslationService);
+  private readonly router = inject(Router);
+  private launchSub: Subscription | null = null;
+
   protected readonly currentStep = signal<CampaignCreatorStepId>(1);
-  protected readonly selectedCampaign = signal<CampaignOption | null>(null);
+  protected readonly selectedCampaign = signal<MarketCampaign | null>(null);
   protected readonly guidelines = signal<CampaignGuidelinesForm>(
     createDefaultCampaignGuidelinesForm(),
   );
   protected readonly selectedCountries = signal<string[]>([]);
   protected readonly consents = signal<CampaignConsentsForm>(createDefaultCampaignConsentsForm());
   protected readonly launchDialogOpen = signal(false);
+  protected readonly launching = signal(false);
+  protected readonly launchError = signal<string | null>(null);
   protected readonly submitted = signal(false);
+
+  protected readonly minimumCampaignDays = computed(() => {
+    const campaign = this.selectedCampaign();
+    const fromCampaign = campaign?.minDays ?? campaign?.days ?? CAMPAIGN_GUIDELINES_MIN_DAYS;
+    return Math.min(
+      CAMPAIGN_GUIDELINES_MAX_DAYS,
+      Math.max(CAMPAIGN_GUIDELINES_MIN_DAYS, Math.floor(fromCampaign)),
+    );
+  });
+
+  protected readonly minimumCampaignBudget = computed(() => {
+    const campaign = this.selectedCampaign();
+    return Math.max(CAMPAIGN_GUIDELINES_MIN_BUDGET, campaign?.minBudget ?? CAMPAIGN_GUIDELINES_MIN_BUDGET);
+  });
 
   protected readonly canGoBack = computed(() => this.currentStep() > FIRST_STEP);
 
@@ -64,7 +104,10 @@ export class CampaignCreator {
     }
 
     if (step === 2) {
-      return isCampaignGuidelinesValid(this.guidelines());
+      return isCampaignGuidelinesValid(this.guidelines(), {
+        minDays: this.minimumCampaignDays(),
+        minBudget: this.minimumCampaignBudget(),
+      });
     }
 
     if (step === 3) {
@@ -76,14 +119,31 @@ export class CampaignCreator {
     }
 
     if (step === 5) {
-      return isCampaignConsentsValid(this.consents()) && !this.submitted();
+      return isCampaignConsentsValid(this.consents()) && !this.submitted() && !this.launching();
     }
 
     return false;
   });
 
-  protected onCampaignSelected(campaign: CampaignOption): void {
+  ngOnDestroy(): void {
+    this.launchSub?.unsubscribe();
+  }
+
+  protected onCampaignSelected(campaign: MarketCampaign): void {
     this.selectedCampaign.set(campaign);
+    const form = this.guidelines();
+    const minEnd = addDaysToDateInput(form.startDate, this.minimumCampaignDays());
+    const maxEnd = addDaysToDateInput(form.startDate, CAMPAIGN_GUIDELINES_MAX_DAYS);
+    let endDate = form.endDate;
+    if (!endDate || endDate < minEnd) {
+      endDate = minEnd;
+    }
+    if (endDate > maxEnd) {
+      endDate = maxEnd;
+    }
+    if (endDate !== form.endDate) {
+      this.guidelines.set({ ...form, endDate });
+    }
   }
 
   protected onGuidelinesChange(form: CampaignGuidelinesForm): void {
@@ -122,11 +182,62 @@ export class CampaignCreator {
   }
 
   protected closeLaunchDialog(): void {
+    this.launchSub?.unsubscribe();
+    this.launchSub = null;
+    this.launching.set(false);
+    this.launchError.set(null);
     this.launchDialogOpen.set(false);
   }
 
   protected confirmLaunch(): void {
-    this.launchDialogOpen.set(false);
-    this.submitted.set(true);
+    const campaign = this.selectedCampaign();
+    if (!campaign || this.launching() || !isCampaignConsentsValid(this.consents())) {
+      return;
+    }
+
+    const guidelines = this.guidelines();
+    const duration = campaignGuidelinesDurationDays(guidelines.startDate, guidelines.endDate);
+    const days = Math.min(
+      CAMPAIGN_GUIDELINES_MAX_DAYS,
+      Math.max(this.minimumCampaignDays(), duration ?? this.minimumCampaignDays()),
+    );
+    const startDate = todayInput();
+    const endDate = addDaysToDateInput(startDate, days);
+    const budget = Number(guidelines.budget.replace(',', '.'));
+
+    this.launching.set(true);
+    this.launchError.set(null);
+
+    this.launchSub = this.userCampaignsService
+      .start({
+        campaign_id: campaign.id,
+        start_date: startDate,
+        end_date: endDate,
+        budget,
+      })
+      .subscribe({
+        next: () => {
+          this.launching.set(false);
+          this.launchDialogOpen.set(false);
+          this.submitted.set(true);
+          void this.router.navigate(['/', APP_ROUTE_PATHS.myCampaigns]);
+        },
+        error: (error: unknown) => {
+          this.launching.set(false);
+          const detail =
+            error instanceof HttpErrorResponse && typeof error.error?.detail === 'string'
+              ? error.error.detail
+              : '';
+          const key =
+            detail === 'Insufficient funds'
+              ? 'app.markets.detail.insufficientFunds'
+              : detail === 'Profile data incomplete'
+                ? 'app.markets.detail.profileIncomplete'
+                : detail === 'Required documents missing'
+                  ? 'app.markets.detail.documentsIncomplete'
+                  : 'app.markets.detail.launchError';
+          this.launchError.set(this.translationService.translate(key));
+        },
+      });
   }
 }

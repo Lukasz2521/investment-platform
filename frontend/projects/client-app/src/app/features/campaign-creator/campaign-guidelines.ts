@@ -61,22 +61,24 @@ export function campaignGuidelinesDurationDays(
   return diff;
 }
 
-export function isCampaignGuidelinesValid(form: CampaignGuidelinesForm): boolean {
+export function isCampaignGuidelinesValid(
+  form: CampaignGuidelinesForm,
+  limits?: { minDays?: number; minBudget?: number },
+): boolean {
+  const minDays = limits?.minDays ?? CAMPAIGN_GUIDELINES_MIN_DAYS;
+  const minBudget = limits?.minBudget ?? CAMPAIGN_GUIDELINES_MIN_BUDGET;
+
   if (!form.male && !form.female) {
     return false;
   }
 
   const days = campaignGuidelinesDurationDays(form.startDate, form.endDate);
-  if (
-    days === null ||
-    days < CAMPAIGN_GUIDELINES_MIN_DAYS ||
-    days > CAMPAIGN_GUIDELINES_MAX_DAYS
-  ) {
+  if (days === null || days < minDays || days > CAMPAIGN_GUIDELINES_MAX_DAYS) {
     return false;
   }
 
   const budget = Number(form.budget.replace(',', '.'));
-  if (!Number.isFinite(budget) || budget < CAMPAIGN_GUIDELINES_MIN_BUDGET) {
+  if (!Number.isFinite(budget) || budget < minBudget) {
     return false;
   }
 
