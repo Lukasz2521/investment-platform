@@ -46,10 +46,11 @@ export class AuthService {
     });
   }
 
-  requestPasswordRecovery(email: string): Observable<{ message: string }> {
+  requestPasswordRecovery(email: string, language: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(
       `${environment.apiUrl}/password-recovery/${encodeURIComponent(email)}`,
       {},
+      { params: { language } },
     );
   }
 

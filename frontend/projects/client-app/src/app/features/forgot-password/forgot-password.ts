@@ -40,7 +40,10 @@ export class ForgotPassword {
 
     this.loading.set(true);
 
-    this.authService.requestPasswordRecovery(email).subscribe({
+    this.authService.requestPasswordRecovery(
+      email,
+      this.translationService.activeLanguage(),
+    ).subscribe({
       next: () => {
         this.loading.set(false);
         this.submitted.set(true);

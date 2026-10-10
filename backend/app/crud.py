@@ -129,11 +129,31 @@ def update_user(*, session: Session, db_user: User, user_in: UserUpdate) -> Any:
         password = user_data["password"]
         hashed_password = get_password_hash(password)
         extra_data["hashed_password"] = hashed_password
+        extra_data["temporary_password_state"] = 0
     db_user.sqlmodel_update(user_data, update=extra_data)
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
     return db_user
+
+
+def issue_temporary_password(*, session: Session, user: User, password: str) -> None:
+    user.hashed_password = get_password_hash(password)
+    user.temporary_password_state = 1
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+
+def begin_login_with_temporary_password(*, session: Session, user: User) -> bool:
+    """Return False when a one-time password was already used."""
+    if user.temporary_password_state == 2:
+        return False
+    if user.temporary_password_state == 1:
+        user.temporary_password_state = 2
+        session.add(user)
+        session.commit()
+    return True
 
 
 def get_user_by_email(*, session: Session, email: str) -> User | None:

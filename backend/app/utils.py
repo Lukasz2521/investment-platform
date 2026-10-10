@@ -1,4 +1,6 @@
 import logging
+import secrets
+import string
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -10,6 +12,7 @@ from jinja2 import Template
 from jwt.exceptions import InvalidTokenError
 
 from app.activation_email_copy import activation_email_copy, normalize_activation_language
+from app.password_recovery_email_copy import password_recovery_email_copy
 from app.core import security
 from app.core.config import settings
 
@@ -71,21 +74,48 @@ def generate_test_email(email_to: str) -> EmailData:
     return EmailData(html_content=html_content, subject=subject)
 
 
-def generate_reset_password_email(email_to: str, email: str, token: str) -> EmailData:
-    project_name = settings.PROJECT_NAME
-    subject = f"{project_name} - Password recovery for user {email}"
-    link = f"{settings.FRONTEND_HOST}/reset-password?token={token}"
+def generate_one_time_password() -> str:
+    upper = secrets.choice(string.ascii_uppercase)
+    lower = secrets.choice(string.ascii_lowercase)
+    digit = secrets.choice(string.digits)
+    special = secrets.choice("!@#%+*")
+    pool = string.ascii_letters + string.digits + "!@#%+*"
+    rest = [secrets.choice(pool) for _ in range(8)]
+    chars = [upper, lower, digit, special, *rest]
+    secrets.SystemRandom().shuffle(chars)
+    return "".join(chars)
+
+
+def generate_reset_password_email(
+    email_to: str, email: str, password: str, language: str = "en"
+) -> EmailData:
+    copy = password_recovery_email_copy(language)
     html_content = render_email_template(
         template_name="reset_password.html",
         context={
             "project_name": settings.PROJECT_NAME,
             "username": email,
             "email": email_to,
-            "valid_hours": settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS,
-            "link": link,
+            "password": password,
+            "language": normalize_activation_language(language),
+            **copy,
         },
     )
-    return EmailData(html_content=html_content, subject=subject)
+    return EmailData(html_content=html_content, subject=copy["subject"])
+
+
+def send_password_recovery_email(
+    *, email_to: str, email: str, password: str, language: str = "en"
+) -> None:
+    email_data = generate_reset_password_email(
+        email_to=email_to, email=email, password=password, language=language
+    )
+    send_email(
+        email_to=email_to,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+        inline_images=[(ACTIVATION_LOGO_CONTENT_ID, activation_logo_bytes())],
+    )
 
 
 def generate_new_account_email(

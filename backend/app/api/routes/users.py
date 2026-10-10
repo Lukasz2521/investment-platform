@@ -138,6 +138,7 @@ def update_password_me(
         )
     hashed_password = get_password_hash(body.new_password)
     current_user.hashed_password = hashed_password
+    current_user.temporary_password_state = 0
     session.add(current_user)
     session.commit()
     return Message(message="Password updated successfully")
@@ -367,6 +368,8 @@ def login_user(session: SessionDep, user_in: UserLogin) -> Any:
             status_code=403,
             detail="Account is not active. Please check your email and click the activation link.",
         )
+    if not crud.begin_login_with_temporary_password(session=session, user=user):
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(

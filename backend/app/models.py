@@ -100,6 +100,10 @@ class User(UserBase, table=True):
     address_line_one: str = Field(default="", max_length=255)
     address_line_two: str = Field(default="", max_length=255)
     timezone: str = Field(default="", max_length=255)
+    temporary_password_state: int = Field(
+        default=0,
+        sa_column=Column(Integer, nullable=False, server_default="0"),
+    )
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
     transactions: list["Transaction"] = Relationship(
         back_populates="user", cascade_delete=True

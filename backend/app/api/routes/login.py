@@ -10,10 +10,11 @@ from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
 from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
+from app.activation_email_copy import normalize_activation_language
 from app.utils import (
-    generate_password_reset_token,
+    generate_one_time_password,
     generate_reset_password_email,
-    send_email,
+    send_password_recovery_email,
     verify_password_reset_token,
 )
 
@@ -34,6 +35,8 @@ def login_access_token(
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
+    if not crud.begin_login_with_temporary_password(session=session, user=user):
+        raise HTTPException(status_code=400, detail="Incorrect email or password")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
         access_token=security.create_access_token(
@@ -51,26 +54,25 @@ def test_token(current_user: CurrentUser) -> Any:
 
 
 @router.post("/password-recovery/{email}")
-def recover_password(email: str, session: SessionDep) -> Message:
+def recover_password(email: str, session: SessionDep, language: str = "en") -> Message:
     """
-    Password Recovery
+    Password Recovery. Sends a one-time password in the selected language.
     """
     user = crud.get_user_by_email(session=session, email=email)
 
     # Always return the same response to prevent email enumeration attacks
     # Only send email if user actually exists
-    if user:
-        password_reset_token = generate_password_reset_token(email=email)
-        email_data = generate_reset_password_email(
-            email_to=user.email, email=email, token=password_reset_token
-        )
-        send_email(
+    if user and settings.emails_enabled:
+        password = generate_one_time_password()
+        crud.issue_temporary_password(session=session, user=user, password=password)
+        send_password_recovery_email(
             email_to=user.email,
-            subject=email_data.subject,
-            html_content=email_data.html_content,
+            email=email,
+            password=password,
+            language=normalize_activation_language(language),
         )
     return Message(
-        message="If that email is registered, we sent a password recovery link"
+        message="If that email is registered, we sent a one-time password"
     )
 
 
@@ -113,9 +115,10 @@ def recover_password_html_content(email: str, session: SessionDep) -> Any:
             status_code=404,
             detail="The user with this username does not exist in the system.",
         )
-    password_reset_token = generate_password_reset_token(email=email)
+    password = generate_one_time_password()
+    crud.issue_temporary_password(session=session, user=user, password=password)
     email_data = generate_reset_password_email(
-        email_to=user.email, email=email, token=password_reset_token
+        email_to=user.email, email=email, password=password
     )
 
     return HTMLResponse(

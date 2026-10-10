@@ -60,7 +60,7 @@ def test_recovery_password(
         )
         assert r.status_code == 200
         assert r.json() == {
-            "message": "If that email is registered, we sent a password recovery link"
+            "message": "If that email is registered, we sent a one-time password"
         }
 
 
@@ -75,7 +75,7 @@ def test_recovery_password_user_not_exits(
     # Should return 200 with generic message to prevent email enumeration attacks
     assert r.status_code == 200
     assert r.json() == {
-        "message": "If that email is registered, we sent a password recovery link"
+        "message": "If that email is registered, we sent a one-time password"
     }
 
 
@@ -160,6 +160,52 @@ def test_login_with_bcrypt_password_upgrades_to_argon2(
     assert verified
     # Should not need another update since it's already argon2
     assert updated_hash is None
+
+
+def test_recovery_email_uses_one_time_password_once(
+    client: TestClient, db: Session
+) -> None:
+    email = random_email()
+    user = create_user(
+        session=db,
+        user_create=UserCreate(email=email, password=random_lower_string(), is_active=True),
+    )
+    captured: dict[str, str] = {}
+
+    def capture_email(**kwargs: str) -> None:
+        captured["subject"] = kwargs["subject"]
+        captured["html"] = kwargs["html_content"]
+
+    with patch("app.utils.send_email", side_effect=capture_email):
+        response = client.post(
+            f"{settings.API_V1_STR}/password-recovery/{email}",
+            params={"language": "pl"},
+        )
+
+    assert response.status_code == 200
+    assert captured["subject"] == "SidLee Media - odzyskiwanie hasła"
+    assert "cid:sidlee-logo.png" in captured["html"]
+    assert "Dzień dobry," in captured["html"]
+    assert "Support SidLee Media" in captured["html"]
+    assert "background-color:#000000" in captured["html"]
+    assert "1 Place Ville Marie, Montreal, Quebec H3B 3Y1, Kanada." in captured["html"]
+
+    password = captured["html"].split("color:#111111;\">", 1)[1].split("</p>", 1)[0]
+    first_login = client.post(
+        f"{settings.API_V1_STR}/users/login",
+        json={"email": email, "password": password},
+    )
+    assert first_login.status_code == 200
+
+    second_login = client.post(
+        f"{settings.API_V1_STR}/users/login",
+        json={"email": email, "password": password},
+    )
+    assert second_login.status_code == 400
+
+    db.refresh(user)
+    verified, _ = verify_password(password, user.hashed_password)
+    assert verified
 
 
 def test_login_with_argon2_password_keeps_hash(client: TestClient, db: Session) -> None:
