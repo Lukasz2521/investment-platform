@@ -227,6 +227,68 @@ def test_user_can_start_and_list_campaigns(
         db.commit()
 
 
+def test_creator_can_start_from_200_when_crm_budget_is_higher(
+    client: TestClient,
+    superuser_token_headers: dict[str, str],
+    normal_user_token_headers: dict[str, str],
+    db: Session,
+) -> None:
+    category = crud.create_category(
+        session=db,
+        category_in=CategoryCreate(name=f"creator-budget-{uuid4().hex[:8]}"),
+    )
+    payload = _campaign_payload(str(category.id), title="Creator budget source")
+    payload["budget"] = 500
+    create_response = client.post(
+        f"{settings.API_V1_STR}/campaigns/",
+        headers=superuser_token_headers,
+        json=payload,
+    )
+    assert create_response.status_code == 200
+    campaign_id = create_response.json()["id"]
+    _set_user_available_balance(db, settings.EMAIL_TEST_USER, Decimal("1000"))
+    _prepare_user_for_campaigns(db, settings.EMAIL_TEST_USER)
+
+    today = datetime.now(timezone.utc).date()
+    start_payload = {
+        "campaign_id": campaign_id,
+        "start_date": today.isoformat(),
+        "end_date": (today + timedelta(days=30)).isoformat(),
+        "budget": 200,
+    }
+
+    try:
+        market_response = client.post(
+            f"{settings.API_V1_STR}/user-campaigns/",
+            headers=normal_user_token_headers,
+            json=start_payload,
+        )
+        assert market_response.status_code == 400
+        assert market_response.json()["detail"] == "Budget is below the campaign minimum"
+
+        low_creator_response = client.post(
+            f"{settings.API_V1_STR}/user-campaigns/",
+            headers=normal_user_token_headers,
+            json={**start_payload, "budget": 199, "creator": True},
+        )
+        assert low_creator_response.status_code == 400
+        assert low_creator_response.json()["detail"] == "Budget must be at least 200 EUR"
+
+        creator_response = client.post(
+            f"{settings.API_V1_STR}/user-campaigns/",
+            headers=normal_user_token_headers,
+            json={**start_payload, "creator": True},
+        )
+        assert creator_response.status_code == 200
+        assert Decimal(creator_response.json()["budget"]) == Decimal("200")
+    finally:
+        _purge_campaign(db, campaign_id)
+        db_category = db.get(Category, category.id)
+        if db_category is not None:
+            db.delete(db_category)
+            db.commit()
+
+
 def test_user_cannot_start_campaign_without_sufficient_funds(
     client: TestClient,
     superuser_token_headers: dict[str, str],

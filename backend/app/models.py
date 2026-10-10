@@ -34,12 +34,12 @@ class UserCreate(UserBase):
 
 
 class UserRegister(SQLModel):
-    username: str = Field(max_length=255)
-    name: str = Field(max_length=255)
-    last_name: str = Field(max_length=255)
+    username: str = Field(min_length=1, max_length=255)
+    name: str = Field(min_length=1, max_length=255)
+    last_name: str = Field(min_length=1, max_length=255)
     email: EmailStr = Field(max_length=255)
-    phone: str = Field(max_length=255)
-    country: str = Field(max_length=255)
+    phone: str = Field(min_length=1, max_length=255)
+    country: str = Field(default="", max_length=255)
     city: str = Field(default="", max_length=255)
     address_line_one: str = Field(default="", max_length=255)
     address_line_two: str = Field(default="", max_length=255)
@@ -714,6 +714,7 @@ class UserCampaignCreate(SQLModel):
     start_date: date
     end_date: date
     budget: Decimal = Field(gt=0)
+    creator: bool = False
 
 
 class UserCampaignRiskUpdate(SQLModel):

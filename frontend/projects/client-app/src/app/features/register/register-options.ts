@@ -88,7 +88,7 @@ export function toUserRegisterPayload(form: RegisterForm): UserRegisterPayload {
     last_name: form.lastName.trim(),
     email: form.email.trim(),
     phone: form.phone.trim(),
-    country: form.country.trim(),
+    country: form.country.trim() || undefined,
     city: form.town.trim() || undefined,
     address_line_one: form.addressLine1.trim() || undefined,
     address_line_two: form.addressLine2.trim() || undefined,
@@ -104,7 +104,6 @@ export function getRegisterValidationError(form: RegisterForm): RegisterValidati
     form.firstName,
     form.lastName,
     form.phone,
-    form.country,
     form.password,
     form.confirmPassword,
   ];

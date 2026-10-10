@@ -39,4 +39,5 @@ export type UserCampaignCreate = {
   start_date: string;
   end_date: string;
   budget: number;
+  creator?: boolean;
 };

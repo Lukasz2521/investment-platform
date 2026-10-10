@@ -25,7 +25,6 @@ import { CampaignCreatorSummary } from './campaign-creator-summary/campaign-crea
 import {
   addDaysToDateInput,
   CAMPAIGN_GUIDELINES_MAX_DAYS,
-  CAMPAIGN_GUIDELINES_MIN_BUDGET,
   CAMPAIGN_GUIDELINES_MIN_DAYS,
   CampaignGuidelinesForm,
   campaignGuidelinesDurationDays,
@@ -87,11 +86,6 @@ export class CampaignCreator implements OnDestroy {
     );
   });
 
-  protected readonly minimumCampaignBudget = computed(() => {
-    const campaign = this.selectedCampaign();
-    return Math.max(CAMPAIGN_GUIDELINES_MIN_BUDGET, campaign?.minBudget ?? CAMPAIGN_GUIDELINES_MIN_BUDGET);
-  });
-
   protected readonly canGoBack = computed(() => this.currentStep() > FIRST_STEP);
 
   protected readonly isLastStep = computed(() => this.currentStep() === LAST_STEP);
@@ -106,7 +100,6 @@ export class CampaignCreator implements OnDestroy {
     if (step === 2) {
       return isCampaignGuidelinesValid(this.guidelines(), {
         minDays: this.minimumCampaignDays(),
-        minBudget: this.minimumCampaignBudget(),
       });
     }
 
@@ -214,6 +207,7 @@ export class CampaignCreator implements OnDestroy {
         start_date: startDate,
         end_date: endDate,
         budget,
+        creator: true,
       })
       .subscribe({
         next: () => {

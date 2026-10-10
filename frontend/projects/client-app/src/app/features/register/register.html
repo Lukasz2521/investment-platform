@@ -112,18 +112,16 @@
       <div class="register-field">
         <label class="register-label" for="register-country">
           {{ 'marketing.register.country' | translate }}
-          <span class="register-required" aria-hidden="true">*</span>
         </label>
         <select
           id="register-country"
           class="register-input register-select"
           name="country"
           autocomplete="country-name"
-          required
           [value]="form().country"
           (change)="updateField('country', $event)"
         >
-          <option value="" disabled selected hidden>{{ 'marketing.register.selectCountry' | translate }}</option>
+          <option value="">{{ 'marketing.register.selectCountry' | translate }}</option>
           @for (country of countries; track country) {
             <option [value]="country">{{ country }}</option>
           }

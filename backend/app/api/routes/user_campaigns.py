@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import select
@@ -21,6 +22,7 @@ from app.models import (
 router = APIRouter(prefix="/user-campaigns", tags=["user-campaigns"])
 
 INSUFFICIENT_FUNDS_DETAIL = "Insufficient funds"
+CREATOR_MIN_BUDGET = Decimal("200")
 
 
 @router.post("/", response_model=UserCampaignPublic)
@@ -50,7 +52,12 @@ def start_user_campaign(
             status_code=400,
             detail=f"Campaign duration must be at least {campaign.min_days} days",
         )
-    if campaign_in.budget < campaign.budget:
+    if campaign_in.creator:
+        if campaign_in.budget < CREATOR_MIN_BUDGET:
+            raise HTTPException(
+                status_code=400, detail="Budget must be at least 200 EUR"
+            )
+    elif campaign_in.budget < campaign.budget:
         raise HTTPException(
             status_code=400, detail="Budget is below the campaign minimum"
         )
