@@ -52,9 +52,8 @@ from app.models import (
     UserUpdateMe,
 )
 from app.utils import (
-    generate_activation_email,
     generate_activation_token,
-    send_email,
+    send_activation_email,
     verify_activation_token,
 )
 
@@ -321,16 +320,11 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     user = crud.create_user(session=session, user_create=user_in)
 
     if settings.emails_enabled:
-        token = generate_activation_token(user_in.email)
-        email_data = generate_activation_email(
+        send_activation_email(
             email_to=user_in.email,
             username=user_in.username,
-            token=token,
-        )
-        send_email(
-            email_to=user_in.email,
-            subject=email_data.subject,
-            html_content=email_data.html_content,
+            token=generate_activation_token(user_in.email),
+            language=user_in.language,
         )
 
     return user

@@ -12,6 +12,7 @@ export type UserRegisterPayload = {
   address_line_two?: string;
   timezone?: string;
   password: string;
+  language?: string;
 };
 
 export type { UserPublic };

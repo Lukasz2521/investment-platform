@@ -1,0 +1,25 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <a class="auth-logo" routerLink="/" [attr.aria-label]="'marketing.brand' | translate">
+      <img src="/images/logo.svg" alt="" width="332" height="145" />
+    </a>
+
+    <header class="auth-card-header">
+      <h1 class="auth-title">{{ 'marketing.activate.title' | translate }}</h1>
+    </header>
+
+    @if (loading()) {
+      <p class="auth-subtitle">{{ 'marketing.activate.pending' | translate }}</p>
+    } @else if (success()) {
+      <p class="auth-message auth-message--success" role="status">{{ message() }}</p>
+      <a class="auth-submit auth-submit--link" [routerLink]="['/', routes.login]">
+        {{ 'marketing.activate.login' | translate }}
+      </a>
+    } @else {
+      <p class="auth-message auth-message--error" role="alert">{{ message() }}</p>
+      <a class="auth-submit auth-submit--link" [routerLink]="['/', routes.login]">
+        {{ 'marketing.activate.login' | translate }}
+      </a>
+    }
+  </div>
+</div>

@@ -8,6 +8,7 @@ export const APP_ROUTE_PATHS = {
   register: 'register',
   forgotPassword: 'forgot-password',
   resetPassword: 'reset-password',
+  activate: 'activate',
   dashboard: 'dashboard',
   profile: 'profil',
   deposit: 'depozyt',

@@ -23,6 +23,10 @@ export const routes: Routes = [
       import('./features/reset-password/reset-password').then((m) => m.ResetPassword),
   },
   {
+    path: APP_ROUTE_PATHS.activate,
+    loadComponent: () => import('./features/activate/activate').then((m) => m.Activate),
+  },
+  {
     path: APP_ROUTE_PATHS.dashboard,
     canActivate: [authGuard],
     loadComponent: () => import('./layout/app-shell/app-shell').then((m) => m.AppShell),

@@ -75,7 +75,10 @@ export class Register {
 
     this.loading.set(true);
 
-    this.authService.register(toUserRegisterPayload(form)).subscribe({
+    this.authService.register({
+      ...toUserRegisterPayload(form),
+      language: this.translationService.activeLanguage(),
+    }).subscribe({
       next: () => {
         this.loading.set(false);
         void this.router.navigate(['/', this.routes.login], {

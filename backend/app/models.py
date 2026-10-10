@@ -11,6 +11,8 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
 from typing_extensions import Self
 
+from app.activation_email_copy import normalize_activation_language
+
 
 def get_datetime_utc() -> datetime:
     return datetime.now(timezone.utc)
@@ -45,6 +47,12 @@ class UserRegister(SQLModel):
     address_line_two: str = Field(default="", max_length=255)
     timezone: str = Field(default="", max_length=255)
     password: str = Field(min_length=8, max_length=128)
+    language: str = Field(default="en", max_length=8)
+
+    @field_validator("language", mode="before")
+    @classmethod
+    def normalize_language(cls, value: object) -> str:
+        return normalize_activation_language(value)
 
 
 # Properties to receive via API on update, all are optional

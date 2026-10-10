@@ -60,6 +60,12 @@ export class AuthService {
     });
   }
 
+  activateAccount(token: string): Observable<{ message: string }> {
+    return this.http.get<{ message: string }>(`${environment.apiUrl}/users/activate`, {
+      params: { token },
+    });
+  }
+
   getToken(): string | null {
     if (typeof localStorage === 'undefined') {
       return null;

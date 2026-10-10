@@ -1,0 +1,111 @@
+ACTIVATION_EMAIL_LANGUAGES = ("en", "pl", "fr", "ru", "pt", "de")
+
+ACTIVATION_EMAIL_COPY: dict[str, dict[str, str]] = {
+    "pl": {
+        "subject": "SidLee Media - Aktywacja konta",
+        "title": "Aktywacja konta",
+        "greeting": "Dzień dobry,",
+        "thanks": "dziękujemy za rejestrację na Naszej platformie SidLee Media.",
+        "created": "Twoje konto zostało utworzone. Aby potwierdzić adres e-mail i aktywować konto, kliknij poniższy przycisk:",
+        "button": "POTWIERDŹ I AKTYWUJ KONTO",
+        "after": "Po kliknięciu zostaniesz przekierowany na stronę, na której otrzymasz potwierdzenie pomyślnej aktywacji konta. Od tego momentu możesz zalogować się do systemu przy użyciu danych podanych podczas rejestracji.",
+        "ignore": "Jeżeli nie rejestrowałeś się u nas wcześniej, zignoruj tę wiadomość.",
+        "closing": "Pozdrawiamy,",
+        "team": "Zespół SidLee Media",
+        "address_label": "Adres",
+        "country": "Kanada",
+        "phone_label": "Numer telefonu",
+        "mail_label": "Mail",
+    },
+    "en": {
+        "subject": "SidLee Media - Activate your account",
+        "title": "Account activation",
+        "greeting": "Hello,",
+        "thanks": "thank you for registering on our SidLee Media platform.",
+        "created": "Your account has been created. To confirm your email address and activate your account, click the button below:",
+        "button": "CONFIRM AND ACTIVATE ACCOUNT",
+        "after": "After you click, you will be taken to a page confirming that your account was activated. From then on you can sign in with the details you used during registration.",
+        "ignore": "If you did not register with us, please ignore this message.",
+        "closing": "Best regards,",
+        "team": "The SidLee Media Team",
+        "address_label": "Address",
+        "country": "Canada",
+        "phone_label": "Phone",
+        "mail_label": "Email",
+    },
+    "de": {
+        "subject": "SidLee Media - Konto aktivieren",
+        "title": "Kontoaktivierung",
+        "greeting": "Guten Tag,",
+        "thanks": "vielen Dank für Ihre Registrierung auf unserer Plattform SidLee Media.",
+        "created": "Ihr Konto wurde erstellt. Um Ihre E-Mail-Adresse zu bestätigen und das Konto zu aktivieren, klicken Sie auf die Schaltfläche unten:",
+        "button": "BESTÄTIGEN UND KONTO AKTIVIEREN",
+        "after": "Nach dem Klick werden Sie auf eine Seite weitergeleitet, auf der Sie die erfolgreiche Aktivierung Ihres Kontos bestätigt bekommen. Ab diesem Moment können Sie sich mit den bei der Registrierung angegebenen Daten anmelden.",
+        "ignore": "Wenn Sie sich nicht bei uns registriert haben, ignorieren Sie diese Nachricht.",
+        "closing": "Mit freundlichen Grüßen,",
+        "team": "Das SidLee Media Team",
+        "address_label": "Adresse",
+        "country": "Kanada",
+        "phone_label": "Telefon",
+        "mail_label": "E-Mail",
+    },
+    "fr": {
+        "subject": "SidLee Media - Activez votre compte",
+        "title": "Activation du compte",
+        "greeting": "Bonjour,",
+        "thanks": "merci de vous être inscrit sur notre plateforme SidLee Media.",
+        "created": "Votre compte a été créé. Pour confirmer votre adresse e-mail et activer votre compte, cliquez sur le bouton ci-dessous :",
+        "button": "CONFIRMER ET ACTIVER LE COMPTE",
+        "after": "Après avoir cliqué, vous serez redirigé vers une page confirmant l'activation de votre compte. Vous pourrez alors vous connecter avec les informations indiquées lors de l'inscription.",
+        "ignore": "Si vous ne vous êtes pas inscrit chez nous, ignorez ce message.",
+        "closing": "Cordialement,",
+        "team": "L'équipe SidLee Media",
+        "address_label": "Adresse",
+        "country": "Canada",
+        "phone_label": "Téléphone",
+        "mail_label": "E-mail",
+    },
+    "ru": {
+        "subject": "SidLee Media — Активация аккаунта",
+        "title": "Активация аккаунта",
+        "greeting": "Здравствуйте,",
+        "thanks": "благодарим за регистрацию на нашей платформе SidLee Media.",
+        "created": "Ваш аккаунт создан. Чтобы подтвердить адрес электронной почты и активировать аккаунт, нажмите кнопку ниже:",
+        "button": "ПОДТВЕРДИТЬ И АКТИВИРОВАТЬ АККАУНТ",
+        "after": "После нажатия вы перейдёте на страницу с подтверждением успешной активации аккаунта. После этого можно войти в систему с данными, указанными при регистрации.",
+        "ignore": "Если вы не регистрировались у нас, проигнорируйте это письмо.",
+        "closing": "С уважением,",
+        "team": "Команда SidLee Media",
+        "address_label": "Адрес",
+        "country": "Канада",
+        "phone_label": "Телефон",
+        "mail_label": "Почта",
+    },
+    "pt": {
+        "subject": "SidLee Media - Ative a sua conta",
+        "title": "Ativação da conta",
+        "greeting": "Olá,",
+        "thanks": "obrigado por se registar na nossa plataforma SidLee Media.",
+        "created": "A sua conta foi criada. Para confirmar o endereço de e-mail e ativar a conta, clique no botão abaixo:",
+        "button": "CONFIRMAR E ATIVAR A CONTA",
+        "after": "Depois de clicar, será encaminhado para uma página com a confirmação da ativação da conta. A partir desse momento pode iniciar sessão com os dados indicados no registo.",
+        "ignore": "Se não se registou connosco, ignore esta mensagem.",
+        "closing": "Cumprimentos,",
+        "team": "Equipa SidLee Media",
+        "address_label": "Endereço",
+        "country": "Canadá",
+        "phone_label": "Telefone",
+        "mail_label": "E-mail",
+    },
+}
+
+
+def normalize_activation_language(value: object) -> str:
+    code = str(value or "").strip().lower().replace("_", "-").split("-", 1)[0]
+    if code in ACTIVATION_EMAIL_LANGUAGES:
+        return code
+    return "en"
+
+
+def activation_email_copy(language: object) -> dict[str, str]:
+    return ACTIVATION_EMAIL_COPY[normalize_activation_language(language)]

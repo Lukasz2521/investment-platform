@@ -9,6 +9,7 @@ import jwt
 from jinja2 import Template
 from jwt.exceptions import InvalidTokenError
 
+from app.activation_email_copy import activation_email_copy, normalize_activation_language
 from app.core import security
 from app.core.config import settings
 
@@ -35,6 +36,7 @@ def send_email(
     email_to: str,
     subject: str = "",
     html_content: str = "",
+    inline_images: list[tuple[str, bytes]] | None = None,
 ) -> None:
     assert settings.emails_enabled, "no provided configuration for email variables"
     message = emails.Message(
@@ -42,6 +44,14 @@ def send_email(
         html=html_content,
         mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
     )
+    for content_id, data in inline_images or []:
+        message.attach(
+            filename=content_id,
+            data=data,
+            mime_type="image/png",
+            content_disposition="inline",
+            content_id=content_id,
+        )
     smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
     if settings.SMTP_USER:
         smtp_options["user"] = settings.SMTP_USER
@@ -96,9 +106,19 @@ def generate_new_account_email(
     return EmailData(html_content=html_content, subject=subject)
 
 
-def generate_activation_email(email_to: str, username: str, token: str) -> EmailData:
-    project_name = settings.PROJECT_NAME
-    subject = f"{project_name} - Activate your account"
+ACTIVATION_LOGO_CONTENT_ID = "sidlee-logo.png"
+
+
+def activation_logo_bytes() -> bytes:
+    return (
+        Path(__file__).parent / "email-templates" / "assets" / ACTIVATION_LOGO_CONTENT_ID
+    ).read_bytes()
+
+
+def generate_activation_email(
+    email_to: str, username: str, token: str, language: str = "en"
+) -> EmailData:
+    copy = activation_email_copy(language)
     link = f"{settings.FRONTEND_HOST}/activate?token={token}"
     html_content = render_email_template(
         template_name="activation_email.html",
@@ -108,9 +128,25 @@ def generate_activation_email(email_to: str, username: str, token: str) -> Email
             "email": email_to,
             "link": link,
             "valid_hours": 72,
+            "language": normalize_activation_language(language),
+            **copy,
         },
     )
-    return EmailData(html_content=html_content, subject=subject)
+    return EmailData(html_content=html_content, subject=copy["subject"])
+
+
+def send_activation_email(
+    *, email_to: str, username: str, token: str, language: str = "en"
+) -> None:
+    email_data = generate_activation_email(
+        email_to=email_to, username=username, token=token, language=language
+    )
+    send_email(
+        email_to=email_to,
+        subject=email_data.subject,
+        html_content=email_data.html_content,
+        inline_images=[(ACTIVATION_LOGO_CONTENT_ID, activation_logo_bytes())],
+    )
 
 
 def generate_activation_token(email: str) -> str:
